@@ -35,7 +35,7 @@ const posts = (await getCollection('portfolio')).sort(
 									<Image width={800} height={450} src={post.data.heroImage} alt="" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-100" />
 								)}
 								<div class="absolute inset-0 bg-accent/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-									<span class="bg-accent text-slate-950 px-6 py-2 rounded-sm font-bold font-space-grotesk text-[10px] tracking-widest uppercase shadow-xl">VIEW_CASE_STUDY</span>
+									<span class="bg-accent text-slate-950 px-6 py-2 rounded-sm font-bold font-space-grotesk text-[10px] tracking-widest uppercase shadow-xl">VIEW_PROJECT</span>
 								</div>
 								<div class="absolute bottom-4 left-4 font-space-grotesk text-[8px] text-slate-500 uppercase tracking-widest">
 									[PROJECT_ID: {post.id.substring(0, 8).toUpperCase()}]
