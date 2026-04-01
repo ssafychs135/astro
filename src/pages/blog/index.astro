@@ -10,104 +10,81 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+
+const featuredPost = posts[0];
+const remainingPosts = posts.slice(1);
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-		<style>
-			main {
-				width: 960px;
-			}
-			ul {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 2rem;
-				list-style-type: none;
-				margin: 0;
-				padding: 0;
-			}
-			ul li {
-				width: calc(50% - 1rem);
-			}
-			ul li * {
-				text-decoration: none;
-				transition: 0.2s ease;
-			}
-			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
-			}
-			ul li:first-child img {
-				width: 100%;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
-			ul li a {
-				display: block;
-			}
-			.title {
-				margin: 0;
-				color: rgb(var(--black));
-				line-height: 1;
-			}
-			.date {
-				margin: 0;
-				color: rgb(var(--gray));
-			}
-			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
-			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
-			}
-			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
-				}
-				ul li {
-					width: 100%;
-					text-align: center;
-				}
-				ul li:first-child {
-					margin-bottom: 0;
-				}
-				ul li:first-child .title {
-					font-size: 1.563em;
-				}
-			}
-		</style>
+		<BaseHead title={`Tech Research | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
 	</head>
-	<body>
+	<body class="bg-white text-slate-900 font-inter">
 		<Header />
-		<main>
-			<section>
-				<ul>
-					{
-						posts.map((post) => (
-							<li>
-								<a href={`/blog/${post.id}/`}>
-									{post.data.heroImage && (
-										<Image width={720} height={360} src={post.data.heroImage} alt="" />
+		<main class="max-w-7xl mx-auto px-6 py-12 md:py-24">
+			<h1 class="text-6xl md:text-8xl font-plus-jakarta font-extrabold tracking-tighter mb-16 md:mb-24 border-b border-slate-100 pb-12">
+				Tech Research
+			</h1>
+
+			<div class="grid grid-cols-12 gap-12 lg:gap-20">
+				<!-- Featured Article -->
+				{featuredPost && (
+					<article class="col-span-12 lg:col-span-8 group cursor-pointer">
+						<a href={`/blog/${featuredPost.id}/`}>
+							<div class="relative overflow-hidden rounded-[40px] mb-10 border border-slate-50 shadow-sm">
+								<div class="aspect-[16/10] bg-slate-100 group-hover:scale-105 transition-transform duration-1000">
+									{featuredPost.data.heroImage && (
+										<Image width={1200} height={750} src={featuredPost.data.heroImage} alt="" class="w-full h-full object-cover" />
 									)}
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
+								</div>
+								<div class="absolute top-8 left-8">
+									<span class="px-5 py-2 bg-accent text-white font-space-grotesk text-[10px] font-bold tracking-[0.2em] uppercase rounded-full shadow-lg shadow-blue-500/20">
+										Featured Report
+									</span>
+								</div>
+							</div>
+							<div class="px-2">
+								<div class="font-space-grotesk text-xs font-bold text-slate-400 mb-4 tracking-[0.2em] uppercase">
+									<FormattedDate date={featuredPost.data.pubDate} />
+								</div>
+								<h2 class="text-4xl md:text-5xl font-plus-jakarta font-extrabold mb-8 leading-[1.1] tracking-tight group-hover:text-accent transition-colors duration-500">
+									{featuredPost.data.title}
+								</h2>
+								<div class="bg-slate-50 p-8 rounded-[32px] border border-slate-100 transition-all duration-500 group-hover:bg-blue-50/30 group-hover:border-blue-100">
+									<span class="font-space-grotesk text-[10px] font-bold text-slate-400 block mb-3 tracking-widest uppercase">Key Takeaway</span>
+									<p class="text-slate-600 text-lg md:text-xl leading-relaxed font-light">
+										{featuredPost.data.description}
 									</p>
-								</a>
-							</li>
-						))
-					}
-				</ul>
-			</section>
+								</div>
+							</div>
+						</a>
+					</article>
+				)}
+
+				<!-- Remaining Articles List -->
+				<div class="col-span-12 lg:col-span-4 flex flex-col gap-16">
+					{remainingPosts.map((post) => (
+						<article class="group cursor-pointer">
+							<a href={`/blog/${post.id}/`}>
+								<div class="font-space-grotesk text-[10px] font-bold text-accent-secondary tracking-[0.2em] uppercase mb-4 block">
+									Research Note
+								</div>
+								<h3 class="text-2xl font-plus-jakarta font-extrabold mb-4 leading-snug tracking-tight group-hover:text-accent-secondary transition-colors duration-500">
+									{post.data.title}
+								</h3>
+								<p class="text-slate-500 font-light leading-relaxed mb-6 line-clamp-3">
+									{post.data.description}
+								</p>
+								<div class="font-space-grotesk text-[10px] font-bold text-slate-300 tracking-widest uppercase">
+									<FormattedDate date={post.data.pubDate} />
+								</div>
+								<div class="mt-8 h-px bg-slate-100 w-full group-last:hidden"></div>
+							</a>
+						</article>
+					))}
+				</div>
+			</div>
 		</main>
 		<Footer />
 	</body>
