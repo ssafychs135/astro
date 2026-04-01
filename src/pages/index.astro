@@ -10,39 +10,80 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 	</head>
-	<body>
+	<body class="bg-white text-slate-900 font-inter">
 		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
+		<main class="max-w-6xl mx-auto px-6 py-12 md:py-24">
+			<!-- Hero Section -->
+			<section class="mb-24">
+				<h1 class="text-6xl md:text-8xl font-plus-jakarta font-extrabold tracking-tight leading-none mb-8">
+					Growth-driven <br />
+					<span class="text-accent">Developer</span> SEO
+				</h1>
+				<div class="flex flex-col md:flex-row gap-12 items-start">
+					<div class="md:w-1/2">
+						<p class="text-xl md:text-2xl text-slate-600 leading-relaxed">
+							이 디지털 정원은 지식이 뿌리를 내리고, 줄기를 뻗으며, 열매를 맺는 과정을 기록합니다.
+							단순한 기술 전시를 넘어, 끊임없는 학습과 탐구의 여정을 공유합니다.
+						</p>
+					</div>
+					<div class="md:w-1/2 relative w-full">
+						<!-- Digital Garden Motif (Abstract SVG) -->
+						<div class="w-full h-64 md:h-80 bg-gray-extra-light rounded-[32px] border border-slate-100 flex items-center justify-center overflow-hidden">
+							<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-accent opacity-20">
+								<circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="2" />
+								<path d="M100 20V180M20 100H180" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" />
+								<circle cx="100" cy="100" r="40" fill="currentColor" class="animate-pulse" />
+								<rect x="70" y="70" width="60" height="60" rx="30" stroke="var(--accent-secondary)" stroke-width="2" />
+							</svg>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Section Navigation Cards -->
+			<section class="grid grid-cols-1 md:grid-cols-3 gap-8">
+				<!-- Tech Research -->
+				<a href="/blog" class="group block bg-white border border-slate-100 p-8 rounded-[32px] hover:border-accent transition-all duration-300">
+					<div class="mb-12 flex justify-between items-start">
+						<span class="font-space-grotesk text-sm text-slate-400 uppercase tracking-widest">01</span>
+						<div class="text-slate-300 group-hover:text-accent group-hover:translate-x-1 transition-all duration-300">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+							</svg>
+						</div>
+					</div>
+					<h3 class="text-3xl font-plus-jakarta font-extrabold mb-4 tracking-tight">Tech Research</h3>
+					<p class="text-slate-500 text-lg leading-relaxed">기술에 대한 깊이 있는 조사와 인사이트를 기록하는 잡지 스타일 로그</p>
+				</a>
+
+				<!-- Growth Log -->
+				<a href="/study" class="group block bg-white border border-slate-100 p-8 rounded-[32px] hover:border-accent-success transition-all duration-300">
+					<div class="mb-12 flex justify-between items-start">
+						<span class="font-space-grotesk text-sm text-slate-400 uppercase tracking-widest">02</span>
+						<div class="text-slate-300 group-hover:text-accent-success group-hover:translate-x-1 transition-all duration-300">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+							</svg>
+						</div>
+					</div>
+					<h3 class="text-3xl font-plus-jakarta font-extrabold mb-4 tracking-tight">Growth Log</h3>
+					<p class="text-slate-500 text-lg leading-relaxed">매일의 배움과 성장을 시계열로 기록하는 타임라인 형식의 학습 정원</p>
+				</a>
+
+				<!-- Portfolio -->
+				<a href="/portfolio" class="group block bg-white border border-slate-100 p-8 rounded-[32px] hover:border-accent-secondary transition-all duration-300">
+					<div class="mb-12 flex justify-between items-start">
+						<span class="font-space-grotesk text-sm text-slate-400 uppercase tracking-widest">03</span>
+						<div class="text-slate-300 group-hover:text-accent-secondary group-hover:translate-x-1 transition-all duration-300">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+							</svg>
+						</div>
+					</div>
+					<h3 class="text-3xl font-plus-jakarta font-extrabold mb-4 tracking-tight">Portfolio</h3>
+					<p class="text-slate-500 text-lg leading-relaxed">성장의 결과물들이 모여 열매를 맺은 프로젝트 쇼케이스</p>
+				</a>
+			</section>
 		</main>
 		<Footer />
 	</body>
