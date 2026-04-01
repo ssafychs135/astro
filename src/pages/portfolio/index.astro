@@ -16,98 +16,53 @@ const posts = (await getCollection('portfolio')).sort(
 <html lang="en">
 	<head>
 		<BaseHead title={`Portfolio | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
-		<style>
-			main {
-				width: 960px;
-			}
-			ul {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 2rem;
-				list-style-type: none;
-				margin: 0;
-				padding: 0;
-			}
-			ul li {
-				width: calc(50% - 1rem);
-			}
-			ul li * {
-				text-decoration: none;
-				transition: 0.2s ease;
-			}
-			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
-			}
-			ul li:first-child img {
-				width: 100%;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
-			ul li a {
-				display: block;
-			}
-			.title {
-				margin: 0;
-				color: rgb(var(--black));
-				line-height: 1;
-			}
-			.date {
-				margin: 0;
-				color: rgb(var(--gray));
-			}
-			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
-			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
-			}
-			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
-				}
-				ul li {
-					width: 100%;
-					text-align: center;
-				}
-				ul li:first-child {
-					margin-bottom: 0;
-				}
-				ul li:first-child .title {
-					font-size: 1.563em;
-				}
-			}
-		</style>
 	</head>
-	<body>
+	<body class="bg-white text-slate-900 font-inter">
 		<Header />
-		<main>
-			<section>
-				<ul>
-					{
-						posts.map((post) => (
-							<li>
-								<a href={`/portfolio/${post.id}/`}>
-									{post.data.heroImage && (
-										<Image width={720} height={360} src={post.data.heroImage} alt="" />
+		<main class="max-w-7xl mx-auto px-6 py-12 md:py-24">
+			<h1 class="text-6xl md:text-8xl font-plus-jakarta font-extrabold tracking-tighter mb-16 md:mb-24 border-b border-slate-100 pb-12">
+				Portfolio
+			</h1>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-16">
+				{posts.map((post) => (
+					<article class="group">
+						<a href={`/portfolio/${post.id}/`} class="block">
+							<div class="relative aspect-video bg-slate-100 rounded-[40px] overflow-hidden mb-8 border border-slate-50 shadow-sm transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-purple-100/50">
+								{post.data.heroImage && (
+									<Image width={800} height={450} src={post.data.heroImage} alt="" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+								)}
+								<div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+									{post.data.demoUrl && (
+										<span class="bg-white text-black px-6 py-2 rounded-full font-bold text-sm shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">Live Demo</span>
 									)}
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-								</a>
-							</li>
-						))
-					}
-				</ul>
-			</section>
+									{post.data.githubUrl && (
+										<span class="bg-slate-900 text-white px-6 py-2 rounded-full font-bold text-sm shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-75">GitHub</span>
+									)}
+								</div>
+							</div>
+							<div class="flex justify-between items-start mb-4">
+								<h2 class="text-3xl font-plus-jakarta font-extrabold tracking-tight group-hover:text-accent-secondary transition-colors duration-500">
+									{post.data.title}
+								</h2>
+								<div class="font-space-grotesk text-xs font-bold text-slate-300 mt-2">
+									{(post.data.pubDate).getFullYear()}
+								</div>
+							</div>
+							<p class="text-slate-500 font-light leading-relaxed mb-8 md:text-lg">
+								{post.data.description}
+							</p>
+							<div class="flex flex-wrap gap-2">
+								{post.data.stack && post.data.stack.map(item => (
+									<span class="px-4 py-1.5 bg-purple-50 text-accent-secondary rounded-full text-[10px] font-bold font-space-grotesk uppercase tracking-wider">
+										{item}
+									</span>
+								))}
+							</div>
+						</a>
+					</article>
+				))}
+			</div>
 		</main>
 		<Footer />
 	</body>
