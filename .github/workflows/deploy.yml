@@ -10,6 +10,11 @@ permissions:
   pages: write
   id-token: write
 
+# 동일한 워크플로우가 동시에 실행되는 것을 방지 (배포 충돌 방지)
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,7 +30,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: github-pages
+      name: github-pages # 이 이름이 Settings > Environments에 자동으로 생겨야 합니다.
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
