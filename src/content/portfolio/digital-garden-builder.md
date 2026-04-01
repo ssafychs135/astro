@@ -1,21 +1,21 @@
 ---
-title: "Digital Garden Builder"
-description: "개발자들이 자신만의 지식 정원을 손쉽게 구축할 수 있도록 돕는 오픈소스 Astro 테마 및 도구 모음입니다."
+title: "SmartFactory AX: 제조 공정 지능형 자동화 솔루션"
+description: "전통적인 제조 공장에 Multi-Agent 기반의 AI 감시 및 제어 시스템을 구축하여 공정 효율을 20% 이상 개선한 프로젝트입니다."
 pubDate: 2026-03-31
-stack: ["Astro", "TypeScript", "Tailwind CSS", "MDX"]
-githubUrl: "https://github.com/example/digital-garden"
-demoUrl: "https://garden-demo.com"
-role: "Lead Developer & Designer"
+stack: ["Python", "LangGraph", "FastAPI", "InfluxDB"]
+githubUrl: "https://github.com/ssafychs135/smart-factory-ax"
+demoUrl: "https://ax-demo.com"
+role: "Lead AX Architect"
 heroImage: "../../assets/blog-placeholder-about.jpg"
 ---
 
-### 📝 프로젝트 소개
-많은 개발자들이 블로그를 시작하지만, 단순한 기록을 넘어 지식의 연결을 시각화하는 데 어려움을 겪습니다. 이 프로젝트는 그 과정을 자동화하고 아름다운 UI를 제공하기 위해 시작되었습니다.
+### 📝 프로젝트 개요
+전통적인 하드웨어 중심의 제조 라인에 지능형 에이전트 레이어를 추가하여, 실시간으로 설비의 이상 징후를 탐지하고 최적의 가동 파라미터를 제안하는 시스템을 구축했습니다.
 
 ### 🚀 주요 성과
-- **타임라인 자동 생성**: 마크다운 파일의 날짜를 기반으로 시각적 성장 궤적 구현
-- **매거진 레이아웃 엔진**: 콘텐츠의 중요도에 따라 비대칭 그리드를 자동으로 구성하는 로직 개발
-- **성능 최적화**: Lighthouse 점수 100점 달성 (SEO, Accessibility, Performance)
+- **Multi-Agent 협업**: 모니터링 에이전트, 분석 에이전트, 보고 에이전트 간의 자율적 협업 체계 구축
+- **실시간 대시보드**: 초당 수만 개의 센서 데이터를 지연 없이 처리하여 가시화
+- **비즈니스 임팩트**: 불량률 15% 감소, 에너지 소비 10% 절감 달성
 
 ### 💻 기술적 도전
-복잡한 CSS Grid를 활용하여 기기별로 최적화된 매거진 레이아웃을 구현하는 과정이 가장 도전적이었습니다. Tailwind CSS의 확장 기능을 적극 활용하여 해결했습니다.
+이종 기기 간의 데이터 표준화와 에이전트 간의 통신 지연 시간을 최소화하는 것이 가장 큰 과제였습니다. 이를 위해 비동기 이벤트 기반 아키텍처와 경량화된 온디바이스 AI 모델을 활용했습니다.
