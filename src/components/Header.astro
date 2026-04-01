@@ -7,16 +7,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 <header>
 	<nav>
-		<h2><a href={`${base}/`}>{SITE_TITLE}</a></h2>
+		<h2 class="logo"><a href={`${base}/`}>{SITE_TITLE}</a></h2>
 		<div class="internal-links">
 			<HeaderLink href={`${base}/`}>Home</HeaderLink>
-			<HeaderLink href={`${base}/blog`}>Tech Research</HeaderLink>
-			<HeaderLink href={`${base}/study`}>Growth Log</HeaderLink>
-			<HeaderLink href={`${base}/portfolio`}>Portfolio</HeaderLink>
+			<HeaderLink href={`${base}/blog`}>AX Strategy</HeaderLink>
+			<HeaderLink href={`${base}/study`}>AI Implementation</HeaderLink>
+			<HeaderLink href={`${base}/portfolio`}>AX Solutions</HeaderLink>
 			<HeaderLink href={`${base}/about`}>About</HeaderLink>
 		</div>
-
-
 		<div class="social-links">
 			<a href="https://m.webtoo.ls/@astro" target="_blank">
 				<span class="sr-only">Follow Astro on Mastodon</span>
@@ -52,12 +50,21 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 	header {
 		margin: 0;
 		padding: 0 1em;
-		background: white;
-		box-shadow: 0 2px 8px rgba(var(--black), 5%);
+		background: rgb(var(--gray-extra-light));
+		border-bottom: 1px solid rgba(var(--gray), 0.1);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+	}
+	.logo a {
+		font-family: var(--font-space-grotesk);
+		font-weight: 800;
+		font-style: italic;
+		color: var(--accent) !important;
+		text-transform: uppercase;
+		letter-spacing: -0.05em;
 	}
 	h2 {
 		margin: 0;
-		font-size: 1em;
+		font-size: 1.2em;
 	}
 
 	h2 a,
@@ -68,20 +75,33 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		font-family: var(--font-space-grotesk);
 	}
-	nav a {
+	nav :global(a) {
 		padding: 1em 0.5em;
-		color: rgb(var(--black));
+		color: rgb(var(--gray));
 		border-bottom: 4px solid transparent;
 		text-decoration: none;
+		font-size: 0.9em;
+		font-weight: 500;
+		transition: all 0.2s ease;
 	}
-	nav a.active {
+	nav :global(a:hover),
+	nav :global(a.active) {
+		color: var(--accent);
 		text-decoration: none;
+	}
+	nav :global(a.active) {
 		border-bottom-color: var(--accent);
+		font-weight: 700;
 	}
 	.social-links,
 	.social-links a {
 		display: flex;
+		color: rgb(var(--gray));
+	}
+	.social-links a:hover {
+		color: var(--accent);
 	}
 	@media (max-width: 720px) {
 		.social-links {
