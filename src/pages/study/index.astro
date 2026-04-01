@@ -1,5 +1,4 @@
 ---
-import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
@@ -15,99 +14,56 @@ const posts = (await getCollection('study')).sort(
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={`Study | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
-		<style>
-			main {
-				width: 960px;
-			}
-			ul {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 2rem;
-				list-style-type: none;
-				margin: 0;
-				padding: 0;
-			}
-			ul li {
-				width: calc(50% - 1rem);
-			}
-			ul li * {
-				text-decoration: none;
-				transition: 0.2s ease;
-			}
-			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
-			}
-			ul li:first-child img {
-				width: 100%;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
-			ul li a {
-				display: block;
-			}
-			.title {
-				margin: 0;
-				color: rgb(var(--black));
-				line-height: 1;
-			}
-			.date {
-				margin: 0;
-				color: rgb(var(--gray));
-			}
-			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
-			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
-			}
-			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
-				}
-				ul li {
-					width: 100%;
-					text-align: center;
-				}
-				ul li:first-child {
-					margin-bottom: 0;
-				}
-				ul li:first-child .title {
-					font-size: 1.563em;
-				}
-			}
-		</style>
+		<BaseHead title={`Growth Log | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
 	</head>
-	<body>
+	<body class="bg-white text-slate-900 font-inter">
 		<Header />
-		<main>
-			<section>
-				<ul>
-					{
-						posts.map((post) => (
-							<li>
-								<a href={`/study/${post.id}/`}>
-									{post.data.heroImage && (
-										<Image width={720} height={360} src={post.data.heroImage} alt="" />
-									)}
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-								</a>
-							</li>
-						))
-					}
-				</ul>
-			</section>
+		<main class="max-w-5xl mx-auto px-6 py-12 md:py-24">
+			<div class="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+				<div>
+					<h1 class="text-5xl md:text-7xl font-plus-jakarta font-extrabold tracking-tighter mb-4">Growth Log</h1>
+					<p class="text-slate-500 text-lg md:text-xl font-light">매일의 배움과 기술적 성장의 기록입니다.</p>
+				</div>
+				<!-- View Toggle (Visual Only for now) -->
+				<div class="bg-slate-100 p-1 rounded-full flex gap-1 font-space-grotesk">
+					<button class="bg-white px-6 py-2 rounded-full text-[10px] font-bold shadow-sm uppercase tracking-wider">Timeline</button>
+					<button class="px-6 py-2 rounded-full text-[10px] font-bold text-slate-400 uppercase tracking-wider hover:text-slate-600 transition-colors">Grid</button>
+				</div>
+			</div>
+
+			<!-- Timeline Container -->
+			<div class="relative pl-8 md:pl-12 border-l-2 border-blue-50 ml-4 md:ml-8">
+				{
+					posts.map((post) => (
+						<div class="mb-20 relative">
+							<!-- Timeline Node -->
+							<div class="absolute -left-[41px] md:-left-[53px] top-0 w-5 h-5 rounded-full bg-accent-success border-4 border-white shadow-sm transition-transform hover:scale-125"></div>
+							
+							<!-- Date -->
+							<div class="font-space-grotesk text-xs font-bold text-slate-400 mb-4 tracking-[0.2em] uppercase">
+								<FormattedDate date={post.data.pubDate} />
+							</div>
+
+							<!-- Content Card -->
+							<a href={`/study/${post.id}/`} class="group block bg-white border border-blue-50 p-8 md:p-10 rounded-[24px] hover:border-accent hover:shadow-xl hover:shadow-blue-50/50 transition-all duration-500">
+								<div class="flex flex-wrap gap-2 mb-6">
+									<span class="px-3 py-1 bg-blue-50 text-accent rounded-full text-[10px] font-bold font-space-grotesk uppercase tracking-wider">#{post.data.category}</span>
+									{post.data.tags && post.data.tags.map(tag => (
+										<span class="px-3 py-1 bg-slate-50 text-slate-500 rounded-full text-[10px] font-bold font-space-grotesk uppercase tracking-wider">#{tag}</span>
+									))}
+								</div>
+								<h3 class="text-2xl md:text-3xl font-plus-jakarta font-extrabold mb-4 tracking-tight group-hover:text-accent transition-colors">{post.data.title}</h3>
+								<p class="text-slate-500 leading-relaxed font-light md:text-lg">
+									{post.data.description}
+								</p>
+								<div class="mt-8 flex items-center text-accent font-space-grotesk text-[10px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0">
+									Read Entry <span class="ml-2">→</span>
+								</div>
+							</a>
+						</div>
+					))
+				}
+			</div>
 		</main>
 		<Footer />
 	</body>

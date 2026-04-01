@@ -14,109 +14,40 @@ const { title, description, pubDate, updatedDate, heroImage, tags, category } = 
 <html lang="en">
 	<head>
 		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-			.metadata {
-				margin: 1em 0;
-				display: flex;
-				flex-direction: column;
-				gap: 0.5em;
-				align-items: center;
-			}
-			.category {
-				background-color: var(--accent);
-				color: white;
-				padding: 0.2em 0.8em;
-				border-radius: 20px;
-				font-size: 0.8em;
-				font-weight: bold;
-				text-transform: uppercase;
-			}
-			.tags {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 0.5em;
-				justify-content: center;
-				list-style: none;
-				padding: 0;
-				margin: 0.5em 0;
-			}
-			.tag {
-				color: var(--accent);
-				font-size: 0.9em;
-			}
-			.tag::before {
-				content: "#";
-			}
-		</style>
 	</head>
 
-	<body>
+	<body class="bg-white text-slate-900 font-inter">
 		<Header />
-		<main>
+		<main class="max-w-4xl mx-auto px-6 py-12 md:py-24">
 			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<div class="metadata">
-							<div class="category">{category}</div>
-							{tags && (
-								<ul class="tags">
-									{tags.map((tag) => <li class="tag">{tag}</li>)}
-								</ul>
-							)}
-						</div>
-						<hr />
+				<div class="mb-12">
+					<div class="font-space-grotesk text-xs font-bold text-slate-400 mb-6 tracking-[0.2em] uppercase flex items-center gap-4">
+						<FormattedDate date={pubDate} />
+						{updatedDate && (
+							<span class="normal-case font-light italic text-slate-300">
+								(Updated: <FormattedDate date={updatedDate} />)
+							</span>
+						)}
 					</div>
+					<h1 class="text-4xl md:text-6xl font-plus-jakarta font-extrabold tracking-tighter mb-8 leading-tight">{title}</h1>
+					<div class="flex flex-wrap gap-3 mb-12">
+						<span class="px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold font-space-grotesk uppercase tracking-wider">{category}</span>
+						{tags && tags.map(tag => (
+							<span class="px-4 py-1.5 bg-slate-100 text-slate-500 rounded-full text-xs font-bold font-space-grotesk uppercase tracking-wider">#{tag}</span>
+						))}
+					</div>
+					{heroImage && (
+						<div class="rounded-[32px] overflow-hidden border border-slate-100 mb-12">
+							<Image width={1020} height={510} src={heroImage} alt="" class="w-full h-auto" />
+						</div>
+					)}
+				</div>
+				
+				<div class="prose prose-slate prose-lg max-w-none 
+					prose-headings:font-plus-jakarta prose-headings:font-extrabold prose-headings:tracking-tight
+					prose-a:text-accent hover:prose-a:text-blue-700
+					prose-img:rounded-[24px] prose-img:border prose-img:border-slate-100
+					prose-code:font-space-grotesk prose-code:bg-slate-100 prose-code:px-1 prose-code:rounded">
 					<slot />
 				</div>
 			</article>
