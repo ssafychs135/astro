@@ -6,6 +6,9 @@ import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+
 const posts = (await getCollection('study')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
@@ -45,7 +48,7 @@ const posts = (await getCollection('study')).sort(
 							</div>
 
 							<!-- Content Card -->
-							<a href={`/study/${post.id}/`} class="group block bg-white border border-blue-50 p-8 md:p-10 rounded-[24px] hover:border-accent hover:shadow-xl hover:shadow-blue-50/50 transition-all duration-500">
+							<a href={`${base}/study/${post.id}/`} class="group block bg-white border border-blue-50 p-8 md:p-10 rounded-[24px] hover:border-accent hover:shadow-xl hover:shadow-blue-50/50 transition-all duration-500">
 								<div class="flex flex-wrap gap-2 mb-6">
 									<span class="px-3 py-1 bg-blue-50 text-accent rounded-full text-[10px] font-bold font-space-grotesk uppercase tracking-wider">#{post.data.category}</span>
 									{post.data.tags && post.data.tags.map(tag => (
