@@ -12,34 +12,49 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 	</head>
-	<body class="bg-white text-slate-900 font-inter">
+	<body class="bg-[#030712] text-slate-50 font-inter antialiased">
 		<Header />
 		<main class="max-w-7xl mx-auto px-6 py-12 md:py-32">
 			<!-- Hero Section -->
-			<section class="mb-32">
-				<div class="mb-6 font-space-grotesk text-accent font-bold tracking-widest text-xs uppercase">Welcome to my Digital Garden</div>
-				<h1 class="text-7xl md:text-[120px] font-plus-jakarta font-extrabold tracking-tighter leading-[0.9] mb-12">
-					Growth-driven <br />
-					<span class="text-accent">Developer</span> SEO.
+			<section class="mb-40">
+				<div class="mb-8 font-space-grotesk text-accent font-bold tracking-[0.3em] text-[10px] uppercase border-l-2 border-accent pl-4">
+					Strategic Intelligence & AI Transformation
+				</div>
+				<h1 class="text-6xl md:text-[110px] font-space-grotesk font-bold tracking-tighter leading-[0.85] mb-16">
+					Architecting <br />
+					the Future of <br />
+					<span class="text-accent">AI Transformation.</span>
 				</h1>
-				<div class="flex flex-col md:flex-row gap-16 items-start">
+				<div class="flex flex-col md:flex-row gap-20 items-start">
 					<div class="md:w-3/5">
-						<p class="text-2xl md:text-3xl text-slate-500 leading-relaxed font-light">
-							끊임없이 배우고 기록하며, 지식의 파편들을 모아 견고한 정원을 만듭니다. 
-							단순한 코딩을 넘어 기술의 본질을 탐구하고 성장의 궤적을 공유합니다.
+						<p class="text-2xl md:text-3xl text-slate-400 leading-relaxed font-light mb-10">
+							Bridging the gap between <span class="text-white font-medium">Artificial Intelligence</span> and <span class="text-white font-medium">Business Strategy</span>. 
+							지능형 자동화와 데이터 기반 통찰로 기업의 새로운 가치를 창출합니다.
 						</p>
+						<div class="flex gap-6">
+							<div class="flex flex-col">
+								<span class="font-space-grotesk text-[10px] text-slate-500 uppercase tracking-widest mb-1">Status</span>
+								<span class="flex items-center gap-2 text-xs font-bold text-accent">
+									<span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+									READY FOR AX TRANSFORMATION
+								</span>
+							</div>
+						</div>
 					</div>
-					<div class="md:w-2/5 relative w-full flex justify-center">
-						<!-- Digital Garden Motif (Abstract Visual) -->
-						<div class="relative w-64 h-64">
-							<div class="absolute inset-0 bg-blue-50 rounded-full blur-3xl opacity-60"></div>
-							<div class="relative grid grid-cols-3 gap-3">
-								<div class="w-16 h-16 bg-accent rounded-2xl rotate-12 shadow-lg shadow-blue-200"></div>
-								<div class="w-16 h-16 bg-accent-secondary border-2 border-blue-100 rounded-full -translate-y-4"></div>
-								<div class="w-16 h-16 bg-accent-success rounded-3xl -rotate-12 translate-x-4"></div>
-								<div class="w-16 h-16 border-2 border-accent rounded-full translate-y-4"></div>
-								<div class="w-16 h-16 bg-blue-600 rounded-2xl scale-110 shadow-xl"></div>
-								<div class="w-16 h-16 bg-slate-100 rounded-full"></div>
+					<div class="md:w-2/5 relative w-full flex justify-center pt-10">
+						<!-- Technical Motif (Neural Grid) -->
+						<div class="relative w-72 h-72">
+							<div class="absolute inset-0 bg-accent/10 rounded-full blur-3xl opacity-40"></div>
+							<div class="relative grid grid-cols-4 gap-1 p-4 border border-slate-800 bg-slate-900/50 backdrop-blur-xl">
+								{Array.from({ length: 16 }).map((_, i) => (
+									<div class={`aspect-square border border-slate-800 flex items-center justify-center ${i % 5 === 0 ? 'bg-accent/20' : ''}`}>
+										{i % 7 === 0 && <div class="w-1.5 h-1.5 bg-accent shadow-[0_0_10px_#10b981]"></div>}
+										{i === 10 && <div class="w-1.5 h-1.5 bg-accent-secondary shadow-[0_0_10px_#a855f7]"></div>}
+									</div>
+								))}
+							</div>
+							<div class="absolute -top-4 -right-4 font-space-grotesk text-[8px] text-accent-secondary opacity-50 select-none">
+								[SYSTEM_ID: AX_01]
 							</div>
 						</div>
 					</div>
@@ -47,48 +62,51 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 			</section>
 
 
-			<!-- Section Navigation Cards -->
-			<section class="grid grid-cols-1 md:grid-cols-3 gap-8">
-				<!-- Tech Research -->
-				<a href={`${base}/blog`} class="group block bg-slate-50/50 border border-slate-100 p-10 rounded-[32px] hover:border-accent hover:bg-white transition-all duration-500">
-					<div class="mb-12 flex justify-between items-start">
-						<span class="font-space-grotesk text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">Section 01</span>
-						<div class="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all duration-500">
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-							</svg>
-						</div>
+			<!-- Section Navigation Cards (AX Pillars) -->
+			<section class="grid grid-cols-1 md:grid-cols-3 gap-10">
+				<!-- AX Strategy -->
+				<a href={`${base}/blog`} class="group block bg-slate-900/30 border border-slate-800 p-10 rounded-sm hover:border-accent transition-all duration-500 relative overflow-hidden">
+					<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+						<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 3v18h18M7 16l4-4 4 4 6-6"/></svg>
 					</div>
-					<h3 class="text-3xl font-plus-jakarta font-extrabold mb-4 tracking-tight group-hover:text-accent transition-colors duration-500">Tech Research</h3>
-					<p class="text-slate-500 leading-relaxed font-light">깊이 있는 기술 분석과 트렌드 조사 리포트</p>
+					<div class="mb-16">
+						<span class="font-space-grotesk text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em]">Module 01</span>
+					</div>
+					<h3 class="text-3xl font-space-grotesk font-bold mb-4 tracking-tight group-hover:text-accent transition-colors">AX Strategy</h3>
+					<p class="text-slate-400 leading-relaxed font-light text-sm">AI 도입 전략, ROI 분석 및 산업별 혁신 사례 연구 리포트</p>
+					<div class="mt-10 flex items-center gap-2 text-[10px] font-bold font-space-grotesk tracking-widest text-accent opacity-0 group-hover:opacity-100 transition-all">
+						OPEN_MODULE <span class="text-xs">→</span>
+					</div>
 				</a>
 
-				<!-- Growth Log -->
-				<a href={`${base}/study`} class="group block bg-slate-50/50 border border-slate-100 p-10 rounded-[32px] hover:border-accent-success hover:bg-white transition-all duration-500">
-					<div class="mb-12 flex justify-between items-start">
-						<span class="font-space-grotesk text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">Section 02</span>
-						<div class="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-accent-success group-hover:text-white group-hover:border-accent-success transition-all duration-500">
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-							</svg>
-						</div>
+				<!-- AI Implementation -->
+				<a href={`${base}/study`} class="group block bg-slate-900/30 border border-slate-800 p-10 rounded-sm hover:border-accent-secondary transition-all duration-500 relative overflow-hidden">
+					<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+						<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 2v20M2 12h20M12 2l4 4M12 22l-4-4M2 12l4-4M22 12l-4 4"/></svg>
 					</div>
-					<h3 class="text-3xl font-plus-jakarta font-extrabold mb-4 tracking-tight group-hover:text-accent-success transition-colors duration-500">Growth Log</h3>
-					<p class="text-slate-500 leading-relaxed font-light">매일의 학습과 트러블슈팅의 기록</p>
+					<div class="mb-16">
+						<span class="font-space-grotesk text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em]">Module 02</span>
+					</div>
+					<h3 class="text-3xl font-space-grotesk font-bold mb-4 tracking-tight group-hover:text-accent-secondary transition-colors">AI Implementation</h3>
+					<p class="text-slate-400 leading-relaxed font-light text-sm">LLM 파이프라인, RAG 아키텍처 및 자율형 에이전트 구축 기술 로그</p>
+					<div class="mt-10 flex items-center gap-2 text-[10px] font-bold font-space-grotesk tracking-widest text-accent-secondary opacity-0 group-hover:opacity-100 transition-all">
+						OPEN_MODULE <span class="text-xs">→</span>
+					</div>
 				</a>
 
-				<!-- Portfolio -->
-				<a href={`${base}/portfolio`} class="group block bg-slate-50/50 border border-slate-100 p-10 rounded-[32px] hover:border-accent-secondary hover:bg-white transition-all duration-500">
-					<div class="mb-12 flex justify-between items-start">
-						<span class="font-space-grotesk text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">Section 03</span>
-						<div class="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-accent-secondary group-hover:text-white group-hover:border-accent-secondary transition-all duration-500">
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-							</svg>
-						</div>
+				<!-- AX Solutions -->
+				<a href={`${base}/portfolio`} class="group block bg-slate-900/30 border border-slate-800 p-10 rounded-sm hover:border-white transition-all duration-500 relative overflow-hidden">
+					<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+						<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
 					</div>
-					<h3 class="text-3xl font-plus-jakarta font-extrabold mb-4 tracking-tight group-hover:text-accent-secondary transition-colors duration-500">Portfolio</h3>
-					<p class="text-slate-500 leading-relaxed font-light">경험과 배움이 응축된 최종 결과물</p>
+					<div class="mb-16">
+						<span class="font-space-grotesk text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em]">Module 03</span>
+					</div>
+					<h3 class="text-3xl font-space-grotesk font-bold mb-4 tracking-tight group-hover:text-white transition-colors">AX Solutions</h3>
+					<p class="text-slate-400 leading-relaxed font-light text-sm">현실의 비즈니스 문제를 해결한 지능형 솔루션 및 프로젝트 쇼케이스</p>
+					<div class="mt-10 flex items-center gap-2 text-[10px] font-bold font-space-grotesk tracking-widest text-white opacity-0 group-hover:opacity-100 transition-all">
+						OPEN_MODULE <span class="text-xs">→</span>
+					</div>
 				</a>
 			</section>
 		</main>
