@@ -1,0 +1,43 @@
+<h2>홈 페이지 구성 (Home Page Layout)</h2>
+<p class="subtitle">독립된 세 섹션을 홈에서 어떻게 소개할까요?</p>
+
+<div class="split" style="gap: 30px; margin-top: 30px;">
+  <!-- Option 1: The Portals -->
+  <div class="card" data-choice="portals" onclick="toggleSelect(this)" style="cursor: pointer;">
+    <div style="height: 150px; background: #f8fafc; border-radius: 8px 8px 0 0; padding: 15px; border: 1px solid #e1e8f0; display: flex; gap: 10px; align-items: center;">
+      <div style="flex: 1; height: 100px; background: #3b82f6; border-radius: 4px; opacity: 0.8;"></div>
+      <div style="flex: 1; height: 100px; background: #10b981; border-radius: 4px; opacity: 0.8;"></div>
+      <div style="flex: 1; height: 100px; background: #f59e0b; border-radius: 4px; opacity: 0.8;"></div>
+    </div>
+    <div class="card-body" style="background: #fff; padding: 15px; border: 1px solid #e1e8f0; border-radius: 0 0 8px 8px;">
+      <h3 style="font-size: 1rem;">1. The Portals (진입로 중심)</h3>
+      <p style="font-size: 0.85rem; color: #64748b;">세 섹션을 상징하는 커다란 세 개의 카드/버튼만 홈에 배치합니다. 방문자가 본인의 관심사에 따라 즉시 이동하도록 유도하는 극도의 미니멀리즘 방식입니다.</p>
+    </div>
+  </div>
+
+  <!-- Option 2: The Recap -->
+  <div class="card" data-choice="recap" onclick="toggleSelect(this)" style="cursor: pointer;">
+    <div style="height: 150px; background: #f8fafc; border-radius: 8px 8px 0 0; padding: 15px; border: 1px solid #e1e8f0; display: flex; flex-direction: column; gap: 8px;">
+      <div style="height: 30px; background: #fff; border: 1px solid #eee; border-radius: 4px;"></div>
+      <div style="height: 30px; background: #fff; border: 1px solid #eee; border-radius: 4px;"></div>
+      <div style="height: 30px; background: #fff; border: 1px solid #eee; border-radius: 4px;"></div>
+      <div style="height: 30px; background: #fff; border: 1px solid #eee; border-radius: 4px;"></div>
+    </div>
+    <div class="card-body" style="background: #fff; padding: 15px; border: 1px solid #e1e8f0; border-radius: 0 0 8px 8px;">
+      <h3 style="font-size: 1rem;">2. The Recap (최신 요약 중심)</h3>
+      <p style="font-size: 0.85rem; color: #64748b;">각 섹션별 최신 글 3~5개를 리스트 형태로 홈에서 바로 보여줍니다. 현재 어떤 공부를 하고 어떤 프로젝트를 하는지 홈에서 한눈에 파악할 수 있는 대시보드 방식입니다.</p>
+    </div>
+  </div>
+
+  <!-- Option 3: The Identity -->
+  <div class="card" data-choice="identity" onclick="toggleSelect(this)" style="cursor: pointer;">
+    <div style="height: 150px; background: #f8fafc; border-radius: 8px 8px 0 0; padding: 15px; border: 1px solid #e1e8f0; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+      <div style="width: 50px; height: 50px; border-radius: 50%; background: #ddd; margin-bottom: 10px;"></div>
+      <div style="width: 60%; height: 10px; background: #e2e8f0; border-radius: 4px;"></div>
+    </div>
+    <div class="card-body" style="background: #fff; padding: 15px; border: 1px solid #e1e8f0; border-radius: 0 0 8px 8px;">
+      <h3 style="font-size: 1rem;">3. The Identity (인물 중심)</h3>
+      <p style="font-size: 0.85rem; color: #64748b;">상단에 큰 자기소개와 비전을 배치하고, 하단에 섹션 링크를 작게 둡니다. '콘텐츠'보다 '나'라는 개발자 자체를 먼저 브랜딩하고 싶을 때 효과적입니다.</p>
+    </div>
+  </div>
+</div>

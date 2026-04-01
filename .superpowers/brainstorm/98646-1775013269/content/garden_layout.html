@@ -1,0 +1,45 @@
+<h2>B. Digital Garden - 레이아웃 설계</h2>
+<p class="subtitle">지식이 자라나는 과정을 어떻게 보여줄까요?</p>
+
+<div class="split" style="gap: 40px; margin-top: 30px;">
+  <!-- Option 1: Stream Flow -->
+  <div class="card" data-choice="stream_flow" onclick="toggleSelect(this)" style="cursor: pointer;">
+    <div style="height: 180px; background: #fff; border-radius: 8px 8px 0 0; padding: 20px; border: 1px solid #e1e8f0; position: relative; overflow: hidden;">
+      <div style="position: absolute; left: 30px; top: 0; bottom: 0; width: 2px; background: #dbeafe;"></div>
+      <div style="margin-left: 30px; margin-bottom: 20px; position: relative;">
+        <div style="position: absolute; left: -35px; top: 5px; width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; border: 3px solid #fff;"></div>
+        <div style="width: 70%; height: 40px; background: #f8fafc; border-radius: 6px;"></div>
+      </div>
+      <div style="margin-left: 30px; position: relative;">
+        <div style="position: absolute; left: -35px; top: 5px; width: 8px; height: 8px; border-radius: 50%; background: #10b981; border: 3px solid #fff;"></div>
+        <div style="width: 50%; height: 40px; background: #f8fafc; border-radius: 6px;"></div>
+      </div>
+    </div>
+    <div class="card-body" style="background: #fff; padding: 20px; border: 1px solid #e1e8f0; border-radius: 0 0 8px 8px;">
+      <h3 style="color: #1e293b;">1. Stream Flow (타임라인 중심)</h3>
+      <p style="color: #475569; font-size: 0.9rem;">학습의 순서와 시간의 흐름을 강조합니다. 최근에 무엇을 배웠는지 직관적으로 알 수 있어 '성장' 과정을 일기처럼 보여주기에 좋습니다.</p>
+    </div>
+  </div>
+
+  <!-- Option 2: Modular Grid -->
+  <div class="card" data-choice="modular_grid" onclick="toggleSelect(this)" style="cursor: pointer;">
+    <div style="height: 180px; background: #fff; border-radius: 8px 8px 0 0; padding: 20px; border: 1px solid #e1e8f0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div style="background: #f0f7ff; border-radius: 6px; padding: 10px;">
+        <div style="width: 100%; height: 40px; background: #fff; border-radius: 4px;"></div>
+      </div>
+      <div style="background: #f0f7ff; border-radius: 6px; padding: 10px;">
+        <div style="width: 100%; height: 40px; background: #fff; border-radius: 4px;"></div>
+      </div>
+      <div style="background: #f0f7ff; border-radius: 6px; padding: 10px;">
+        <div style="width: 100%; height: 40px; background: #fff; border-radius: 4px;"></div>
+      </div>
+      <div style="background: #f0f7ff; border-radius: 6px; padding: 10px;">
+        <div style="width: 100%; height: 40px; background: #fff; border-radius: 4px;"></div>
+      </div>
+    </div>
+    <div class="card-body" style="background: #fff; padding: 20px; border: 1px solid #e1e8f0; border-radius: 0 0 8px 8px;">
+      <h3 style="color: #1e293b;">2. Modular Grid (지식 카드 중심)</h3>
+      <p style="color: #475569; font-size: 0.9rem;">지식의 주제별 분류를 강조합니다. 방대한 양의 정보를 격자 형태로 한눈에 보여주어, '지식 창고'로서의 정돈된 느낌을 줍니다.</p>
+    </div>
+  </div>
+</div>

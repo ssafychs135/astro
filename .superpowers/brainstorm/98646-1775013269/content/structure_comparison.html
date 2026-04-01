@@ -1,0 +1,58 @@
+<h2>정보 구조(Information Architecture) 시각적 비교</h2>
+<p class="subtitle">세 가지 핵심 축이 방문자에게 전달되는 방식의 차이입니다.</p>
+
+<div class="split" style="gap: 40px; margin-top: 30px; align-items: stretch;">
+  <!-- Option A: Independent Sections -->
+  <div class="card" data-choice="independent" onclick="toggleSelect(this)" style="cursor: pointer; flex: 1;">
+    <div style="background: #fff; border-radius: 8px 8px 0 0; padding: 25px; border: 1px solid #e1e8f0; min-height: 350px;">
+      <h3 style="font-size: 1rem; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #3b82f6; width: fit-content; padding-bottom: 5px;">A. 독립형 (Segmented)</h3>
+      
+      <!-- Folders representing clear separation -->
+      <div style="display: flex; flex-direction: column; gap: 15px;">
+        <div style="background: #f8fafc; padding: 15px; border-radius: 6px; border-left: 4px solid #3b82f6;">
+          <div style="font-weight: 800; font-size: 0.8rem; color: #3b82f6;">PORTFOLIO</div>
+          <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">프로젝트 결과물만 모아보기</div>
+        </div>
+        <div style="background: #f8fafc; padding: 15px; border-radius: 6px; border-left: 4px solid #10b981;">
+          <div style="font-weight: 800; font-size: 0.8rem; color: #10b981;">TECH RESEARCH</div>
+          <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">기술 분석/조사 글 목록</div>
+        </div>
+        <div style="background: #f8fafc; padding: 15px; border-radius: 6px; border-left: 4px solid #f59e0b;">
+          <div style="font-weight: 800; font-size: 0.8rem; color: #f59e0b;">GROWTH LOG</div>
+          <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">일별/주별 성장 기록</div>
+        </div>
+      </div>
+      <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 20px; line-height: 1.5;">* 방문자가 목적에 맞는 정보를 즉시 찾을 수 있는 깔끔한 '정석적' 구조입니다.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Integrated Storytelling -->
+  <div class="card" data-choice="integrated" onclick="toggleSelect(this)" style="cursor: pointer; flex: 1;">
+    <div style="background: #fff; border-radius: 8px 8px 0 0; padding: 25px; border: 1px solid #e1e8f0; min-height: 350px; position: relative;">
+      <h3 style="font-size: 1rem; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #6366f1; width: fit-content; padding-bottom: 5px;">B. 유기적 연결형 (Interlinked)</h3>
+      
+      <!-- Central Narrative Node -->
+      <div style="display: flex; flex-direction: column; gap: 10px; position: relative;">
+        <!-- Portfolio Item -->
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px dashed #6366f1;">
+          <div style="font-weight: 800; font-size: 0.8rem; color: #6366f1;">PROJECT: AI Portfolio</div>
+          
+          <!-- Arrows indicating links -->
+          <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #ddd; padding-top: 10px;">
+            <div style="font-size: 0.7rem; color: #10b981; display: flex; align-items: center;">
+              <span style="margin-right: 5px;">🔗</span> 관련 기술 조사: Next.js 14 Deep Dive
+            </div>
+            <div style="font-size: 0.7rem; color: #f59e0b; display: flex; align-items: center;">
+              <span style="margin-right: 5px;">🔗</span> 해결한 삽질: ISR 캐싱 버그 트러블슈팅
+            </div>
+          </div>
+        </div>
+        
+        <!-- Background flow indicators -->
+        <div style="position: absolute; right: -10px; top: 50%; width: 20px; height: 100px; border: 2px solid #e2e8f0; border-left: none; border-radius: 0 50px 50px 0; z-index: -1;"></div>
+      </div>
+      
+      <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 45px; line-height: 1.5;">* "공부해서 -> 적용하고 -> 해결했다"는 서사를 보여주는 '맥락 중심' 구조입니다.</p>
+    </div>
+  </div>
+</div>

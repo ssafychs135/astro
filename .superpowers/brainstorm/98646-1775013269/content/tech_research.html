@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Growth Curator - Tech Research</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Inter:wght@400;600&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2 { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .mono { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-white text-slate-900">
+    <nav class="flex justify-between items-center px-10 py-8">
+        <div class="text-xl font-extrabold tracking-tighter italic">GROWTH CURATOR</div>
+        <div class="flex gap-8 text-sm font-semibold text-slate-500">
+            <a href="actual_home.html" class="hover:text-slate-900">Home</a>
+            <a href="tech_research.html" class="text-blue-600">Tech Research</a>
+            <a href="growth_log.html" class="hover:text-slate-900">Growth Log</a>
+            <a href="portfolio.html" class="hover:text-slate-900">Portfolio</a>
+        </div>
+    </nav>
+
+    <main class="px-10 pt-10 pb-32 max-w-7xl mx-auto">
+        <h1 class="text-7xl font-extrabold tracking-tighter mb-20 border-b border-slate-100 pb-10">Tech Research</h1>
+
+        <div class="grid grid-cols-12 gap-10">
+            <!-- Main Featured -->
+            <div class="col-span-12 md:col-span-8 group cursor-pointer">
+                <div class="relative overflow-hidden rounded-[40px] mb-8">
+                    <div class="aspect-[16/10] bg-slate-100 group-hover:scale-105 transition-transform duration-700">
+                        <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=2070" class="w-100 h-100 object-cover opacity-80">
+                    </div>
+                    <div class="absolute top-10 left-10">
+                        <span class="px-4 py-2 bg-blue-600 text-white mono text-[10px] font-bold tracking-widest uppercase rounded-full">Deep Dive</span>
+                    </div>
+                </div>
+                <div class="px-4">
+                    <h2 class="text-4xl font-extrabold mb-6 leading-tight group-hover:text-blue-600 transition-colors">
+                        웹 성능 최적화: Core Web Vitals를 넘어서는 차세대 전략
+                    </h2>
+                    <div class="bg-slate-50 p-6 rounded-2xl mb-6">
+                        <span class="mono text-[10px] font-bold text-slate-400 block mb-2">KEY TAKEAWAY</span>
+                        <p class="text-slate-600 leading-relaxed">단순한 수치 개선을 넘어 실제 사용자 경험(UX)을 결정짓는 렌더링 파이프라인의 이해와 활용 방안을 제시합니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side List -->
+            <div class="col-span-12 md:col-span-4 flex flex-col gap-12">
+                <div class="group cursor-pointer">
+                    <span class="mono text-[10px] font-bold text-emerald-500 tracking-widest uppercase mb-3 block">Trend</span>
+                    <h3 class="text-xl font-bold mb-4 group-hover:text-emerald-600 transition-colors">2026 AI 기반 프론트엔드 개발 워크플로우의 변화</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">코드 생성을 넘어 아키텍처 설계 보조까지, AI 도구들이 바꾸고 있는 개발 현장의 모습.</p>
+                </div>
+                <div class="h-px bg-slate-100"></div>
+                <div class="group cursor-pointer">
+                    <span class="mono text-[10px] font-bold text-purple-500 tracking-widest uppercase mb-3 block">Analysis</span>
+                    <h3 class="text-xl font-bold mb-4 group-hover:text-purple-600 transition-colors">Edge Computing과 서버리스 환경의 결합</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">지연 시간을 최소화하기 위한 분산 컴퓨팅 환경에서의 데이터 정합성 유지 전략.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

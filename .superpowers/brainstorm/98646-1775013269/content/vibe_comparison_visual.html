@@ -1,0 +1,53 @@
+<h2>기록과 성장 - 시각적 스타일 비교</h2>
+<p class="subtitle">두 스타일의 색감과 분위기를 직접 비교해 보세요.</p>
+
+<div class="split" style="gap: 40px; margin-top: 30px;">
+  <!-- Option A: Warm Workspace -->
+  <div class="card" data-choice="warm_workspace" onclick="toggleSelect(this)" style="cursor: pointer; transition: transform 0.2s;">
+    <div style="height: 200px; background: #fdf6e3; border-radius: 8px 8px 0 0; padding: 20px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #eee; border-bottom: none;">
+      <div style="font-family: 'Georgia', serif; font-size: 1.2rem; color: #586e75; border-bottom: 2px solid #93a1a1; padding-bottom: 5px; width: fit-content;">Study Note #01</div>
+      <div style="width: 100%; height: 10px; background: #eee8d5; border-radius: 2px;"></div>
+      <div style="width: 80%; height: 10px; background: #eee8d5; border-radius: 2px;"></div>
+      <div style="width: 90%; height: 10px; background: #eee8d5; border-radius: 2px;"></div>
+      <div style="margin-top: 20px; display: flex; gap: 8px;">
+        <span style="background: #859900; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem;">React</span>
+        <span style="background: #268bd2; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem;">Design</span>
+      </div>
+    </div>
+    <div class="card-body" style="background: #fff; padding: 20px; border: 1px solid #eee; border-radius: 0 0 8px 8px;">
+      <h3 style="color: #073642; font-family: serif;">A. Warm Workspace</h3>
+      <p style="color: #657b83; font-size: 0.9rem;">따뜻한 베이지 톤과 종이 질감의 아날로그 감성입니다. 정성스럽게 기록한 개인 서재나 노트를 엿보는 듯한 친근함을 줍니다.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Digital Garden -->
+  <div class="card" data-choice="digital_garden" onclick="toggleSelect(this)" style="cursor: pointer; transition: transform 0.2s;">
+    <div style="height: 200px; background: #f0f7ff; border-radius: 8px 8px 0 0; padding: 20px; display: flex; flex-direction: column; gap: 12px; border: 1px solid #e1e8f0; border-bottom: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-family: 'Inter', sans-serif; font-weight: 800; font-size: 0.8rem; color: #3b82f6; text-transform: uppercase; letter-spacing: 1px;">Growth Log</div>
+        <div style="width: 12px; height: 12px; border-radius: 50%; background: #10b981;"></div>
+      </div>
+      <div style="background: #fff; padding: 10px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="width: 60%; height: 8px; background: #e2e8f0; border-radius: 4px; margin-bottom: 8px;"></div>
+        <div style="width: 40%; height: 6px; background: #f1f5f9; border-radius: 4px;"></div>
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: auto;">
+        <div style="flex: 1; height: 40px; background: #dbeafe; border-radius: 4px;"></div>
+        <div style="flex: 1; height: 40px; background: #dbeafe; border-radius: 4px;"></div>
+        <div style="flex: 1; height: 40px; background: #dbeafe; border-radius: 4px;"></div>
+      </div>
+    </div>
+    <div class="card-body" style="background: #fff; padding: 20px; border: 1px solid #e1e8f0; border-radius: 0 0 8px 8px;">
+      <h3 style="color: #1e293b; font-family: sans-serif;">B. Digital Garden</h3>
+      <p style="color: #475569; font-size: 0.9rem;">청량한 블루 톤과 현대적인 카드 시스템입니다. 지식이 체계적으로 배양되고 확장되는 활기찬 '지식 정원'의 느낌을 줍니다.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 40px; background: #f8fafc; padding: 20px; border-radius: 8px;">
+  <h4 style="margin-bottom: 10px;">시각적 차이점:</h4>
+  <ul style="font-size: 0.9rem; color: #475569;">
+    <li><strong>A (Workspace):</strong> 세리프 폰트, 부드러운 노란색 계열 배경, 고전적인 노트 레이아웃</li>
+    <li><strong>B (Garden):</strong> 산세리프 폰트, 깨끗한 블루/화이트 배경, 현대적인 컴포넌트 구조</li>
+  </ul>
+</div>

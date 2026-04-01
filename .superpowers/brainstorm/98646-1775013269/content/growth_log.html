@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Growth Curator - Growth Log</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Inter:wght@400;600&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2 { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .mono { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-white text-slate-900">
+    <nav class="flex justify-between items-center px-10 py-8">
+        <div class="text-xl font-extrabold tracking-tighter italic">GROWTH CURATOR</div>
+        <div class="flex gap-8 text-sm font-semibold text-slate-500">
+            <a href="actual_home.html" class="hover:text-slate-900">Home</a>
+            <a href="tech_research.html" class="hover:text-slate-900">Tech Research</a>
+            <a href="growth_log.html" class="text-emerald-600">Growth Log</a>
+            <a href="portfolio.html" class="hover:text-slate-900">Portfolio</a>
+        </div>
+    </nav>
+
+    <main class="px-10 pt-10 pb-32 max-w-5xl mx-auto">
+        <div class="flex justify-between items-end mb-16">
+            <div>
+                <h1 class="text-6xl font-extrabold tracking-tighter mb-4">Growth Log</h1>
+                <p class="text-slate-500 text-lg">매일의 배움과 기술적 성장의 기록입니다.</p>
+            </div>
+            <!-- View Toggle -->
+            <div class="bg-slate-100 p-1 rounded-full flex gap-1">
+                <button class="bg-white px-4 py-2 rounded-full text-xs font-bold shadow-sm">Timeline</button>
+                <button class="px-4 py-2 rounded-full text-xs font-bold text-slate-400">Grid</button>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="relative pl-8 border-l-2 border-blue-50">
+            <!-- Entry 1 -->
+            <div class="mb-16 relative">
+                <div class="absolute -left-[41px] top-0 w-4 h-4 rounded-full bg-emerald-500 border-4 border-white shadow-sm"></div>
+                <div class="mono text-xs font-bold text-slate-400 mb-2">APRIL 01, 2026</div>
+                <div class="bg-white border border-blue-50 p-8 rounded-2xl hover:border-blue-200 transition-all">
+                    <div class="flex gap-2 mb-4">
+                        <span class="px-2 py-1 bg-blue-50 text-blue-600 rounded text-[10px] font-bold mono">#ASTRO</span>
+                        <span class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-[10px] font-bold mono">#BUGFIX</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Astro View Transitions API 적용기</h3>
+                    <p class="text-slate-500 leading-relaxed text-sm">
+                        기존의 MPA 방식에서 벗어나 부드러운 페이지 전환을 위해 View Transitions API를 도입했습니다. 
+                        스크립트 중복 실행 문제를 해결한 과정을 기록합니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Entry 2 -->
+            <div class="mb-16 relative">
+                <div class="absolute -left-[41px] top-0 w-4 h-4 rounded-full bg-emerald-500 border-4 border-white shadow-sm"></div>
+                <div class="mono text-xs font-bold text-slate-400 mb-2">MARCH 28, 2026</div>
+                <div class="bg-white border border-blue-50 p-8 rounded-2xl hover:border-blue-200 transition-all">
+                    <div class="flex gap-2 mb-4">
+                        <span class="px-2 py-1 bg-purple-50 text-purple-600 rounded text-[10px] font-bold mono">#REACT</span>
+                        <span class="px-2 py-1 bg-slate-50 text-slate-600 rounded text-[10px] font-bold mono">#TIL</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">React Server Components 심층 분석</h3>
+                    <p class="text-slate-500 leading-relaxed text-sm">
+                        RSC의 동작 원리와 클라이언트 컴포넌트와의 경계 설정에 대해 학습했습니다. 
+                        성능 최적화 관점에서의 이점을 정리했습니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

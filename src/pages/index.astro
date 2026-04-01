@@ -3,6 +3,8 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
 <!doctype html>
@@ -76,7 +78,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 				</a>
 
 				<!-- Portfolio -->
-				<a href="/portfolio" class="group block bg-slate-50/50 border border-slate-100 p-10 rounded-[32px] hover:border-accent-secondary hover:bg-white transition-all duration-500">
+				<a href={`${base}/portfolio`} class="group block bg-slate-50/50 border border-slate-100 p-10 rounded-[32px] hover:border-accent-secondary hover:bg-white transition-all duration-500">
 					<div class="mb-12 flex justify-between items-start">
 						<span class="font-space-grotesk text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">Section 03</span>
 						<div class="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-accent-secondary group-hover:text-white group-hover:border-accent-secondary transition-all duration-500">
@@ -89,6 +91,12 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 					<p class="text-slate-500 leading-relaxed font-light">경험과 배움이 응축된 최종 결과물</p>
 				</a>
 			</section>
+
+		</main>
+		<Footer />
+	</body>
+</html>
+section>
 
 		</main>
 		<Footer />
