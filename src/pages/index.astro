@@ -8,53 +8,60 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 	</head>
-	<body class="bg-[#030712] text-slate-50 font-inter antialiased">
+	<body class="bg-[#030712] text-slate-50 font-inter antialiased selection:bg-accent selection:text-slate-900">
 		<Header />
 		<main class="max-w-7xl mx-auto px-6 py-12 md:py-32">
 			<!-- Hero Section -->
-			<section class="mb-40">
-				<div class="mb-8 font-space-grotesk text-accent font-bold tracking-[0.3em] text-[10px] uppercase border-l-2 border-accent pl-4">
-					Strategic Intelligence & AI Transformation
+			<section class="mb-48 relative">
+				<div class="mb-10 font-space-grotesk text-accent font-bold tracking-[0.4em] text-[10px] uppercase border-l-2 border-accent pl-6">
+					INTELLIGENT SYSTEMS & STRATEGIC AX
 				</div>
-				<h1 class="text-6xl md:text-[110px] font-space-grotesk font-bold tracking-tighter leading-[0.85] mb-16">
-					Architecting <br />
-					the Future of <br />
-					<span class="text-accent">AI Transformation.</span>
-				</h1>
-				<div class="flex flex-col md:flex-row gap-20 items-start">
+				
+				<div class="relative z-10">
+					<h1 class="text-5xl md:text-[105px] font-space-grotesk font-bold tracking-tighter leading-[0.85] mb-6">
+						Architecting <br />
+						the Future of <br />
+						<span class="text-accent">AI Transformation.</span>
+					</h1>
+					<!-- Korean Sub-Headline: Highly Optimized Typography -->
+					<h2 class="text-3xl md:text-6xl font-bold tracking-[-0.07em] leading-tight break-keep text-slate-200 mb-16">
+						지능형 AI 전환의 미래를 설계합니다
+					</h2>
+				</div>
+
+				<div class="flex flex-col md:flex-row gap-24 items-start relative z-10">
 					<div class="md:w-3/5">
-						<p class="text-2xl md:text-3xl text-slate-400 leading-relaxed font-light mb-10">
-							Bridging the gap between <span class="text-white font-medium">Artificial Intelligence</span> and <span class="text-white font-medium">Business Strategy</span>. 
-							지능형 자동화와 데이터 기반 통찰로 기업의 새로운 가치를 창출합니다.
+						<p class="text-xl md:text-2xl text-slate-400 leading-[1.8] font-light mb-12 tracking-[-0.02em]">
+							단순한 기술 도입을 넘어 비즈니스의 본질을 혁신합니다. <br class="hidden md:block" />
+							<span class="text-white font-medium">인공지능(AI)</span>과 <span class="text-white font-medium">비즈니스 전략</span> 사이의 간극을 메우고, <br class="hidden md:block" />
+							데이터 중심의 지능형 아키텍처로 기업의 새로운 가치를 창출합니다.
 						</p>
-						<div class="flex gap-6">
-							<div class="flex flex-col">
-								<span class="font-space-grotesk text-[10px] text-slate-500 uppercase tracking-widest mb-1">Status</span>
-								<span class="flex items-center gap-2 text-xs font-bold text-accent">
-									<span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
-									READY FOR AX TRANSFORMATION
-								</span>
-							</div>
+						<div class="inline-flex items-center gap-4 px-6 py-3 border border-slate-800 bg-slate-900/50 backdrop-blur-md rounded-sm">
+							<span class="w-2 h-2 rounded-full bg-accent animate-pulse shadow-[0_0_8px_#10b981]"></span>
+							<span class="font-space-grotesk text-[10px] font-bold tracking-widest text-slate-300 uppercase">System Status: Optimal</span>
 						</div>
 					</div>
-					<div class="md:w-2/5 relative w-full flex justify-center pt-10">
-						<!-- Technical Motif (Neural Grid) -->
-						<div class="relative w-72 h-72">
-							<div class="absolute inset-0 bg-accent/10 rounded-full blur-3xl opacity-40"></div>
-							<div class="relative grid grid-cols-4 gap-1 p-4 border border-slate-800 bg-slate-900/50 backdrop-blur-xl">
-								{Array.from({ length: 16 }).map((_, i) => (
-									<div class={`aspect-square border border-slate-800 flex items-center justify-center ${i % 5 === 0 ? 'bg-accent/20' : ''}`}>
-										{i % 7 === 0 && <div class="w-1.5 h-1.5 bg-accent shadow-[0_0_10px_#10b981]"></div>}
-										{i === 10 && <div class="w-1.5 h-1.5 bg-accent-secondary shadow-[0_0_10px_#a855f7]"></div>}
-									</div>
-								))}
-							</div>
-							<div class="absolute -top-4 -right-4 font-space-grotesk text-[8px] text-accent-secondary opacity-50 select-none">
-								[SYSTEM_ID: AX_01]
+					
+					<div class="md:w-2/5 relative w-full flex justify-center">
+						<!-- Tech Motif (Monolith Neural Grid) -->
+						<div class="relative w-80 h-80 group">
+							<div class="absolute inset-0 bg-accent/20 rounded-full blur-[100px] opacity-30 group-hover:opacity-50 transition-opacity"></div>
+							<div class="relative aspect-square border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-2xl">
+								<div class="grid grid-cols-6 gap-2 h-full">
+									{Array.from({ length: 36 }).map((_, i) => (
+										<div class={`border border-slate-800/50 transition-colors duration-700 hover:bg-accent/20 ${i % 7 === 0 ? 'bg-accent/10' : ''} flex items-center justify-center`}>
+											{(i === 14 || i === 25) && <div class="w-1 h-1 bg-accent shadow-[0_0_10px_#10b981]"></div>}
+											{i === 19 && <div class="w-1 h-1 bg-accent-secondary shadow-[0_0_10px_#a855f7]"></div>}
+										</div>
+									))}
+								</div>
+								<div class="absolute -bottom-6 -left-6 font-space-grotesk text-[9px] text-slate-600 tracking-tighter vertical-rl rotate-180 uppercase">
+									Neural_Core_v2.0 // Active
+								</div>
 							</div>
 						</div>
 					</div>
@@ -62,56 +69,57 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 			</section>
 
 
-			<!-- Section Navigation Cards (AX Pillars) -->
-			<section class="grid grid-cols-1 md:grid-cols-3 gap-10">
+			<!-- Section Navigation Modules -->
+			<section class="grid grid-cols-1 md:grid-cols-3 gap-12">
 				<!-- AX Strategy -->
-				<a href={`${base}/blog`} class="group block bg-slate-900/30 border border-slate-800 p-10 rounded-sm hover:border-accent transition-all duration-500 relative overflow-hidden">
-					<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
-						<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 3v18h18M7 16l4-4 4 4 6-6"/></svg>
+				<a href={`${base}/blog`} class="group block bg-slate-900/20 border border-slate-800 p-12 rounded-sm hover:border-accent transition-all duration-700 relative overflow-hidden">
+					<div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-20 transition-opacity text-accent">
+						<svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.5"><path d="M3 3v18h18M7 16l4-4 4 4 6-6"/></svg>
 					</div>
-					<div class="mb-16">
-						<span class="font-space-grotesk text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em]">Module 01</span>
+					<div class="mb-20 flex justify-between items-center">
+						<span class="font-space-grotesk text-[9px] text-slate-600 font-bold uppercase tracking-[0.4em]">Module_01</span>
+						<div class="w-1.5 h-1.5 bg-accent/30 rounded-full group-hover:bg-accent transition-colors"></div>
 					</div>
-					<h3 class="text-3xl font-space-grotesk font-bold mb-4 tracking-tight group-hover:text-accent transition-colors">AX Strategy</h3>
-					<p class="text-slate-400 leading-relaxed font-light text-sm">AI 도입 전략, ROI 분석 및 산업별 혁신 사례 연구 리포트</p>
-					<div class="mt-10 flex items-center gap-2 text-[10px] font-bold font-space-grotesk tracking-widest text-accent opacity-0 group-hover:opacity-100 transition-all">
-						OPEN_MODULE <span class="text-xs">→</span>
+					<h3 class="text-3xl font-bold tracking-[-0.05em] mb-6 group-hover:text-accent transition-colors break-keep">AX 전략 수립</h3>
+					<p class="text-slate-400 leading-relaxed font-light text-sm tracking-[-0.01em]">데이터 기반 ROI 분석과 산업별 최적화된 AI 도입 로드맵 및 인사이트 리포트</p>
+					<div class="mt-12 flex items-center gap-3 text-[9px] font-bold font-space-grotesk tracking-[0.3em] text-accent opacity-40 group-hover:opacity-100 transition-all uppercase">
+						Access_Module <span class="text-xs translate-y-[-1px]">→</span>
 					</div>
 				</a>
 
 				<!-- AI Implementation -->
-				<a href={`${base}/study`} class="group block bg-slate-900/30 border border-slate-800 p-10 rounded-sm hover:border-accent-secondary transition-all duration-500 relative overflow-hidden">
-					<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
-						<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 2v20M2 12h20M12 2l4 4M12 22l-4-4M2 12l4-4M22 12l-4 4"/></svg>
+				<a href={`${base}/study`} class="group block bg-slate-900/20 border border-slate-800 p-12 rounded-sm hover:border-accent-secondary transition-all duration-700 relative overflow-hidden">
+					<div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-20 transition-opacity text-accent-secondary">
+						<svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.5"><path d="M12 2v20M2 12h20M12 2l4 4M12 22l-4-4M2 12l4-4M22 12l-4 4"/></svg>
 					</div>
-					<div class="mb-16">
-						<span class="font-space-grotesk text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em]">Module 02</span>
+					<div class="mb-20 flex justify-between items-center">
+						<span class="font-space-grotesk text-[9px] text-slate-600 font-bold uppercase tracking-[0.4em]">Module_02</span>
+						<div class="w-1.5 h-1.5 bg-accent-secondary/30 rounded-full group-hover:bg-accent-secondary transition-colors"></div>
 					</div>
-					<h3 class="text-3xl font-space-grotesk font-bold mb-4 tracking-tight group-hover:text-accent-secondary transition-colors">AI Implementation</h3>
-					<p class="text-slate-400 leading-relaxed font-light text-sm">LLM 파이프라인, RAG 아키텍처 및 자율형 에이전트 구축 기술 로그</p>
-					<div class="mt-10 flex items-center gap-2 text-[10px] font-bold font-space-grotesk tracking-widest text-accent-secondary opacity-0 group-hover:opacity-100 transition-all">
-						OPEN_MODULE <span class="text-xs">→</span>
+					<h3 class="text-3xl font-bold tracking-[-0.05em] mb-6 group-hover:text-accent-secondary transition-colors break-keep">AI 기술 구현</h3>
+					<p class="text-slate-400 leading-relaxed font-light text-sm tracking-[-0.01em]">RAG 파이프라인, 고성능 LLM 튜닝 및 자율형 에이전트 워크플로우 엔지니어링 로그</p>
+					<div class="mt-12 flex items-center gap-3 text-[9px] font-bold font-space-grotesk tracking-[0.3em] text-accent-secondary opacity-40 group-hover:opacity-100 transition-all uppercase">
+						Access_Module <span class="text-xs translate-y-[-1px]">→</span>
 					</div>
 				</a>
 
 				<!-- AX Solutions -->
-				<a href={`${base}/portfolio`} class="group block bg-slate-900/30 border border-slate-800 p-10 rounded-sm hover:border-white transition-all duration-500 relative overflow-hidden">
-					<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
-						<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+				<a href={`${base}/portfolio`} class="group block bg-slate-900/20 border border-slate-800 p-12 rounded-sm hover:border-white transition-all duration-700 relative overflow-hidden">
+					<div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-20 transition-opacity text-white">
+						<svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
 					</div>
-					<div class="mb-16">
-						<span class="font-space-grotesk text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em]">Module 03</span>
+					<div class="mb-20 flex justify-between items-center">
+						<span class="font-space-grotesk text-[9px] text-slate-600 font-bold uppercase tracking-[0.4em]">Module_03</span>
+						<div class="w-1.5 h-1.5 bg-slate-700 rounded-full group-hover:bg-white transition-colors"></div>
 					</div>
-					<h3 class="text-3xl font-space-grotesk font-bold mb-4 tracking-tight group-hover:text-white transition-colors">Portfolio</h3>
-					<p class="text-slate-400 leading-relaxed font-light text-sm">실제 문제를 해결한 프로젝트 쇼케이스 및 솔루션</p>
-					<div class="mt-10 flex items-center gap-2 text-[10px] font-bold font-space-grotesk tracking-widest text-white opacity-0 group-hover:opacity-100 transition-all">
-						OPEN_MODULE <span class="text-xs">→</span>
+					<h3 class="text-3xl font-bold tracking-[-0.05em] mb-6 group-hover:text-white transition-colors break-keep">비즈니스 솔루션</h3>
+					<p class="text-slate-400 leading-relaxed font-light text-sm tracking-[-0.01em]">현실의 문제를 해결하고 비즈니스 가치를 증명한 지능형 서비스 쇼케이스</p>
+					<div class="mt-12 flex items-center gap-3 text-[9px] font-bold font-space-grotesk tracking-[0.3em] text-white opacity-40 group-hover:opacity-100 transition-all uppercase">
+						Access_Module <span class="text-xs translate-y-[-1px]">→</span>
 					</div>
 				</a>
 			</section>
 		</main>
 		<Footer />
 	</body>
-</html>
-body>
 </html>
