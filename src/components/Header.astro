@@ -6,21 +6,21 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
 <header class="sticky top-0 z-50 glass-panel" transition:persist>
-	<nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+	<nav class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 		<div class="flex items-center gap-4">
-			<a href={`${base}/`} class="text-lg font-black tracking-tighter hover:text-primary transition-colors tech-font">
+			<a href={`${base}/`} class="text-xl font-black tracking-tighter hover:text-primary transition-colors tech-font">
 				{SITE_TITLE} // <span class="text-primary">CORE</span>
 			</a>
 		</div>
-		<div class="hidden md:flex items-center gap-8">
-			<HeaderLink href={`${base}/portfolio`} class="tech-font text-[10px] tracking-widest opacity-60 hover:opacity-100 hover:text-primary">01_Portfolio</HeaderLink>
-			<HeaderLink href={`${base}/blog`} class="tech-font text-[10px] tracking-widest opacity-60 hover:opacity-100 hover:text-primary">02_Research</HeaderLink>
-			<HeaderLink href={`${base}/study`} class="tech-font text-[10px] tracking-widest opacity-60 hover:opacity-100 hover:text-primary">03_Study_Log</HeaderLink>
-			<HeaderLink href={`${base}/about`} class="tech-font text-[10px] tracking-widest opacity-60 hover:opacity-100 hover:text-primary">04_Identity</HeaderLink>
+		<div class="hidden md:flex items-center gap-10">
+			<HeaderLink href={`${base}/portfolio`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">01_Portfolio</HeaderLink>
+			<HeaderLink href={`${base}/blog`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">02_Research</HeaderLink>
+			<HeaderLink href={`${base}/study`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">03_Study_Log</HeaderLink>
+			<HeaderLink href={`${base}/about`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">04_Identity</HeaderLink>
 		</div>
-		<div class="flex items-center gap-2">
+		<div class="flex items-center gap-3">
 			<div class="pulse-dot"></div>
-			<span class="tech-font text-[9px] opacity-40">System_Online</span>
+			<span class="tech-font text-[10px] font-bold opacity-50 tracking-widest">System_Online</span>
 		</div>
 	</nav>
 </header>

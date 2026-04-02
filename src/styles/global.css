@@ -8,24 +8,24 @@
 
 	--color-primary: #69f6b8;
 	--color-primary-container: #06b77f;
-	--color-secondary: #b0f0d6;
-	--color-bg-base: #0e0e0e;
-	--color-surface: #0e0e0e;
-	--color-surface-low: #131313;
-	--color-surface-high: #201f1f;
-	--color-surface-highest: #262626;
-	--color-text-base: #ffffff;
-	--color-text-muted: #adaaaa;
+	--color-secondary: #c180ff;
+	--color-bg-base: #070d1f;
+	--color-surface: #070d1f;
+	--color-surface-low: #0c1326;
+	--color-surface-high: #171f36;
+	--color-surface-highest: #1c253e;
+	--color-text-base: #f8fafc;
+	--color-text-muted: #a5aac2;
 }
 
 :root {
 	--primary: #69f6b8;
 	--primary-glow: rgba(105, 246, 184, 0.15);
-	--secondary: #b0f0d6;
-	--bg-base: #0e0e0e;
-	--surface: #0e0e0e;
-	--text-base: #ffffff;
-	--text-muted: #adaaaa;
+	--secondary: #c180ff;
+	--bg-base: #070d1f;
+	--surface: #070d1f;
+	--text-base: #f8fafc;
+	--text-muted: #a5aac2;
 	
 	/* Mathematical Spacing Scale (Quantum Obsidian) */
 	--spacing-unit: 4px;
@@ -51,7 +51,7 @@ body {
 	color: var(--text-base);
 	margin: 0;
 	padding: 0;
-	line-height: 1.6; /* Engineering density */
+	line-height: 1.6;
 	letter-spacing: -0.02em;
 	word-break: keep-all;
 	overflow-x: hidden;
@@ -66,7 +66,6 @@ h1, h2, h3, h4, h5, h6 {
 	margin: 0;
 }
 
-/* Technical Accents (AI Voice) */
 .tech-font {
 	font-family: var(--font-space-grotesk);
 	text-transform: uppercase;
@@ -75,15 +74,15 @@ h1, h2, h3, h4, h5, h6 {
 .tech-label {
 	font-family: var(--font-space-grotesk);
 	text-transform: uppercase;
-	font-size: 0.65rem;
-	letter-spacing: 0.3em;
+	font-size: 0.8rem; /* Increased from 0.65rem */
+	letter-spacing: 0.2em;
 	color: var(--primary);
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
 }
 
-/* The "No-Line" Rule: boundaries through tonal shifts */
+
 .section-boundary {
 	background-color: var(--color-surface-low);
 	border: none;
@@ -131,23 +130,119 @@ h1, h2, h3, h4, h5, h6 {
 	100% { transform: scale(3); opacity: 0; }
 }
 
-/* Prose Optimization */
+/* --- High-Performance Markdown Typography --- */
 .prose-obsidian {
-	color: var(--text-muted);
-	font-family: var(--font-pretendard);
-	line-height: 1.8;
-}
-
-.prose-obsidian h1, .prose-obsidian h2 {
 	color: var(--text-base);
-	margin-top: var(--spacing-16);
-	margin-bottom: var(--spacing-8);
+	font-family: "Pretendard Variable", sans-serif;
+	line-height: 1.8;
+	font-size: 1.1rem;
 }
 
-.prose-obsidian code {
-	font-family: var(--font-space-grotesk);
-	background-color: var(--color-surface-high);
+.prose-obsidian h1 {
+	font-size: 3rem;
+	font-weight: 900;
+	letter-spacing: -0.05em;
+	margin-top: 4rem;
+	margin-bottom: 2rem;
+	color: #ffffff;
+}
+
+.prose-obsidian h2 {
+	font-size: 2rem;
+	font-weight: 800;
+	letter-spacing: -0.04em;
+	margin-top: 3.5rem;
+	margin-bottom: 1.5rem;
+	padding-left: 1rem;
+	border-left: 4px solid var(--primary);
+	color: #ffffff;
+}
+
+.prose-obsidian h3 {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin-top: 2.5rem;
+	margin-bottom: 1rem;
 	color: var(--primary);
-	padding: 0.2em 0.4em;
+	border-top: 1px solid rgba(105, 246, 184, 0.1);
+	padding-top: 0.5rem;
+}
+
+.prose-obsidian p {
+	margin-bottom: 1.5rem;
+	opacity: 0.9;
+}
+
+.prose-obsidian blockquote {
+	background-color: rgba(193, 128, 255, 0.05);
+	border-left: 4px solid var(--secondary);
+	padding: 1.5rem 2rem;
+	margin: 2rem 0;
+	font-style: italic;
+	font-family: var(--font-inter);
+}
+
+.prose-obsidian blockquote p {
+	margin-bottom: 0;
+	color: var(--secondary);
+	opacity: 1;
+}
+
+.prose-obsidian ul {
+	margin-bottom: 2rem;
+	list-style: none;
+	padding-left: 0;
+}
+
+.prose-obsidian li {
+	position: relative;
+	padding-left: 1.5rem;
+	margin-bottom: 0.75rem;
+}
+
+.prose-obsidian li::before {
+	content: "->";
+	position: absolute;
+	left: 0;
+	color: var(--primary);
+	font-family: var(--font-space-grotesk);
+	font-weight: bold;
+	font-size: 0.8rem;
+}
+
+.prose-obsidian code:not(pre code) {
+	background-color: rgba(105, 246, 184, 0.1);
+	color: var(--primary);
+	padding: 0.2rem 0.4rem;
 	border-radius: 2px;
+	font-family: var(--font-space-grotesk);
+	font-size: 0.9em;
+}
+
+.prose-obsidian pre {
+	background-color: #000000 !important;
+	border: 1px solid rgba(255, 255, 255, 0.05);
+	border-radius: 4px;
+	padding: 2rem;
+	margin: 2rem 0;
+	position: relative;
+}
+
+.prose-obsidian pre::after {
+	content: "SOURCE_CODE";
+	position: absolute;
+	top: 0.5rem;
+	right: 1rem;
+	font-family: var(--font-space-grotesk);
+	font-size: 0.6rem;
+	letter-spacing: 0.2em;
+	color: var(--primary);
+	opacity: 0.5;
+}
+
+.prose-obsidian pre code {
+	font-family: var(--font-space-grotesk);
+	font-size: 0.9rem;
+	line-height: 1.6;
+	background: transparent !important;
 }
