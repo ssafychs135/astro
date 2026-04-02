@@ -1,69 +1,47 @@
 ---
-import { Image } from 'astro:assets';
+import MainLayout from '../../layouts/MainLayout.astro';
 import { getCollection } from 'astro:content';
-import BaseHead from '../../components/BaseHead.astro';
-import Footer from '../../components/Footer.astro';
-import FormattedDate from '../../components/FormattedDate.astro';
-import Header from '../../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const posts = (await getCollection('portfolio')).sort(
+const projects = (await getCollection('portfolio')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={`AX Solutions | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
-	</head>
-	<body class="bg-[#030712] text-slate-50 font-inter">
-		<Header />
-		<main class="max-w-7xl mx-auto px-6 py-12 md:py-24">
-			<h1 class="text-6xl md:text-8xl font-space-grotesk font-bold tracking-tighter mb-16 md:mb-24 border-b border-slate-800 pb-12">
-				AX Solutions
-			</h1>
+<MainLayout title={`Verified Solutions | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+	<header class="mb-24">
+		<div class="tech-label mb-6">> System_Output // Projects</div>
+		<h1 class="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-8 font-space-grotesk">
+			Verified<br/><span class="text-primary italic">Solutions</span>
+		</h1>
+		<p class="text-xl text-text-muted max-w-3xl leading-relaxed">
+			지능형 시스템 설계와 구현을 통해 해결한 비즈니스 문제들입니다. 
+			각 프로젝트는 단순한 결과물이 아닌, 특정 도메인에서의 기술적 증명(Evidence)입니다.
+		</p>
+	</header>
 
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-16">
-				{posts.map((post) => (
-					<article class="group">
-						<a href={`${base}/portfolio/${post.id}/`} class="block">
-							<div class="relative aspect-video bg-slate-900 rounded-sm overflow-hidden mb-8 border border-slate-800 transition-all duration-500 group-hover:border-accent">
-								{post.data.heroImage && (
-									<Image width={800} height={450} src={post.data.heroImage} alt="" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-100" />
-								)}
-								<div class="absolute inset-0 bg-accent/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-									<span class="bg-accent text-slate-950 px-6 py-2 rounded-sm font-bold font-space-grotesk text-[10px] tracking-widest uppercase shadow-xl">VIEW_PROJECT</span>
-								</div>
-								<div class="absolute bottom-4 left-4 font-space-grotesk text-[8px] text-slate-500 uppercase tracking-widest">
-									[PROJECT_ID: {post.id.substring(0, 8).toUpperCase()}]
-								</div>
-							</div>
-							<div class="flex justify-between items-start mb-4">
-								<h2 class="text-3xl font-space-grotesk font-bold tracking-tight group-hover:text-accent transition-colors duration-500">
-									{post.data.title}
-								</h2>
-								<div class="font-space-grotesk text-xs font-bold text-slate-600 mt-2">
-									{(post.data.pubDate).getFullYear()}
-								</div>
-							</div>
-							<p class="text-slate-400 font-light leading-relaxed mb-8 md:text-lg">
-								{post.data.description}
-							</p>
-							<div class="flex flex-wrap gap-2">
-								{post.data.stack && post.data.stack.map(item => (
-									<span class="px-3 py-1 bg-slate-900 text-accent border border-accent/20 rounded-sm text-[10px] font-bold font-space-grotesk uppercase tracking-wider">
-										{item}
-									</span>
-								))}
-							</div>
-						</a>
-					</article>
-				))}
-			</div>
-		</main>
-		<Footer />
-	</body>
-</html>
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+		{projects.map((project) => (
+			<a href={`${base}/portfolio/${project.id}/`} class="group block bg-surface-low rounded-sm overflow-hidden hover:bg-surface-high transition-all duration-500">
+				<div class="aspect-video bg-surface-highest/50 relative overflow-hidden">
+					{project.data.heroImage && <img src={project.data.heroImage} alt="" class="w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-80 transition-all duration-700" />}
+					<div class="absolute inset-0 bg-gradient-to-t from-surface-low to-transparent"></div>
+				</div>
+				<div class="p-8">
+					<div class="tech-label text-[10px] mb-4 text-secondary">Case_Study // 0{projects.indexOf(project) + 1}</div>
+					<h3 class="text-3xl font-bold mb-4 group-hover:text-primary transition-colors font-space-grotesk uppercase">
+						{project.data.title}
+					</h3>
+					<p class="text-text-muted text-sm leading-relaxed line-clamp-3 mb-8">
+						{project.data.description}
+					</p>
+					<div class="flex flex-wrap gap-2">
+						{project.data.stack?.map(s => <span class="px-2 py-1 bg-surface-highest text-[9px] font-bold tech-font rounded-sm">{s}</span>)}
+					</div>
+				</div>
+			</a>
+		))}
+	</div>
+</MainLayout>

@@ -11,71 +11,114 @@ type Props = CollectionEntry<'portfolio'>['data'];
 const { title, description, pubDate, updatedDate, heroImage, stack, githubUrl, demoUrl, role } = Astro.props;
 ---
 
-<html lang="en">
+<html lang="ko">
 	<head>
 		<BaseHead title={title} description={description} />
+		<style>
+			.telemetry-bar {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+				gap: var(--spacing-8);
+				padding: var(--spacing-8) 0;
+				border-top: 1px solid rgba(255, 255, 255, 0.05);
+				border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+				margin: var(--spacing-12) 0;
+			}
+			.telemetry-item {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+			.blueprint-frame {
+				background-color: var(--color-surface-low);
+				padding: var(--spacing-4);
+				border-radius: 4px;
+				margin-bottom: var(--spacing-20);
+				position: relative;
+			}
+			.blueprint-frame::after {
+				content: "TECHNICAL_SPECIFICATION_v2.0";
+				position: absolute;
+				top: -10px;
+				right: 20px;
+				background-color: var(--primary);
+				color: var(--bg-base);
+				font-family: var(--font-space-grotesk);
+				font-size: 9px;
+				font-weight: 900;
+				padding: 2px 8px;
+				border-radius: 2px;
+			}
+			.tag-obsidian {
+				font-family: var(--font-space-grotesk);
+				font-size: 0.65rem;
+				font-weight: 700;
+				background-color: var(--color-surface-high);
+				color: var(--secondary);
+				padding: 0.2rem 0.6rem;
+				border-radius: 2px;
+				text-transform: uppercase;
+			}
+		</style>
 	</head>
 
-	<body class="bg-white text-slate-900 font-inter">
+	<body class="bg-bg-base text-text-base antialiased">
 		<Header />
-		<main class="max-w-5xl mx-auto px-6 py-12 md:py-24">
+		<main class="max-w-5xl mx-auto px-6 py-24">
 			<article>
-				<!-- Hero Section -->
-				<div class="mb-16 md:mb-24">
-					<div class="font-space-grotesk text-xs font-bold text-slate-400 mb-6 tracking-[0.2em] uppercase flex items-center gap-4">
-						<span class="text-accent-secondary">Project Showcase</span>
-						<span>/</span>
-						<FormattedDate date={pubDate} />
+				<header class="mb-16">
+					<div class="tech-label mb-8">
+						<span class="text-secondary">> Case_Study // 01</span>
+						<span class="opacity-30">Status: Verified</span>
 					</div>
-					<h1 class="text-5xl md:text-7xl font-plus-jakarta font-extrabold tracking-tighter mb-8 leading-[1.1]">{title}</h1>
+					<h1 class="text-5xl md:text-8xl font-black tracking-tighter uppercase mb-12 leading-[0.9]">
+						{title}
+					</h1>
 					
-					<!-- Links and Metadata -->
-					<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12 py-8 border-y border-slate-100">
-						<div class="flex flex-col gap-4">
-							{role && (
-								<div class="flex items-center gap-3">
-									<span class="font-space-grotesk text-[10px] font-bold text-slate-400 uppercase tracking-widest">Role</span>
-									<span class="text-slate-700 font-semibold">{role}</span>
-								</div>
-							)}
-							<div class="flex flex-wrap gap-2">
-								{stack && stack.map((item) => (
-									<span class="px-3 py-1 bg-purple-50 text-accent-secondary rounded-full text-[10px] font-bold font-space-grotesk uppercase tracking-wider">{item}</span>
-								))}
-							</div>
+					<p class="text-xl md:text-2xl text-text-muted leading-relaxed max-w-3xl mb-12">
+						{description}
+					</p>
+
+					<div class="telemetry-bar">
+						<div class="telemetry-item">
+							<span class="tech-label opacity-40 !text-[9px]">Timestamp</span>
+							<span class="font-bold"><FormattedDate date={pubDate} /></span>
 						</div>
-						
-						<div class="flex gap-4">
-							{githubUrl && (
-								<a href={githubUrl} target="_blank" rel="noopener noreferrer" 
-									class="px-6 py-3 bg-slate-900 text-white rounded-full font-bold text-sm shadow-xl hover:bg-black transition-all">
-									GitHub
-								</a>
-							)}
-							{demoUrl && (
-								<a href={demoUrl} target="_blank" rel="noopener noreferrer" 
-									class="px-6 py-3 bg-white border border-slate-200 text-black rounded-full font-bold text-sm shadow-lg hover:border-accent-secondary transition-all">
-									Live Demo
-								</a>
-							)}
+						<div class="telemetry-item">
+							<span class="tech-label opacity-40 !text-[9px]">Primary_Role</span>
+							<span class="font-bold uppercase tech-font text-xs tracking-widest">{role || 'Architect'}</span>
+						</div>
+						<div class="telemetry-item">
+							<span class="tech-label opacity-40 !text-[9px]">Tech_Stack</span>
+							<div class="flex flex-wrap gap-2">
+								{stack?.map(s => <span class="tag-obsidian">{s}</span>)}
+							</div>
 						</div>
 					</div>
 
-					{heroImage && (
-						<div class="rounded-[40px] overflow-hidden border border-slate-100 shadow-2xl shadow-purple-100/20">
-							<Image width={1200} height={600} src={heroImage} alt="" class="w-full h-auto" />
+					<div class="flex gap-6 mt-12">
+						{githubUrl && (
+							<a href={githubUrl} class="px-8 py-3 bg-primary text-bg-base font-black tech-font rounded-sm hover:bg-secondary transition-colors">
+								Initialize_Source
+							</a>
+						)}
+						{demoUrl && (
+							<a href={demoUrl} class="px-8 py-3 border border-surface-high font-black tech-font rounded-sm hover:border-primary transition-colors">
+								Deploy_Live
+							</a>
+						)}
+					</div>
+				</header>
+
+				{heroImage && (
+					<div class="blueprint-frame">
+						<div class="rounded-sm overflow-hidden border border-white/5">
+							<Image width={1200} height={600} src={heroImage} alt="" class="w-full h-auto grayscale hover:grayscale-0 transition-all duration-1000" />
 						</div>
-					)}
-				</div>
+					</div>
+				)}
 				
-				<!-- Content -->
-				<div class="prose prose-slate prose-xl max-w-3xl mx-auto
-					prose-headings:font-plus-jakarta prose-headings:font-extrabold prose-headings:tracking-tight
-					prose-p:font-light prose-p:leading-relaxed prose-p:text-slate-600
-					prose-a:text-accent-secondary hover:prose-a:text-purple-700
-					prose-img:rounded-[32px] prose-img:border prose-img:border-slate-50
-					prose-blockquote:border-l-accent-secondary prose-blockquote:bg-slate-50 prose-blockquote:py-2 prose-blockquote:px-8 prose-blockquote:rounded-r-2xl
-					prose-code:font-space-grotesk prose-code:bg-slate-100 prose-code:px-1 prose-code:rounded">
+				<div class="prose-obsidian max-w-none">
 					<slot />
 				</div>
 			</article>

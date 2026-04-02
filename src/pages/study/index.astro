@@ -1,72 +1,47 @@
 ---
+import MainLayout from '../../layouts/MainLayout.astro';
 import { getCollection } from 'astro:content';
-import BaseHead from '../../components/BaseHead.astro';
-import Footer from '../../components/Footer.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
-import Header from '../../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const posts = (await getCollection('study')).sort(
+const notes = (await getCollection('study')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={`AI Implementation | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
-	</head>
-	<body class="bg-[#030712] text-slate-50 font-inter">
-		<Header />
-		<main class="max-w-5xl mx-auto px-6 py-12 md:py-24">
-			<div class="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
-				<div>
-					<h1 class="text-5xl md:text-7xl font-space-grotesk font-bold tracking-tighter mb-4">Study</h1>
-					<p class="text-slate-400 text-lg md:text-xl font-light italic">Technical logs of learning and technical growth.</p>
-				</div>
-				<!-- View Toggle -->
-				<div class="bg-slate-900 border border-slate-800 p-1 rounded-sm flex gap-1 font-space-grotesk">
-					<button class="bg-accent text-slate-950 px-6 py-2 rounded-sm text-[10px] font-bold uppercase tracking-wider">Timeline</button>
-					<button class="px-6 py-2 rounded-sm text-[10px] font-bold text-slate-500 uppercase tracking-wider hover:text-slate-300 transition-colors">Grid</button>
-				</div>
-			</div>
+<MainLayout title={`Study Log | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+	<header class="mb-24">
+		<div class="tech-label mb-6">> System_Exploration // Continuous_Learning</div>
+		<h1 class="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-8 font-space-grotesk">
+			Study<br/><span class="text-secondary italic">Log</span>
+		</h1>
+		<p class="text-xl text-text-muted max-w-2xl leading-relaxed">
+			기술적 한계를 돌파하기 위한 매일의 기록입니다. 
+			성공보다 실패의 기록에 더 집중하며, 지능형 시스템의 견고함을 쌓아가는 연구 노트입니다.
+		</p>
+	</header>
 
-			<!-- Timeline Container -->
-			<div class="relative pl-8 md:pl-12 border-l-2 border-slate-800 ml-4 md:ml-8">
-				{
-					posts.map((post) => (
-						<div class="mb-20 relative">
-							<!-- Timeline Node -->
-							<div class="absolute -left-[41px] md:-left-[53px] top-0 w-5 h-5 rounded-sm bg-accent-secondary border-4 border-[#030712] shadow-[0_0_10px_rgba(168,85,247,0.5)] transition-transform hover:scale-125"></div>
-							
-							<!-- Date -->
-							<div class="font-space-grotesk text-xs font-bold text-slate-500 mb-4 tracking-[0.2em] uppercase">
-								<FormattedDate date={post.data.pubDate} />
-							</div>
-
-							<!-- Content Card -->
-							<a href={`${base}/study/${post.id}/`} class="group block bg-slate-900/20 border border-slate-800 p-8 md:p-10 rounded-sm hover:border-accent-secondary transition-all duration-500">
-								<div class="flex flex-wrap gap-2 mb-6">
-									<span class="px-3 py-1 bg-accent-secondary/10 text-accent-secondary border border-accent-secondary/20 rounded-sm text-[10px] font-bold font-space-grotesk uppercase tracking-wider">[{post.data.category}]</span>
-									{post.data.tags && post.data.tags.map(tag => (
-										<span class="px-3 py-1 bg-slate-800 text-slate-400 rounded-sm text-[10px] font-bold font-space-grotesk uppercase tracking-wider">#{tag}</span>
-									))}
-								</div>
-								<h3 class="text-2xl md:text-3xl font-space-grotesk font-bold mb-4 tracking-tight group-hover:text-accent-secondary transition-colors">{post.data.title}</h3>
-								<p class="text-slate-400 leading-relaxed font-light md:text-lg">
-									{post.data.description}
-								</p>
-								<div class="mt-8 flex items-center text-accent-secondary font-space-grotesk text-[10px] font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-all">
-									ACCESS_LOG <span class="ml-2">→</span>
-								</div>
-							</a>
-						</div>
-					))
-				}
-			</div>
-		</main>
-		<Footer />
-	</body>
-</html>
+	<div class="bg-black/50 backdrop-blur-md rounded-sm border border-surface-highest/30 overflow-hidden">
+		<div class="grid grid-cols-12 gap-4 px-8 py-4 border-b border-surface-highest/30 bg-surface-low/50 tech-font text-[9px] opacity-40">
+			<div class="col-span-2">LOG_TIMESTAMP</div>
+			<div class="col-span-8">RESEARCH_TITLE</div>
+			<div class="col-span-2 text-right">TAGS</div>
+		</div>
+		{notes.map((note) => (
+			<a href={`${base}/study/${note.id}/`} class="grid grid-cols-12 gap-4 px-8 py-6 border-b border-white/5 hover:bg-secondary/5 transition-colors group no-underline">
+				<div class="col-span-2 tech-font text-[10px] text-text-muted mt-1">
+					<FormattedDate date={note.data.pubDate} />
+				</div>
+				<div class="col-span-8">
+					<div class="font-bold text-lg group-hover:text-secondary transition-colors font-space-grotesk uppercase">{note.data.title}</div>
+					<p class="text-xs text-text-muted mt-2 line-clamp-1 opacity-60 font-sans">{note.data.description}</p>
+				</div>
+				<div class="col-span-2 text-right flex flex-wrap justify-end gap-2 mt-1">
+					{note.data.tags?.slice(0, 2).map(tag => <span class="text-[9px] tech-font text-secondary opacity-50">#{tag}</span>)}
+				</div>
+			</a>
+		))}
+	</div>
+</MainLayout>

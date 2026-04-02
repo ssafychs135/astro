@@ -1,96 +1,47 @@
 ---
-import { Image } from 'astro:assets';
+import MainLayout from '../../layouts/MainLayout.astro';
 import { getCollection } from 'astro:content';
-import BaseHead from '../../components/BaseHead.astro';
-import Footer from '../../components/Footer.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
-import Header from '../../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
-
-const featuredPost = posts[0];
-const remainingPosts = posts.slice(1);
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={`Tech Research | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
-	</head>
-	<body class="bg-white text-slate-900 font-inter">
-		<Header />
-		<main class="max-w-7xl mx-auto px-6 py-12 md:py-24">
-			<h1 class="text-6xl md:text-8xl font-plus-jakarta font-extrabold tracking-tighter mb-16 md:mb-24 border-b border-slate-100 pb-12">
-				Tech Research
-			</h1>
+<MainLayout title={`Tech Research | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+	<header class="mb-24">
+		<div class="tech-label mb-6">> System_Insights // Strategic_Research</div>
+		<h1 class="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-8 font-space-grotesk">
+			Tech<br/><span class="text-primary italic">Research</span>
+		</h1>
+		<p class="text-xl text-text-muted max-w-2xl leading-relaxed">
+			AX 트렌드와 시스템 설계에 대한 심층적인 분석 리포트입니다. 
+			단순한 정보 전달을 넘어, 기술이 비즈니스에 미치는 영향력을 탐구합니다.
+		</p>
+	</header>
 
-			<div class="grid grid-cols-12 gap-12 lg:gap-20">
-				<!-- Featured Article -->
-				{featuredPost && (
-					<article class="col-span-12 lg:col-span-8 group cursor-pointer">
-						<a href={`/blog/${featuredPost.id}/`}>
-							<div class="relative overflow-hidden rounded-[40px] mb-10 border border-slate-50 shadow-sm">
-								<div class="aspect-[16/10] bg-slate-100 group-hover:scale-105 transition-transform duration-1000">
-									{featuredPost.data.heroImage && (
-										<Image width={1200} height={750} src={featuredPost.data.heroImage} alt="" class="w-full h-full object-cover" />
-									)}
-								</div>
-								<div class="absolute top-8 left-8">
-									<span class="px-5 py-2 bg-accent text-slate-950 font-space-grotesk text-[10px] font-bold tracking-[0.2em] uppercase rounded-sm shadow-lg shadow-emerald-500/20">
-										Featured Post
-									</span>
-								</div>
-							</div>
-							<div class="px-2">
-								<div class="font-space-grotesk text-xs font-bold text-slate-500 mb-4 tracking-[0.2em] uppercase">
-									<FormattedDate date={featuredPost.data.pubDate} />
-								</div>
-								<h2 class="text-4xl md:text-5xl font-space-grotesk font-bold mb-8 leading-[1.1] tracking-tight group-hover:text-accent transition-colors duration-500">
-									{featuredPost.data.title}
-								</h2>
-								<div class="bg-slate-900/50 backdrop-blur-md p-8 rounded-sm border border-slate-800 transition-all duration-500 group-hover:border-accent/50">
-									<span class="font-space-grotesk text-[10px] font-bold text-accent block mb-3 tracking-widest uppercase">Strategic Insight</span>
-									<p class="text-slate-400 text-lg md:text-xl leading-relaxed font-light">
-										{featuredPost.data.description}
-									</p>
-								</div>
-							</div>
-
-						</a>
-					</article>
-				)}
-
-				<!-- Remaining Articles List -->
-				<div class="col-span-12 lg:col-span-4 flex flex-col gap-16">
-					{remainingPosts.map((post) => (
-						<article class="group cursor-pointer">
-							<a href={`${base}/blog/${post.id}/`}>
-								<div class="font-space-grotesk text-[10px] font-bold text-accent-secondary tracking-[0.2em] uppercase mb-4 block">
-									Research Note
-								</div>
-								<h3 class="text-2xl font-plus-jakarta font-extrabold mb-4 leading-snug tracking-tight group-hover:text-accent-secondary transition-colors duration-500">
-									{post.data.title}
-								</h3>
-								<p class="text-slate-500 font-light leading-relaxed mb-6 line-clamp-3">
-									{post.data.description}
-								</p>
-								<div class="font-space-grotesk text-[10px] font-bold text-slate-300 tracking-widest uppercase">
-									<FormattedDate date={post.data.pubDate} />
-								</div>
-								<div class="mt-8 h-px bg-slate-100 w-full group-last:hidden"></div>
-							</a>
-						</article>
-					))}
+	<div class="bg-black/50 backdrop-blur-md rounded-sm border border-surface-highest/30 overflow-hidden">
+		<div class="grid grid-cols-12 gap-4 px-8 py-4 border-b border-surface-highest/30 bg-surface-low/50 tech-font text-[9px] opacity-40">
+			<div class="col-span-2">TIMESTAMP</div>
+			<div class="col-span-8">INSIGHT_TITLE</div>
+			<div class="col-span-2 text-right">METADATA</div>
+		</div>
+		{posts.map((post) => (
+			<a href={`${base}/blog/${post.id}/`} class="grid grid-cols-12 gap-4 px-8 py-6 border-b border-white/5 hover:bg-primary/5 transition-colors group no-underline">
+				<div class="col-span-2 tech-font text-[10px] text-text-muted mt-1">
+					<FormattedDate date={post.data.pubDate} />
 				</div>
-			</div>
-		</main>
-		<Footer />
-	</body>
-</html>
-
+				<div class="col-span-8">
+					<div class="font-bold text-lg group-hover:text-primary transition-colors font-space-grotesk uppercase">{post.data.title}</div>
+					<p class="text-xs text-text-muted mt-2 line-clamp-1 opacity-60 font-sans">{post.data.description}</p>
+				</div>
+				<div class="col-span-2 text-right tech-font text-[9px] text-secondary opacity-60 mt-1 uppercase">
+					Entry // 0{posts.indexOf(post) + 1}
+				</div>
+			</a>
+		))}
+	</div>
+</MainLayout>

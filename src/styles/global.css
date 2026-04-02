@@ -2,153 +2,152 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-	--font-plus-jakarta: "Plus Jakarta Sans", sans-serif;
+	--font-space-grotesk: "Space Grotesk", "Pretendard Variable", Pretendard, sans-serif;
 	--font-inter: "Inter", "Pretendard Variable", Pretendard, sans-serif;
-	--font-space-grotesk: "Space Grotesk", monospace;
+	--font-pretendard: "Pretendard Variable", Pretendard, sans-serif;
 
-	--color-accent: var(--accent);
-	--color-accent-secondary: var(--accent-secondary);
-	--color-accent-success: var(--accent-success);
-	--color-bg-base: var(--bg-base);
-	--color-gray-light: var(--gray-light);
-	--color-gray-extra-light: var(--gray-extra-light);
+	--color-primary: #69f6b8;
+	--color-primary-container: #06b77f;
+	--color-secondary: #b0f0d6;
+	--color-bg-base: #0e0e0e;
+	--color-surface: #0e0e0e;
+	--color-surface-low: #131313;
+	--color-surface-high: #201f1f;
+	--color-surface-highest: #262626;
+	--color-text-base: #ffffff;
+	--color-text-muted: #adaaaa;
 }
 
 :root {
-	--accent: #10b981;
-	--accent-secondary: #a855f7;
-	--accent-success: #10b981;
-	--black: 248, 250, 252;
-	--bg-base: #030712;
-	--gray: 148, 163, 184;
-	--gray-light: 30, 41, 59;
-	--gray-extra-light: 15, 23, 42;
-	--gray-dark: var(--black);
-	--gray-gradient: rgba(var(--gray-light), 50%), #030712;
-	--box-shadow:
-		0 2px 6px rgba(0, 0, 0, 25%), 0 8px 24px rgba(0, 0, 0, 33%),
-		0 16px 32px rgba(0, 0, 0, 33%);
+	--primary: #69f6b8;
+	--primary-glow: rgba(105, 246, 184, 0.15);
+	--secondary: #b0f0d6;
+	--bg-base: #0e0e0e;
+	--surface: #0e0e0e;
+	--text-base: #ffffff;
+	--text-muted: #adaaaa;
+	
+	/* Mathematical Spacing Scale (Quantum Obsidian) */
+	--spacing-unit: 4px;
+	--spacing-4: calc(var(--spacing-unit) * 4);
+	--spacing-8: calc(var(--spacing-unit) * 8);
+	--spacing-12: calc(var(--spacing-unit) * 12);
+	--spacing-16: calc(var(--spacing-unit) * 16);
+	--spacing-20: calc(var(--spacing-unit) * 20);
 }
 
-/* Custom Prose Styles (AX Strategist - Korean Optimized) */
-.prose {
-  --tw-prose-headings: rgb(var(--black));
-  --tw-prose-links: var(--accent);
-  --tw-prose-bullets: var(--accent-success);
-  --tw-prose-counters: var(--accent);
-  --tw-prose-quotes: rgb(var(--gray-dark));
-  --tw-prose-quote-borders: var(--accent-secondary);
-  font-family: "Pretendard Variable", Pretendard, "Inter", sans-serif;
-  letter-spacing: -0.01em;
-  line-height: 1.8;
+/* Global Reset & Engineering Base */
+*, *::before, *::after {
+	box-sizing: border-box;
 }
 
-.prose h1, .prose h2, .prose h3 {
-  font-family: "Plus Jakarta Sans", "Pretendard Variable", Pretendard, sans-serif;
-  letter-spacing: -0.05em;
-  font-weight: 800;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-}
-
-.prose blockquote {
-  background-color: #0f172a;
-  border-left-width: 4px;
-  border-radius: 0 16px 16px 0;
-  padding: 1.5rem 2rem;
-  font-style: normal;
-  border-left-color: var(--accent-secondary);
-  color: #f8fafc;
-}
-
-.prose blockquote p:first-of-type::before,
-.prose blockquote p:last-of-type::after {
-  content: "";
-}
-
-.prose code {
-  font-family: "Space Grotesk", monospace;
-  background-color: rgba(30, 41, 59, 0.5);
-  padding: 0.2rem 0.4rem;
-  border-radius: 0.375rem;
-  font-weight: 500;
-  color: var(--accent);
-}
-
-.prose pre {
-  background-color: #0f172a;
-  border-radius: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
-
-.prose pre code {
-  background-color: transparent;
-  padding: 0;
-  color: #e2e8f0;
-}
-
-.prose ul > li::marker {
-  color: var(--accent-success);
+body, button, input, select, textarea {
+	font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+	-webkit-font-smoothing: antialiased;
 }
 
 body {
-	font-family: "Pretendard Variable", Pretendard, "Inter", sans-serif;
+	background-color: var(--bg-base);
+	color: var(--text-base);
 	margin: 0;
 	padding: 0;
-	text-align: left;
-	background-color: var(--bg-base);
-	word-wrap: break-word;
-	overflow-wrap: break-word;
-	color: rgb(var(--black));
-	line-height: 1.6;
+	line-height: 1.6; /* Engineering density */
 	letter-spacing: -0.02em;
-}
-
-h1, h2, h3, h4, h5, h6 {
-	margin: 0 0 0.5rem 0;
-	color: rgb(var(--black));
-	line-height: 1.2;
-	letter-spacing: -0.05em;
 	word-break: keep-all;
+	overflow-x: hidden;
 }
 
-h1 { font-size: 3.052em; }
-h2 { font-size: 2.441em; }
-h3 { font-size: 1.953em; }
-h4 { font-size: 1.563em; }
-h5 { font-size: 1.25em; }
-
-strong, b { font-weight: 700; }
-a { color: var(--accent); transition: color 0.2s; }
-a:hover { color: var(--accent-secondary); }
-
-img {
-	max-width: 100%;
-	height: auto;
-	border-radius: 8px;
+/* Typography: The Orchestrated Voice */
+h1, h2, h3, h4, h5, h6 {
+	font-family: var(--font-pretendard);
+	font-weight: 700;
+	line-height: 1.1;
+	letter-spacing: -0.03em;
+	margin: 0;
 }
 
-code {
-	padding: 2px 5px;
-	background-color: var(--gray-light);
-	border-radius: 4px;
-	font-family: "Space Grotesk", monospace;
+/* Technical Accents (AI Voice) */
+.tech-font {
+	font-family: var(--font-space-grotesk);
+	text-transform: uppercase;
 }
 
-hr {
+.tech-label {
+	font-family: var(--font-space-grotesk);
+	text-transform: uppercase;
+	font-size: 0.65rem;
+	letter-spacing: 0.3em;
+	color: var(--primary);
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+/* The "No-Line" Rule: boundaries through tonal shifts */
+.section-boundary {
+	background-color: var(--color-surface-low);
 	border: none;
-	border-top: 1px solid var(--gray-light);
-	margin: 3rem 0;
 }
 
-@media (max-width: 720px) {
-	body { font-size: 18px; }
-	main { padding: 1em; }
+.card-obsidian {
+	background-color: var(--color-surface-low);
+	border-radius: 4px;
+	padding: var(--spacing-8);
+	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+	position: relative;
 }
 
-.sr-only {
-	border: 0; padding: 0; margin: 0; position: absolute !important;
-	height: 1px; width: 1px; overflow: hidden; clip: rect(1px 1px 1px 1px);
-	clip-path: inset(50%); white-space: nowrap;
+.card-obsidian:hover {
+	background-color: var(--color-surface-high);
+}
+
+/* Glassmorphism Rule (40% Opacity) */
+.glass-panel {
+	background-color: rgba(26, 25, 25, 0.4);
+	backdrop-filter: blur(20px);
+	border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* The Pulse Indicator */
+.pulse-dot {
+	width: 8px;
+	height: 8px;
+	background-color: var(--primary);
+	border-radius: 50%;
+	position: relative;
+}
+
+.pulse-dot::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: 50%;
+	background-color: var(--primary);
+	animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+	0% { transform: scale(1); opacity: 0.8; }
+	100% { transform: scale(3); opacity: 0; }
+}
+
+/* Prose Optimization */
+.prose-obsidian {
+	color: var(--text-muted);
+	font-family: var(--font-pretendard);
+	line-height: 1.8;
+}
+
+.prose-obsidian h1, .prose-obsidian h2 {
+	color: var(--text-base);
+	margin-top: var(--spacing-16);
+	margin-bottom: var(--spacing-8);
+}
+
+.prose-obsidian code {
+	font-family: var(--font-space-grotesk);
+	background-color: var(--color-surface-high);
+	color: var(--primary);
+	padding: 0.2em 0.4em;
+	border-radius: 2px;
 }
