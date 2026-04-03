@@ -5,7 +5,7 @@ import { SITE_TITLE } from '../consts';
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
-<header class="sticky top-0 z-50 glass-panel" transition:persist>
+<header class="sticky top-0 z-[120] glass-panel" transition:persist>
 	<nav class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 		<div class="flex items-center gap-4">
 			<a href={`${base}/`} class="text-xl font-black tracking-tighter hover:text-primary transition-colors tech-font">
@@ -21,71 +21,96 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 			<HeaderLink href={`${base}/about`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">04_Identity</HeaderLink>
 		</div>
 
-		<div class="flex items-center gap-6">
-			<!-- System Status (Visible on all screens) -->
-			<div class="flex items-center gap-3">
+		<div class="flex items-center gap-4 md:gap-6">
+			<!-- System Status (Dot only on small mobile) -->
+			<div class="flex items-center gap-2">
 				<div class="pulse-dot"></div>
-				<span class="tech-font text-[10px] font-bold opacity-50 tracking-widest hidden sm:inline">System_Online</span>
+				<span class="tech-font text-[9px] font-bold opacity-40 tracking-widest hidden md:inline">System_Online</span>
 			</div>
 
 			<!-- Hamburger Menu Button (Mobile Only) -->
-			<button id="menu-toggle" class="md:hidden flex flex-col gap-1.5 p-2 z-50 group" aria-label="Toggle Menu">
-				<div class="w-6 h-0.5 bg-primary transition-all duration-300 group-[.open]:rotate-45 group-[.open]:translate-y-2"></div>
-				<div class="w-6 h-0.5 bg-primary transition-all duration-300 group-[.open]:opacity-0"></div>
-				<div class="w-4 h-0.5 bg-primary self-end transition-all duration-300 group-[.open]:-rotate-45 group-[.open]:-translate-y-2 group-[.open]:w-6"></div>
+			<button id="menu-toggle" class="md:hidden flex flex-col items-end gap-1.5 p-2 z-[110] group cursor-pointer" aria-label="Toggle Menu">
+				<div class="w-6 h-0.5 bg-primary shadow-[0_0_8px_rgba(105,246,184,0.5)] transition-all duration-300 group-[.open]:rotate-45 group-[.open]:translate-y-2"></div>
+				<div class="w-6 h-0.5 bg-primary shadow-[0_0_8px_rgba(105,246,184,0.5)] transition-all duration-300 group-[.open]:opacity-0"></div>
+				<div class="w-4 h-0.5 bg-primary shadow-[0_0_8px_rgba(105,246,184,0.5)] transition-all duration-300 group-[.open]:-rotate-45 group-[.open]:-translate-y-2 group-[.open]:w-6"></div>
 			</button>
 		</div>
 	</nav>
+</header>
 
-	<!-- Mobile Menu Overlay -->
-	<div id="mobile-menu" class="fixed inset-0 z-40 bg-bg-base/95 backdrop-blur-xl translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] md:hidden flex flex-col items-center justify-center gap-12">
-		<nav class="flex flex-col items-center gap-8">
-			<HeaderLink href={`${base}/portfolio`} class="tech-font text-2xl tracking-[0.3em] font-black hover:text-primary transition-colors mobile-link opacity-0">01_Portfolio</HeaderLink>
-			<HeaderLink href={`${base}/blog`} class="tech-font text-2xl tracking-[0.3em] font-black hover:text-primary transition-colors mobile-link opacity-0">02_Research</HeaderLink>
-			<HeaderLink href={`${base}/study`} class="tech-font text-2xl tracking-[0.3em] font-black hover:text-primary transition-colors mobile-link opacity-0">03_Study_Log</HeaderLink>
-			<HeaderLink href={`${base}/about`} class="tech-font text-2xl tracking-[0.3em] font-black hover:text-primary transition-colors mobile-link opacity-0">04_Identity</HeaderLink>
+<!-- Mobile Menu Overlay (Moved outside for maximum visibility) -->
+<div id="mobile-menu" class="fixed inset-0 z-[100] bg-bg-base -translate-y-full transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] md:hidden flex flex-col pt-32 px-8 overflow-hidden group">
+	<!-- Background Decorative Grid -->
+	<div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: linear-gradient(#69f6b8 1px, transparent 1px), linear-gradient(90deg, #69f6b8 1px, transparent 1px); background-size: 40px 40px;"></div>
+	
+	<div class="relative z-10 flex flex-col gap-12">
+		<div class="tech-label opacity-30 text-[10px]">> SYSTEM_ACCESS_AUTHORIZED</div>
+		
+		<nav class="flex flex-col gap-6">
+			<a href={`${base}/portfolio`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-100 group-[.open]:opacity-100 group-[.open]:translate-x-0">
+				<span class="tech-font text-primary text-sm mb-1 group-hover/link:translate-x-1 transition-transform">01_</span>
+				<span class="tech-font text-4xl font-black tracking-tight group-hover/link:text-primary transition-colors">PORTFOLIO</span>
+			</a>
+			<a href={`${base}/blog`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-200 group-[.open]:opacity-100 group-[.open]:translate-x-0">
+				<span class="tech-font text-primary text-sm mb-1 group-hover/link:translate-x-1 transition-transform">02_</span>
+				<span class="tech-font text-4xl font-black tracking-tight group-hover/link:text-primary transition-colors">RESEARCH</span>
+			</a>
+			<a href={`${base}/study`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-300 group-[.open]:opacity-100 group-[.open]:translate-x-0">
+				<span class="tech-font text-primary text-sm mb-1 group-hover/link:translate-x-1 transition-transform">03_</span>
+				<span class="tech-font text-4xl font-black tracking-tight group-hover/link:text-primary transition-colors">STUDY_LOG</span>
+			</a>
+			<a href={`${base}/about`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-400 group-[.open]:opacity-100 group-[.open]:translate-x-0">
+				<span class="tech-font text-primary text-sm mb-1 group-hover/link:translate-x-1 transition-transform">04_</span>
+				<span class="tech-font text-4xl font-black tracking-tight group-hover/link:text-primary transition-colors">IDENTITY</span>
+			</a>
 		</nav>
-		<div class="absolute bottom-12 flex flex-col items-center gap-4">
-			<div class="pulse-dot scale-150"></div>
-			<span class="tech-font text-xs font-bold opacity-50 tracking-[0.5em]">Command_Center</span>
+
+		<div class="mt-12 pt-12 border-t border-white/5 flex flex-col gap-6 opacity-0 transition-opacity duration-700 delay-500 group-[.open]:opacity-100">
+			<div class="flex justify-between items-center">
+				<span class="tech-font text-[9px] opacity-40">ENCRYPTION</span>
+				<span class="tech-font text-[9px] text-primary">AES-256_ACTIVE</span>
+			</div>
+			<div class="flex justify-between items-center">
+				<span class="tech-font text-[9px] opacity-40">LOCATION</span>
+				<span class="tech-font text-[9px]">KR-SEOUL-01</span>
+			</div>
 		</div>
 	</div>
-</header>
+
+	<div class="absolute bottom-12 left-8 right-8 flex justify-between items-end opacity-0 transition-opacity duration-700 delay-500 group-[.open]:opacity-100">
+		<div class="flex flex-col gap-2">
+			<div class="pulse-dot"></div>
+			<span class="tech-font text-[10px] font-bold opacity-50 tracking-[0.3em]">COMMAND_CENTER</span>
+		</div>
+		<span class="tech-font text-[8px] opacity-20 italic">v2.0.4_STABLE</span>
+	</div>
+</div>
 
 <script>
 	function setupMobileMenu() {
 		const toggle = document.getElementById('menu-toggle');
 		const menu = document.getElementById('mobile-menu');
-		const links = document.querySelectorAll('.mobile-link');
 		let isOpen = false;
 
 		if (!toggle || !menu) return;
 
 		function toggleMenu() {
 			isOpen = !isOpen;
-			toggle?.classList.toggle('open', isOpen);
-			menu?.classList.toggle('translate-x-full', !isOpen);
+			toggle.classList.toggle('open', isOpen);
+			menu.classList.toggle('-translate-y-full', !isOpen);
+			menu.classList.toggle('translate-y-0', isOpen);
+			menu.classList.toggle('open', isOpen); 
 			
 			if (isOpen) {
 				document.body.style.overflow = 'hidden';
-				links.forEach((link, i) => {
-					setTimeout(() => {
-						(link as HTMLElement).style.opacity = '1';
-						(link as HTMLElement).style.transform = 'translateY(0)';
-					}, 200 + (i * 100));
-				});
 			} else {
 				document.body.style.overflow = '';
-				links.forEach(link => {
-					(link as HTMLElement).style.opacity = '0';
-					(link as HTMLElement).style.transform = 'translateY(20px)';
-				});
 			}
 		}
 
 		toggle.addEventListener('click', toggleMenu);
 
-		// Close menu on link click
+		const links = menu.querySelectorAll('a');
 		links.forEach(link => {
 			link.addEventListener('click', () => {
 				if (isOpen) toggleMenu();
@@ -93,18 +118,12 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 		});
 	}
 
-	// Run on initial load
 	setupMobileMenu();
-	// Run on view transitions
 	document.addEventListener('astro:after-swap', setupMobileMenu);
 </script>
 
 <style>
 	header {
 		border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-	}
-	.mobile-link {
-		transform: translateY(20px);
-		transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 </style>
