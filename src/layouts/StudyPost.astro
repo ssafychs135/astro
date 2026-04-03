@@ -11,43 +11,55 @@ type Props = CollectionEntry<'study'>['data'];
 const { title, description, pubDate, updatedDate, heroImage, tags, category } = Astro.props;
 ---
 
-<html lang="en">
+<html lang="ko">
 	<head>
 		<BaseHead title={title} description={description} />
 	</head>
 
-	<body class="bg-white text-slate-900 font-inter">
+	<body class="bg-bg-base text-text-base antialiased">
 		<Header />
-		<main class="max-w-4xl mx-auto px-6 py-12 md:py-24">
+		<main class="max-w-5xl mx-auto px-6 py-24">
 			<article>
-				<div class="mb-12">
-					<div class="font-space-grotesk text-xs font-bold text-slate-400 mb-6 tracking-[0.2em] uppercase flex items-center gap-4">
-						<FormattedDate date={pubDate} />
-						{updatedDate && (
-							<span class="normal-case font-light italic text-slate-300">
-								(Updated: <FormattedDate date={updatedDate} />)
-							</span>
-						)}
+				<header class="mb-16">
+					<div class="tech-label mb-8">
+						<span class="text-secondary">> Learning_Loop // Research_Entry</span>
+						<span class="opacity-30">Origin: Neural_Network_Expansion</span>
 					</div>
-					<h1 class="text-4xl md:text-6xl font-plus-jakarta font-extrabold tracking-tighter mb-8 leading-tight">{title}</h1>
-					<div class="flex flex-wrap gap-3 mb-12">
-						<span class="px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold font-space-grotesk uppercase tracking-wider">{category}</span>
-						{tags && tags.map(tag => (
-							<span class="px-4 py-1.5 bg-slate-100 text-slate-500 rounded-full text-xs font-bold font-space-grotesk uppercase tracking-wider">#{tag}</span>
-						))}
-					</div>
-					{heroImage && (
-						<div class="rounded-[32px] overflow-hidden border border-slate-100 mb-12">
-							<Image width={1020} height={510} src={heroImage} alt="" class="w-full h-auto" />
+					<h1 class="text-5xl md:text-8xl font-black tracking-tighter uppercase mb-12 leading-[0.9]">
+						{title}
+					</h1>
+					
+					<p class="text-xl md:text-2xl text-text-muted leading-relaxed max-w-3xl mb-12">
+						{description}
+					</p>
+
+					<div class="telemetry-bar">
+						<div class="telemetry-item">
+							<span class="tech-label opacity-40 !text-[9px]">Log_Timestamp</span>
+							<span class="font-bold"><FormattedDate date={pubDate} /></span>
 						</div>
-					)}
-				</div>
+						<div class="telemetry-item">
+							<span class="tech-label opacity-40 !text-[9px]">Classification</span>
+							<span class="font-bold uppercase tech-font text-xs tracking-widest text-secondary">{category || 'Study_Note'}</span>
+						</div>
+						<div class="telemetry-item">
+							<span class="tech-label opacity-40 !text-[9px]">Neural_Tags</span>
+							<div class="flex flex-wrap gap-2">
+								{tags?.map(tag => <span class="tag-obsidian">#{tag}</span>)}
+							</div>
+						</div>
+					</div>
+				</header>
+
+				{heroImage && (
+					<div class="blueprint-frame">
+						<div class="rounded-sm overflow-hidden border border-white/5">
+							<Image width={1200} height={600} src={heroImage} alt="" class="w-full h-auto grayscale hover:grayscale-0 transition-all duration-1000" />
+						</div>
+					</div>
+				)}
 				
-				<div class="prose prose-slate prose-lg max-w-none 
-					prose-headings:font-plus-jakarta prose-headings:font-extrabold prose-headings:tracking-tight
-					prose-a:text-accent hover:prose-a:text-blue-700
-					prose-img:rounded-[24px] prose-img:border prose-img:border-slate-100
-					prose-code:font-space-grotesk prose-code:bg-slate-100 prose-code:px-1 prose-code:rounded">
+				<div class="prose-obsidian max-w-none">
 					<slot />
 				</div>
 			</article>

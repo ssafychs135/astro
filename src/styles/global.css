@@ -170,7 +170,57 @@ h1, h2, h3, h4, h5, h6 {
 
 .prose-obsidian p {
 	margin-bottom: 1.5rem;
-	opacity: 0.9;
+	color: oklch(0.85 0.02 240); /* Increased brightness for better readability */
+}
+
+/* --- Shared Architecture Components --- */
+.telemetry-bar {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: var(--spacing-8);
+	padding: var(--spacing-8) 0;
+	border-top: 1px solid rgba(255, 255, 255, 0.05);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	margin: var(--spacing-12) 0;
+}
+
+.telemetry-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.blueprint-frame {
+	background-color: var(--color-surface-low);
+	padding: var(--spacing-4);
+	border-radius: 4px;
+	margin-bottom: var(--spacing-20);
+	position: relative;
+}
+
+.blueprint-frame::after {
+	content: "TECHNICAL_SPECIFICATION_v2.0";
+	position: absolute;
+	top: -10px;
+	right: 20px;
+	background-color: var(--primary);
+	color: var(--bg-base);
+	font-family: var(--font-space-grotesk);
+	font-size: 9px;
+	font-weight: 900;
+	padding: 2px 8px;
+	border-radius: 2px;
+}
+
+.tag-obsidian {
+	font-family: var(--font-space-grotesk);
+	font-size: 0.65rem;
+	font-weight: 700;
+	background-color: var(--color-surface-high);
+	color: var(--secondary);
+	padding: 0.2rem 0.6rem;
+	border-radius: 2px;
+	text-transform: uppercase;
 }
 
 .prose-obsidian blockquote {
