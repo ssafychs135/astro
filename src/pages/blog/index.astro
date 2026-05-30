@@ -14,7 +14,7 @@ const posts = (await getCollection('blog')).sort(
 <MainLayout title={`Tech Research | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
 	<header class="mb-24">
 		<div class="tech-label mb-6">> System_Insights // Strategic_Research</div>
-		<h1 class="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-8 font-space-grotesk">
+		<h1 class="text-6xl md:text-8xl font-black tracking-tighter uppercase mb-8">
 			Tech<br/><span class="text-primary italic">Research</span>
 		</h1>
 		<p class="text-xl text-text-muted max-w-2xl leading-relaxed">
@@ -24,7 +24,7 @@ const posts = (await getCollection('blog')).sort(
 	</header>
 
 	<div class="bg-black/50 backdrop-blur-md rounded-sm border border-surface-highest/30 overflow-hidden">
-		<div class="grid grid-cols-12 gap-4 px-8 py-4 border-b border-surface-highest/30 bg-surface-low/50 tech-font text-[9px] opacity-40">
+		<div class="grid grid-cols-12 gap-4 px-8 py-4 border-b border-surface-highest/30 bg-surface-low/50 tech-font text-[10px] opacity-40">
 			<div class="col-span-2">TIMESTAMP</div>
 			<div class="col-span-8">INSIGHT_TITLE</div>
 			<div class="col-span-2 text-right">METADATA</div>
@@ -35,10 +35,10 @@ const posts = (await getCollection('blog')).sort(
 					<FormattedDate date={post.data.pubDate} />
 				</div>
 				<div class="col-span-8">
-					<div class="font-bold text-lg group-hover:text-primary transition-colors font-space-grotesk uppercase">{post.data.title}</div>
+					<div class="font-bold text-lg group-hover:text-primary transition-colors">{post.data.title}</div>
 					<p class="text-xs text-text-muted mt-2 line-clamp-1 opacity-60 font-sans">{post.data.description}</p>
 				</div>
-				<div class="col-span-2 text-right tech-font text-[9px] text-secondary opacity-60 mt-1 uppercase">
+				<div class="col-span-2 text-right tech-font text-[10px] text-secondary opacity-60 mt-1 uppercase">
 					Entry // 0{posts.indexOf(post) + 1}
 				</div>
 			</a>

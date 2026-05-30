@@ -35,16 +35,16 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 
 					<div class="telemetry-bar">
 						<div class="telemetry-item">
-							<span class="tech-label opacity-40 !text-[9px]">Timestamp</span>
+							<span class="tech-label opacity-40 !text-[10px]">Timestamp</span>
 							<span class="font-bold"><FormattedDate date={pubDate} /></span>
 						</div>
 						<div class="telemetry-item">
-							<span class="tech-label opacity-40 !text-[9px]">Document_Status</span>
-							<span class="font-bold uppercase tech-font text-xs tracking-widest text-primary">Verified_Insight</span>
+							<span class="tech-label opacity-40 !text-[10px]">Document_Status</span>
+							<span class="font-bold uppercase tech-font text-xs tracking-widest text-primary">Research_Note</span>
 						</div>
 						{updatedDate && (
 							<div class="telemetry-item">
-								<span class="tech-label opacity-40 !text-[9px]">Last_Update</span>
+								<span class="tech-label opacity-40 !text-[10px]">Last_Update</span>
 								<span class="font-bold"><FormattedDate date={updatedDate} /></span>
 							</div>
 						)}

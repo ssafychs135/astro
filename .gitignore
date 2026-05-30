@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# tooling / generated artifacts (not part of the site source)
+graphify-out/
+.serena/

@@ -2,7 +2,7 @@
 title: "Ralph Loop"
 description: "단순한 반복이 어떻게 지능적인 자기 수정 시스템이 되는가? 랄프 루프의 유래부터 현대 AI 에이전트의 루프 메커니즘까지 심층 분석합니다."
 pubDate: 2026-04-07
-# heroImage: "../../assets/ralph-helping.png"
+heroImage: "../../assets/ralph-helping.png"
 ---
 
 최근 AI 업계의 가장 뜨거운 화두는 단순히 질문에 답하는 챗봇을 넘어, 스스로 도구를 사용하고 목표를 달성할 때까지 작업을 반복하는 **자율형 AI 에이전트(Autonomous AI Agent)**입니다. 이 기술의 핵심 메커니즘 중 하나로 불리는 **'Ralph Loop(랄프 루프)'**는 그 독특한 이름만큼이나 흥미로운 기원을 가지고 있습니다.

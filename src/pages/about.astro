@@ -6,7 +6,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 <MainLayout title={`Identity | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
 	<header class="mb-24">
 		<div class="tech-label mb-6">> System_User // Identity_Verification</div>
-		<h1 class="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-8 font-space-grotesk">
+		<h1 class="text-6xl md:text-8xl font-black tracking-tighter uppercase mb-8">
 			Who is<br/><span class="text-primary italic">Developer?</span>
 		</h1>
 	</header>
@@ -15,15 +15,15 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 		<div class="lg:col-span-7">
 			<div class="prose-obsidian">
 				<p class="text-2xl text-white font-bold mb-8 leading-tight">
-					지속 가능한 지능형 시스템을 설계하는 <br/>
-					<span class="text-primary">AX(AI Experience) 엔지니어</span>입니다.
+					AI를 기본 도구로, 시도와 검증의 주기를 단축하며 배워가는 <br/>
+					<span class="text-primary">AI 네이티브 개발자</span>입니다.
 				</p>
 				<p class="mb-6">
 					기술의 발달보다 중요한 것은 그 기술이 실제 비즈니스의 문제를 어떻게 해결하느냐라고 믿습니다. 
 					단순히 모델을 가져다 쓰는 것에 그치지 않고, 데이터의 흐름부터 사용자 경험까지 전체적인 아키텍처를 고민합니다.
 				</p>
 				<p class="mb-12">
-					저는 특히 **RAG(Retrieval-Augmented Generation)** 시스템의 고도화와 **자율형 에이전트(Agentic Workflows)** 구현에 깊은 관심을 가지고 연구하고 있습니다. 
+					저는 특히 <strong class="text-white">RAG(Retrieval-Augmented Generation)</strong> 시스템의 고도화와 <strong class="text-white">자율형 에이전트(Agentic Workflows)</strong> 구현에 깊은 관심을 가지고 연구하고 있습니다.
 					복잡한 시스템을 정교하게 설계(Blueprinting)하고 이를 실무에 바로 적용 가능한 수준으로 구현하는 것이 저의 핵심 역량입니다.
 				</p>
 
@@ -46,48 +46,28 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 					<li class="flex items-start gap-4">
 						<span class="text-primary mt-1 text-lg font-bold">></span>
 						<div>
-							<strong class="text-white">System Architecture Blueprinting</strong>
-							<p class="text-sm opacity-70">복잡한 데이터 파이프라인의 시각화 및 구조적 최적화</p>
+							<strong class="text-white">AI-Native Workflow</strong>
+							<p class="text-sm opacity-70">AI를 활용한 빠른 프로토타이핑과 반복 검증으로 학습·개발 주기를 단축</p>
 						</div>
 					</li>
 				</ul>
+
+				<p class="mt-10 text-sm opacity-70 leading-relaxed">
+					<span class="tech-font text-primary">> Working Style:</span> AI를 지렛대 삼아 더 많이 시도하고, 빠르게 만들어보며 검증합니다. 결과만 보지 않고 왜 그렇게 동작하는지 끝까지 파고들어, 배운 것을 기록으로 남깁니다.
+				</p>
 			</div>
 		</div>
 		
 		<div class="lg:col-span-5">
 			<div class="sticky top-24 space-y-8">
 				<div class="p-8 bg-surface-low rounded-sm border border-primary/20">
-					<div class="tech-label text-[10px] mb-6 opacity-40">System_Metrics // User</div>
-					<div class="space-y-6">
-						<div>
-							<div class="flex justify-between text-[9px] tech-font mb-2">
-								<span>ADAPTABILITY</span>
-								<span>98%</span>
-							</div>
-							<div class="h-1 bg-surface-highest rounded-full overflow-hidden">
-								<div class="h-full bg-primary" style="width: 98%"></div>
-							</div>
-						</div>
-						<div>
-							<div class="flex justify-between text-[9px] tech-font mb-2">
-								<span>ARCHITECTURE</span>
-								<span>95%</span>
-							</div>
-							<div class="h-1 bg-surface-highest rounded-full overflow-hidden">
-								<div class="h-full bg-secondary" style="width: 95%"></div>
-							</div>
-						</div>
-						<div>
-							<div class="flex justify-between text-[9px] tech-font mb-2">
-								<span>AI_INTEGRATION</span>
-								<span>92%</span>
-							</div>
-							<div class="h-1 bg-surface-highest rounded-full overflow-hidden">
-								<div class="h-full bg-white" style="width: 92%"></div>
-							</div>
+					<div class="tech-label text-[10px] mb-6 opacity-40">Tech_Stack</div>
+						<div class="flex flex-wrap gap-2">
+							{['Astro', 'Next.js', 'TypeScript', 'FastAPI', 'LangChain', 'LangGraph', 'RAG', 'Tailwind CSS'].map((s) => (
+								<span class="tag-obsidian">{s}</span>
+							))}
 						</div>
 					</div>
-				</div>
 
 				<div class="p-8 bg-surface-low rounded-sm border border-surface-highest/30">
 					<div class="tech-label text-[10px] mb-4 opacity-40">Current_Focus</div>

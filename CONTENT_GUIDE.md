@@ -4,6 +4,22 @@
 
 ---
 
+## 🚀 빠른 시작: 스캐폴드 (`npm run new`)
+
+템플릿을 직접 복사하는 대신, 아래 명령으로 올바른 frontmatter·날짜·파일명이 채워진 글을 자동 생성할 수 있습니다.
+
+```bash
+npm run new -- blog "제목"                                    # 영문 제목은 슬러그 자동 생성
+npm run new -- study "뷰 트랜지션 충돌" view-transition-conflict   # 한글 제목은 영문 슬러그를 함께 지정
+npm run new -- portfolio "프로젝트명" my-project
+```
+
+- 첫 인자는 컬렉션(`blog` | `study` | `portfolio`), 둘째는 제목, 셋째(선택)는 파일명 슬러그입니다.
+- 한글 제목은 슬러그가 비어 생성에 실패하므로 영문 슬러그를 꼭 함께 넘기세요.
+- 생성 후 `description`을 채우고, `study`는 `category`/`tags`, `portfolio`는 `stack`을 채워야 빌드가 통과합니다.
+
+---
+
 ## 1. Tech Research (기술 조사)
 깊이 있는 기술 분석과 트렌드 리포트를 위한 매거진 스타일 섹션입니다.
 

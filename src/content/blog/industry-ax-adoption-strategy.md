@@ -2,7 +2,7 @@
 title: "산업별 AX 도입 전략: 단순 자동화를 넘어 비즈니스 가치로"
 description: "기업이 DX를 넘어 AX로 전환할 때 직면하는 핵심 과제들과, 투자 대비 수익률(ROI)을 극대화하기 위한 단계별 로드맵을 제시합니다."
 pubDate: 2026-04-01
-heroImage: "../../assets/blog-placeholder-1.jpg"
+heroImage: "../../assets/blog-placeholder-2.jpg"
 ---
 
 AX(AI Transformation)는 단순히 AI 도구를 도입하는 것이 아닙니다. 조직의 유전자(DNA)를 AI 중심으로 재설계하는 과정입니다.

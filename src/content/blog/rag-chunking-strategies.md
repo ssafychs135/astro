@@ -2,7 +2,7 @@
 title: "RAG 성능의 핵심: 문서 형태별 최적의 청킹(Chunking) 전략"
 description: "성공적인 RAG 시스템 구축을 위한 첫 단추, 데이터의 특성을 살리는 다양한 청킹 기법과 실전 예시를 분석합니다."
 pubDate: 2026-04-07
-# heroImage: "../../assets/blog-placeholder-4.jpg"
+heroImage: "../../assets/blog-placeholder-3.jpg"
 ---
 
 RAG(Retrieval-Augmented Generation) 시스템에서 검색의 품질은 모델의 생성 능력만큼이나 중요합니다. 방대한 문서를 LLM이 이해할 수 있는 작은 단위로 나누는 **'청킹(Chunking)'**은 단순히 텍스트를 자르는 것이 아니라, 데이터의 **문맥(Context)**을 보존하는 고도의 전략적 작업입니다.

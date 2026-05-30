@@ -2,7 +2,7 @@
 title: "RAG의 검색 엔진: 질문에 답을 찾아내는 4가지 리트리버 전략"
 description: "청킹된 데이터 속에서 최적의 답변 후보를 찾아내는 기술, 리트리버의 종류별 작동 원리와 장단점을 심층 분석합니다."
 pubDate: 2026-04-07
-# heroImage: "../../assets/blog-placeholder-1.jpg"
+heroImage: "../../assets/blog-placeholder-5.jpg"
 ---
 
 RAG(Retrieval-Augmented Generation) 시스템에서 청킹이 데이터를 '준비'하는 과정이라면, **리트리버(Retriever)**는 준비된 데이터에서 최적의 정보를 '찾아내는' 핵심 엔진입니다. 단순히 검색하는 것을 넘어, 사용자의 질문 의도를 파악하고 가장 관련성 높은 문맥을 LLM에게 전달하는 4가지 주요 리트리버 전략을 소개합니다.

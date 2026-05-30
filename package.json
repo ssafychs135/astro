@@ -9,7 +9,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "new": "node scripts/new-post.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
@@ -19,6 +20,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.1.2",
+    "remark-cjk-friendly": "^2.0.1",
     "sharp": "^0.34.3",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3"

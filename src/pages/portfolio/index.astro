@@ -1,5 +1,6 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro';
+import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 
@@ -10,15 +11,15 @@ const projects = (await getCollection('portfolio')).sort(
 );
 ---
 
-<MainLayout title={`Verified Solutions | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<MainLayout title={`Selected Work | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
 	<header class="mb-24">
 		<div class="tech-label mb-6">> System_Output // Projects</div>
-		<h1 class="text-6xl md:text-9xl font-black tracking-tighter uppercase mb-8 font-space-grotesk">
-			Verified<br/><span class="text-primary italic">Solutions</span>
+		<h1 class="text-6xl md:text-8xl font-black tracking-tighter uppercase mb-8">
+			Selected<br/><span class="text-primary italic">Work</span>
 		</h1>
 		<p class="text-xl text-text-muted max-w-3xl leading-relaxed">
-			지능형 시스템 설계와 구현을 통해 해결한 비즈니스 문제들입니다. 
-			각 프로젝트는 단순한 결과물이 아닌, 특정 도메인에서의 기술적 증명(Evidence)입니다.
+			직접 만들어본 프로젝트들입니다. 
+			각 프로젝트에서 무엇을 맡았고, 무엇을 배웠는지 기록했습니다.
 		</p>
 	</header>
 
@@ -26,19 +27,19 @@ const projects = (await getCollection('portfolio')).sort(
 		{projects.map((project) => (
 			<a href={`${base}/portfolio/${project.id}/`} class="group block bg-surface-low rounded-sm overflow-hidden hover:bg-surface-high transition-all duration-500">
 				<div class="aspect-video bg-surface-highest/50 relative overflow-hidden">
-					{project.data.heroImage && <img src={project.data.heroImage} alt="" class="w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-80 transition-all duration-700" />}
+					{project.data.heroImage && <Image src={project.data.heroImage} alt={project.data.title} width={800} height={450} class="w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-80 transition-all duration-700" />}
 					<div class="absolute inset-0 bg-gradient-to-t from-surface-low to-transparent"></div>
 				</div>
 				<div class="p-8">
-					<div class="tech-label text-[10px] mb-4 text-secondary">Case_Study // 0{projects.indexOf(project) + 1}</div>
-					<h3 class="text-3xl font-bold mb-4 group-hover:text-primary transition-colors font-space-grotesk uppercase">
+					<div class="tech-label text-[10px] mb-4 text-secondary">Project // 0{projects.indexOf(project) + 1}</div>
+					<h3 class="text-3xl font-bold mb-4 group-hover:text-primary transition-colors">
 						{project.data.title}
 					</h3>
 					<p class="text-text-muted text-sm leading-relaxed line-clamp-3 mb-8">
 						{project.data.description}
 					</p>
 					<div class="flex flex-wrap gap-2">
-						{project.data.stack?.map(s => <span class="px-2 py-1 bg-surface-highest text-[9px] font-bold tech-font rounded-sm">{s}</span>)}
+						{project.data.stack?.map(s => <span class="px-2 py-1 bg-surface-highest text-[10px] font-bold tech-font rounded-sm">{s}</span>)}
 					</div>
 				</div>
 			</a>

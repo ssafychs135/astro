@@ -35,15 +35,15 @@ const { title, description, pubDate, updatedDate, heroImage, tags, category } = 
 
 					<div class="telemetry-bar">
 						<div class="telemetry-item">
-							<span class="tech-label opacity-40 !text-[9px]">Log_Timestamp</span>
+							<span class="tech-label opacity-40 !text-[10px]">Log_Timestamp</span>
 							<span class="font-bold"><FormattedDate date={pubDate} /></span>
 						</div>
 						<div class="telemetry-item">
-							<span class="tech-label opacity-40 !text-[9px]">Classification</span>
+							<span class="tech-label opacity-40 !text-[10px]">Classification</span>
 							<span class="font-bold uppercase tech-font text-xs tracking-widest text-secondary">{category || 'Study_Note'}</span>
 						</div>
 						<div class="telemetry-item">
-							<span class="tech-label opacity-40 !text-[9px]">Neural_Tags</span>
+							<span class="tech-label opacity-40 !text-[10px]">Neural_Tags</span>
 							<div class="flex flex-wrap gap-2">
 								{tags?.map(tag => <span class="tag-obsidian">#{tag}</span>)}
 							</div>

@@ -6,7 +6,7 @@ stack: ["Python", "LangGraph", "FastAPI", "InfluxDB"]
 githubUrl: "https://github.com/ssafychs135/smart-factory-ax"
 demoUrl: "https://ax-demo.com"
 role: "Lead AX Architect"
-heroImage: "../../assets/blog-placeholder-about.jpg"
+heroImage: "../../assets/blog-placeholder-4.jpg"
 ---
 
 ### 📝 프로젝트 개요

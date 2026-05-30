@@ -22,8 +22,8 @@ const { title, description, pubDate, updatedDate, heroImage, stack, githubUrl, d
 			<article>
 				<header class="mb-16">
 					<div class="tech-label mb-8">
-						<span class="text-secondary">> Case_Study // 01</span>
-						<span class="opacity-30">Status: Verified</span>
+						<span class="text-secondary">> Project</span>
+						<span class="opacity-30">Project_Record</span>
 					</div>
 					<h1 class="text-5xl md:text-8xl font-black tracking-tighter uppercase mb-12 leading-[0.9]">
 						{title}
@@ -35,15 +35,15 @@ const { title, description, pubDate, updatedDate, heroImage, stack, githubUrl, d
 
 					<div class="telemetry-bar">
 						<div class="telemetry-item">
-							<span class="tech-label opacity-40 !text-[9px]">Timestamp</span>
+							<span class="tech-label opacity-40 !text-[10px]">Timestamp</span>
 							<span class="font-bold"><FormattedDate date={pubDate} /></span>
 						</div>
 						<div class="telemetry-item">
-							<span class="tech-label opacity-40 !text-[9px]">Primary_Role</span>
+							<span class="tech-label opacity-40 !text-[10px]">Primary_Role</span>
 							<span class="font-bold uppercase tech-font text-xs tracking-widest">{role || 'Architect'}</span>
 						</div>
 						<div class="telemetry-item">
-							<span class="tech-label opacity-40 !text-[9px]">Tech_Stack</span>
+							<span class="tech-label opacity-40 !text-[10px]">Tech_Stack</span>
 							<div class="flex flex-wrap gap-2">
 								{stack?.map(s => <span class="tag-obsidian">{s}</span>)}
 							</div>

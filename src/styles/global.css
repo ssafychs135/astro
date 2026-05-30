@@ -141,7 +141,7 @@ h1, h2, h3, h4, h5, h6 {
 .prose-obsidian h1 {
 	font-size: 3rem;
 	font-weight: 900;
-	letter-spacing: -0.05em;
+	letter-spacing: -0.02em;
 	margin-top: 4rem;
 	margin-bottom: 2rem;
 	color: #ffffff;
@@ -150,7 +150,7 @@ h1, h2, h3, h4, h5, h6 {
 .prose-obsidian h2 {
 	font-size: 2rem;
 	font-weight: 800;
-	letter-spacing: -0.04em;
+	letter-spacing: -0.02em;
 	margin-top: 3.5rem;
 	margin-bottom: 1.5rem;
 	padding-left: 1rem;
@@ -315,4 +315,344 @@ h1, h2, h3, h4, h5, h6 {
 	font-size: 0.9rem;
 	line-height: 1.6;
 	background: transparent !important;
+}
+
+/* ===================================================================
+   Glassmorphism Overhaul — frosted surfaces over an ambient gradient
+   =================================================================== */
+:root {
+	--glass-bg: rgba(255, 255, 255, 0.05);
+	--glass-bg-strong: rgba(255, 255, 255, 0.09);
+	--glass-border: rgba(255, 255, 255, 0.12);
+	--glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+	--glass-blur: 18px;
+	--glass-radius: 18px;
+	/* Stacked glass: faint frosted sheets offset behind each panel + depth */
+	--glass-sheet-1: rgba(255, 255, 255, 0.08);
+	--glass-sheet-2: rgba(255, 255, 255, 0.05);
+	--glass-shadow:
+		0 2px 6px rgba(0, 0, 0, 0.22),
+		0 16px 40px rgba(0, 0, 0, 0.32),
+		11px 13px 1px -6px var(--glass-sheet-1),
+		22px 26px 1px -12px var(--glass-sheet-2);
+}
+
+/* Ambient colored light so the frosted blur has something to refract */
+body {
+	background-color: var(--bg-base);
+	background-image:
+		radial-gradient(38% 34% at 12% 18%, rgba(105, 246, 184, 0.16), transparent 70%),
+		radial-gradient(42% 38% at 88% 12%, rgba(193, 128, 255, 0.16), transparent 70%),
+		radial-gradient(55% 55% at 50% 100%, rgba(105, 246, 184, 0.08), transparent 70%);
+	background-attachment: fixed;
+}
+
+/* Shared frosted-glass treatment for the design-system surfaces */
+.glass-panel,
+.card-obsidian,
+.blueprint-frame {
+	background-color: var(--glass-bg) !important;
+	backdrop-filter: blur(var(--glass-blur));
+	-webkit-backdrop-filter: blur(var(--glass-blur));
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius);
+	box-shadow: var(--glass-shadow), var(--glass-highlight);
+}
+
+.card-obsidian:hover {
+	background-color: var(--glass-bg-strong) !important;
+	transform: translateY(-2px);
+}
+
+/* Frost every tonal surface used across cards and panels */
+.bg-surface-low,
+.bg-surface-high,
+.bg-surface-highest {
+	backdrop-filter: blur(var(--glass-blur));
+	-webkit-backdrop-filter: blur(var(--glass-blur));
+	border: 1px solid var(--glass-border);
+}
+.bg-surface-low { background-color: rgba(12, 19, 38, 0.45) !important; }
+
+/* Stacked-glass depth for the main card/panel surfaces */
+.bg-surface-low,
+.bg-black\/50.backdrop-blur-md {
+	box-shadow: var(--glass-shadow), var(--glass-highlight);
+}
+.bg-surface-high { background-color: rgba(23, 31, 54, 0.50) !important; }
+.bg-surface-highest { background-color: rgba(28, 37, 62, 0.55) !important; }
+
+/* Header: stronger frost, full-width hairline (no rounded corners) */
+header.glass-panel {
+	background-color: rgba(7, 13, 31, 0.55) !important;
+	border-radius: 0;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Tag chips: lightly frosted, keep compact */
+.tag-obsidian {
+	background-color: var(--glass-bg-strong) !important;
+	border: 1px solid var(--glass-border);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+}
+
+/* Frosted list containers (blog / study / home logs) — lift off pure black */
+.bg-black\/50.backdrop-blur-md {
+	background-color: var(--glass-bg) !important;
+	border-color: var(--glass-border);
+}
+
+/* Reusable utility for any additional surface */
+.glass-card {
+	background-color: var(--glass-bg);
+	backdrop-filter: blur(var(--glass-blur));
+	-webkit-backdrop-filter: blur(var(--glass-blur));
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius);
+	box-shadow: var(--glass-shadow), var(--glass-highlight);
+}
+
+/* Home hero uses a 12-col grid with large gaps — collapse to a single
+   block column on mobile so the column gaps don't force overflow. */
+@media (max-width: 1023px) {
+	.hero-grid {
+		display: block !important;
+	}
+}
+
+/* Stack the "Recent Exploration" header on mobile so the archive link
+   doesn't get pushed off-screen by justify-between. */
+@media (max-width: 767px) {
+	#logs > div:first-child {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 1rem;
+	}
+}
+
+/* ===================================================================
+   Rounder corners
+   =================================================================== */
+:root { --glass-radius: 22px; }
+.rounded-sm { border-radius: 12px !important; }
+.tag-obsidian { border-radius: 9999px !important; }
+.card-obsidian,
+.glass-card,
+.glass-panel,
+.blueprint-frame { border-radius: var(--glass-radius); }
+header.glass-panel { border-radius: 0; }
+
+/* ===================================================================
+   Interactivity — hover lift, glow border, cursor spotlight
+   =================================================================== */
+a, button {
+	transition: color .25s ease, background-color .25s ease, border-color .25s ease,
+		transform .25s ease, box-shadow .25s ease, opacity .25s ease;
+}
+
+.card-obsidian,
+.glass-card,
+a.bg-surface-low {
+	position: relative;
+	transition: transform .4s cubic-bezier(.4, 0, .2, 1), box-shadow .4s ease,
+		border-color .4s ease, background-color .4s ease;
+}
+
+.card-obsidian:hover,
+.glass-card:hover,
+a.bg-surface-low:hover {
+	transform: translateY(-6px);
+	border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+	box-shadow:
+		0 30px 64px rgba(0, 0, 0, 0.45),
+		0 0 0 1px color-mix(in srgb, var(--primary) 30%, transparent),
+		16px 20px 1px -8px var(--glass-sheet-1),
+		30px 38px 1px -16px var(--glass-sheet-2),
+		var(--glass-highlight);
+}
+
+/* cursor-follow spotlight (driven by JS-set --mx/--my) */
+.card-obsidian::before,
+.glass-card::before,
+a.bg-surface-low::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity .3s ease;
+	background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%),
+		color-mix(in srgb, var(--primary) 16%, transparent), transparent 60%);
+	z-index: 0;
+}
+.card-obsidian:hover::before,
+.glass-card:hover::before,
+a.bg-surface-low:hover::before { opacity: 1; }
+a.bg-surface-low > * { position: relative; z-index: 1; }
+
+/* CTA glow on hover */
+a.bg-primary:hover {
+	box-shadow: 0 0 28px color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	a, button, .card-obsidian, .glass-card, a.bg-surface-low { transition: none !important; }
+	.card-obsidian:hover, .glass-card:hover, a.bg-surface-low:hover { transform: none; }
+}
+
+/* ===================================================================
+   Theme toggle icon visibility
+   =================================================================== */
+.theme-icon-light { display: none; }
+:root[data-theme="light"] .theme-icon-dark { display: none; }
+:root[data-theme="light"] .theme-icon-light { display: inline-block; }
+
+/* ===================================================================
+   Light theme — frosted white glass over soft pastel light
+   =================================================================== */
+:root[data-theme="light"] {
+	--color-primary: #06b77f;
+	--color-primary-container: #047857;
+	--color-secondary: #8b3df0;
+	--color-bg-base: #eef1f8;
+	--color-surface: #ffffff;
+	--color-surface-low: #ffffff;
+	--color-surface-high: #f1f4fb;
+	--color-surface-highest: #e7ebf5;
+	--color-text-base: #0e1424;
+	--color-text-muted: #56607a;
+
+	--primary: #06b77f;
+	--primary-glow: rgba(6, 183, 127, 0.18);
+	--secondary: #8b3df0;
+	--bg-base: #eef1f8;
+	--surface: #ffffff;
+	--text-base: #0e1424;
+	--text-muted: #56607a;
+
+	--glass-bg: rgba(255, 255, 255, 0.55);
+	--glass-bg-strong: rgba(255, 255, 255, 0.78);
+	--glass-border: rgba(15, 20, 40, 0.10);
+	--glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+	--glass-sheet-1: rgba(20, 30, 60, 0.06);
+	--glass-sheet-2: rgba(20, 30, 60, 0.035);
+	--glass-shadow:
+		0 2px 6px rgba(20, 30, 60, 0.06),
+		0 16px 40px rgba(20, 30, 60, 0.10),
+		11px 13px 1px -6px var(--glass-sheet-1),
+		22px 26px 1px -12px var(--glass-sheet-2);
+}
+
+:root[data-theme="light"] body {
+	background-color: var(--bg-base);
+	background-image:
+		radial-gradient(40% 35% at 12% 16%, rgba(6, 183, 127, 0.14), transparent 70%),
+		radial-gradient(42% 38% at 88% 12%, rgba(139, 61, 240, 0.12), transparent 70%),
+		radial-gradient(55% 55% at 50% 100%, rgba(6, 183, 127, 0.06), transparent 70%);
+}
+
+:root[data-theme="light"] .bg-surface-low { background-color: rgba(255, 255, 255, 0.60) !important; }
+:root[data-theme="light"] .bg-surface-high { background-color: rgba(255, 255, 255, 0.78) !important; }
+:root[data-theme="light"] .bg-surface-highest { background-color: rgba(231, 235, 245, 0.85) !important; }
+:root[data-theme="light"] .bg-black\/50.backdrop-blur-md { background-color: rgba(255, 255, 255, 0.55) !important; }
+:root[data-theme="light"] header.glass-panel {
+	background-color: rgba(255, 255, 255, 0.62) !important;
+	box-shadow: 0 1px 0 rgba(15, 20, 40, 0.06);
+}
+
+/* Literal colors that must flip for light backgrounds */
+:root[data-theme="light"] .text-white { color: #0e1424 !important; }
+:root[data-theme="light"] .text-bg-base { color: #03130c !important; }
+:root[data-theme="light"] .border-white\/5,
+:root[data-theme="light"] .border-white\/10 { border-color: rgba(15, 20, 40, 0.10) !important; }
+
+/* Light-mode article text: code blocks stay dark for contrast, but the
+   hard-coded white headings and light-grey paragraphs must flip to dark. */
+:root[data-theme="light"] .prose-obsidian,
+:root[data-theme="light"] .prose-obsidian p,
+:root[data-theme="light"] .prose-obsidian li { color: #2b3550; }
+:root[data-theme="light"] .prose-obsidian h1,
+:root[data-theme="light"] .prose-obsidian h2 { color: #0e1424; }
+
+/* ===================================================================
+   Markdown tables (token-based → adapts to both themes)
+   =================================================================== */
+.prose-obsidian table {
+	display: block;
+	width: 100%;
+	overflow-x: auto;            /* mobile: scroll wide tables instead of overflowing */
+	border-collapse: collapse;
+	margin: 2.5rem 0;
+	font-size: 0.95rem;
+	border: 1px solid var(--glass-border);
+	border-radius: 12px;
+}
+.prose-obsidian thead {
+	background-color: var(--color-surface-high);
+}
+.prose-obsidian th {
+	text-align: left;
+	font-family: var(--font-space-grotesk);
+	text-transform: uppercase;
+	font-size: 0.72rem;
+	letter-spacing: 0.06em;
+	color: var(--primary);
+	padding: 0.85rem 1.1rem;
+	white-space: nowrap;
+}
+.prose-obsidian td {
+	padding: 0.85rem 1.1rem;
+	border-top: 1px solid var(--glass-border);
+	color: var(--text-base);
+	vertical-align: top;
+}
+.prose-obsidian tbody tr {
+	transition: background-color 0.2s ease;
+}
+.prose-obsidian tbody tr:hover {
+	background-color: var(--glass-bg);
+}
+
+/* ===================================================================
+   Realistic glass — saturated backdrop, fine grain, top-light sheen
+   =================================================================== */
+:root {
+	--glass-backdrop: blur(var(--glass-blur)) saturate(180%) brightness(1.06);
+	--glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.03) 28%, rgba(255, 255, 255, 0) 55%);
+	--glass-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='gn'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23gn)' opacity='0.2'/%3E%3C/svg%3E");
+	--glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+:root[data-theme="light"] {
+	--glass-backdrop: blur(var(--glass-blur)) saturate(150%) brightness(1.02);
+	--glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.15) 28%, rgba(255, 255, 255, 0) 55%);
+	--glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Saturated frosted backdrop for every glass surface */
+.glass-panel,
+.card-obsidian,
+.blueprint-frame,
+.glass-card,
+.bg-surface-low,
+.bg-surface-high,
+.bg-surface-highest,
+.bg-black\/50.backdrop-blur-md {
+	-webkit-backdrop-filter: var(--glass-backdrop);
+	backdrop-filter: var(--glass-backdrop);
+}
+
+/* Fine grain + top-light reflection on the larger panels */
+.glass-panel,
+.card-obsidian,
+.blueprint-frame,
+.glass-card,
+.bg-surface-low,
+.bg-black\/50.backdrop-blur-md {
+	background-image: var(--glass-sheen), var(--glass-noise);
+	background-repeat: no-repeat, repeat;
+	background-size: 200% 200%, 150px 150px;
+	background-blend-mode: normal, overlay;
 }
