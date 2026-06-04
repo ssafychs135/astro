@@ -34,7 +34,37 @@ import Glasses from '../../components/troubleshooting/Glasses.astro';
 
 </Section>
 
-<Section n="02" label="Features">
+<Section n="02" label="Architecture">
+
+두 개의 파이프라인을 브라우저와 카메라 위에서 동작시켰습니다. **안경을 3D로 생성하는 파이프라인**과 **얼굴을 측정해 AR로 정합하는 파이프라인**입니다.
+
+  <Flow
+    id="retina-arch-gen"
+    heading="안경 → 3D · ComfyUI 워크플로"
+    nodes={['4방향 이미지', 'matting\n배경 제거', 'Trellis2\nimage-to-3D', '3D 안경']}
+    caption="ComfyUI 워크플로로 4방향 이미지에서 안경테만 3D로 복원한다."
+  />
+
+  <Flow
+    id="retina-arch-face"
+    heading="얼굴 → 측정 → AR"
+    nodes={['얼굴 촬영', 'MediaPipe\nFace Mesh', 'ArUco 측정\nOH·PD 보정', 'Three.js AR']}
+    caption="ArUco 마커로 실제 스케일을 보정해 태블릿만으로 광학 수치를 측정한다."
+  />
+
+  <Grid
+    cols={2}
+    items={[
+      { icon: '📐', title: '측정', sub: 'ArUco 마커로 실제 스케일을 보정해 태블릿만으로 OH·PD를 측정한다.' },
+      { icon: '🧭', title: 'AR 정렬', sub: '생성물 방향을 좌우 대칭으로 탐지해 얼굴 기준점에 자동 정렬한다.' },
+      { icon: '🧊', title: '3D 생성', sub: '4방향 이미지 → matting → Trellis2를 ComfyUI 워크플로로 구성한다.' },
+      { icon: '🔀', title: '처리 분담', sub: '측정·얼굴형 분류를 프론트엔드에서 처리(멘토 기업 요구), 백엔드는 결과만 수신한다.' },
+    ]}
+  />
+
+</Section>
+
+<Section n="03" label="Features">
   <Grid
     cols={3}
     items={[
@@ -45,7 +75,7 @@ import Glasses from '../../components/troubleshooting/Glasses.astro';
   />
 </Section>
 
-<Section n="03" label="Defects">
+<Section n="04" label="Defects">
 
 생성 AI를 실제 제품에 붙일 때 드러난 현실 문제 두 건을 해결했습니다. 생성물을 직접 바꾸는 대신 앞뒤 파이프라인을 설계해 제어했습니다.
 
@@ -103,7 +133,7 @@ import Glasses from '../../components/troubleshooting/Glasses.astro';
   </Defect>
 </Section>
 
-<Section n="04" label="Result">
+<Section n="05" label="Result">
   <Metrics
     items={[
       { big: '렌즈 환각 0', cap: '매팅 전처리로 제거' },
@@ -123,7 +153,7 @@ import Glasses from '../../components/troubleshooting/Glasses.astro';
   />
 </Section>
 
-<Section n="05" label="Retrospective">
+<Section n="06" label="Retrospective">
   <Callout>
     기술 구현보다 <b>도메인 이해가 더 큰 과제</b>였습니다. 안경사를 현장에서 면담해 실제 요구를 파악했고, 그 내용이 측정 항목과 측정 화면 설계에 직접 반영됐습니다.
   </Callout>

@@ -16,11 +16,15 @@ const latestLogs = (await getCollection('blog'))
 	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
 	.slice(0, 3);
 
-// 3. 스킬 — 실제 역량 (설명 기반)
+// 3. 스킬 — 포트폴리오 기준 (바 = 적용 프로젝트 수 / 전체)
+const PROJECT_COUNT = 3;
 const skills = [
-	{ name: 'LLM Application', status: 'CORE', desc: 'LangChain·임베딩·Vector DB로 RAG 파이프라인 구축. 여러 LLM(Upstage·Gemini·로컬 Gemma)을 연동·교체.' },
-	{ name: 'Python Backend', status: 'STABLE', desc: 'FastAPI·Django로 AI 기능을 API로 구현. 비동기·외부 LLM 게이트웨이 연동.' },
-	{ name: 'AI 활용 개발', status: 'ACTIVE', desc: 'AI 에이전트로 시도·검증 주기를 단축하고, 결과를 이해·검증해 활용.' }
+	{ name: 'LLM · RAG 파이프라인', cover: 2, proof: 'LangChain · LangGraph · 임베딩 검색', tags: ['iPhone RAG', 'Jupasu'] },
+	{ name: 'OCR · 텍스트 정규화', cover: 2, proof: 'PaddleOCR 온디바이스 · NFKC 정규화', tags: ['Jupasu', 'iPhone RAG'] },
+	{ name: 'Vector DB 검색', cover: 2, proof: 'pgvector · ChromaDB', tags: ['Jupasu', 'iPhone RAG'] },
+	{ name: 'AR · 컴퓨터 비전', cover: 1, proof: 'MediaPipe · Three.js · ArUco 측정', tags: ['RETINA FIT'] },
+	{ name: '생성형 3D 파이프라인', cover: 1, proof: 'ComfyUI · matting · Trellis2', tags: ['RETINA FIT'] },
+	{ name: 'Python · Java 백엔드', cover: 3, proof: 'FastAPI · Django · Spring Boot', tags: ['세 프로젝트'] }
 ];
 
 // 4. 학력
@@ -71,17 +75,28 @@ const awards = [
 
 				<!-- Resume: Skills / Education / Awards (도시에 기준) -->
 				<div class="py-20 border-y border-surface-highest/20 space-y-20">
-					<!-- Core Skills -->
+					<!-- Core Skills (bar = 적용 프로젝트 수) -->
 					<div class="space-y-10">
-						<span class="tech-label text-base opacity-50 font-bold">> Core_Skills</span>
-						<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+						<div class="flex items-baseline justify-between gap-4">
+							<span class="tech-label text-base opacity-50 font-bold">> Core_Skills</span>
+							<span class="tech-font text-[10px] opacity-30 font-black tracking-widest">// 막대 = 적용 프로젝트 / {PROJECT_COUNT}</span>
+						</div>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
 							{skills.map((s) => (
-								<div class="card-obsidian p-8 rounded-sm space-y-5">
-									<div class="flex justify-between items-center gap-4">
-										<span class="font-black text-lg tracking-tight">{s.name}</span>
-										<span class="tech-font text-[10px] text-primary tracking-widest font-black shrink-0">{s.status}</span>
+								<div class="space-y-3">
+									<div class="flex justify-between items-baseline gap-4">
+										<span class="font-black text-base tracking-tight">{s.name}</span>
+										<span class="tech-font text-[11px] text-primary font-black tracking-widest shrink-0">{s.cover}/{PROJECT_COUNT}</span>
 									</div>
-									<p class="text-sm text-text-muted leading-relaxed">{s.desc}</p>
+									<div class="flex gap-1.5">
+										{Array.from({ length: PROJECT_COUNT }).map((_, i) => (
+											<div class={`h-2.5 flex-1 rounded-sm transition-all duration-500 ${i < s.cover ? 'bg-primary shadow-[0_0_10px_var(--primary)]' : 'bg-surface-highest opacity-20'}`}></div>
+										))}
+									</div>
+									<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+										<span class="text-xs text-text-muted">{s.proof}</span>
+										<span class="tech-font text-[10px] text-secondary opacity-70 tracking-widest whitespace-nowrap">{s.tags.map(t => `#${t}`).join(' ')}</span>
+									</div>
 								</div>
 							))}
 						</div>

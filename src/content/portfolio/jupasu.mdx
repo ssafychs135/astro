@@ -13,6 +13,7 @@ import Grid from '../../components/troubleshooting/Grid.astro';
 import Callout from '../../components/troubleshooting/Callout.astro';
 import Defect from '../../components/troubleshooting/Defect.astro';
 import Toggle from '../../components/troubleshooting/Toggle.astro';
+import Flow from '../../components/troubleshooting/Flow.astro';
 import Cards from '../../components/troubleshooting/Cards.astro';
 import Verdict from '../../components/troubleshooting/Verdict.astro';
 import Conf from '../../components/troubleshooting/Conf.astro';
@@ -35,7 +36,29 @@ import Kv from '../../components/troubleshooting/Kv.astro';
 
 </Section>
 
-<Section n="02" label="Features">
+<Section n="02" label="Architecture">
+
+라벨 사진 한 장을 **온디바이스 OCR → LLM 정제 → 임베딩 검색**의 한 흐름으로 연결해 추천까지 이어지도록 설계했습니다.
+
+  <Flow
+    id="jupasu-arch"
+    heading="온디바이스 OCR → 구조화 → 임베딩 검색"
+    nodes={['라벨 사진', '온디바이스 OCR\nPaddleOCR·워커', '텍스트 추출', 'LLM 정제\njson_schema', '와인 DB 매칭\npgvector', '추천 결과']}
+    caption="OCR·LLM·RAG를 하나의 추천 흐름으로 연결한다."
+  />
+
+  <Grid
+    cols={3}
+    items={[
+      { icon: '📱', title: 'OCR', sub: '온디바이스(브라우저 워커)로 PaddleOCR를 실행해 라벨을 읽는다.' },
+      { icon: '🧱', title: '정제', sub: 'json_schema 구조화로 plain JSON 응답을 강제한다.' },
+      { icon: '🔎', title: '매칭', sub: 'pgvector로 와인 DB 임베딩을 검색해 후보를 찾는다.' },
+    ]}
+  />
+
+</Section>
+
+<Section n="03" label="Features">
   <Grid
     cols={3}
     items={[
@@ -46,7 +69,7 @@ import Kv from '../../components/troubleshooting/Kv.astro';
   />
 </Section>
 
-<Section n="03" label="Defects">
+<Section n="04" label="Defects">
 
 온디바이스 OCR(PaddleOCR)로 라벨을 읽고 LLM으로 정제하는 파이프라인에서, 작은 모델·게이트웨이·읽기 경로가 일으킨 현실 문제 네 건을 해결했습니다. 각 항목은 토글과 선택으로 직접 비교할 수 있습니다.
 
@@ -183,7 +206,7 @@ OCR은 **PaddleOCR(PP-OCRv5)를 ONNX로 변환해 브라우저 워커에서 온�
 
 </Section>
 
-<Section n="04" label="Result">
+<Section n="05" label="Result">
   <Metrics
     items={[
       { big: '0.55→0.88', cap: 'OCR 인식 신뢰도 (라벨 1종)' },
@@ -204,7 +227,7 @@ OCR은 **PaddleOCR(PP-OCRv5)를 ONNX로 변환해 브라우저 워커에서 온�
   />
 </Section>
 
-<Section n="05" label="Retrospective">
+<Section n="06" label="Retrospective">
   <Callout>
     이 프로젝트에서 제 역할은 OCR·LLM·RAG 등 여러 AI 기능을 <b>하나의 추천 흐름으로 설계하고 연결</b>하는 것이었습니다. 작은 모델과 게이트웨이의 제약을 전처리·프롬프트·출력 형식 설계로 보완했고, 모델을 바꾸지 않고도 품질을 높일 수 있음을 확인했습니다.
   </Callout>
