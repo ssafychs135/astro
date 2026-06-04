@@ -1,0 +1,24 @@
+---
+interface Props {
+	eyebrow?: string;
+	heading: string;
+	labelOff: string;
+	labelOn: string;
+}
+const { eyebrow = '⚙ 인터랙티브 · 토글', heading, labelOff, labelOn } = Astro.props;
+---
+
+<div class="ts-ix not-prose" data-ts-group>
+	<div class="ts-eyebrow">{eyebrow}</div>
+	<h4 class="ts-h">{heading}</h4>
+	<div class="ts-tabs">
+		<button class="on" data-ts-tab="off">{labelOff}</button>
+		<button data-ts-tab="on">{labelOn}</button>
+	</div>
+	<div class="ts-result">
+		<div class="ts-panel show" data-ts-panel data-key="off"><slot name="off" /></div>
+		<div class="ts-panel" data-ts-panel data-key="on"><slot name="on" /></div>
+	</div>
+</div>
+
+<script>import './runtime.ts';</script>

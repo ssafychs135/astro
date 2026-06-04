@@ -9,39 +9,96 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+
+// Unique tags across all posts (for the filter bar)
+const allTags = [...new Set(posts.flatMap((p) => p.data.tags ?? []))].sort();
 ---
 
-<MainLayout title={`Tech Research | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
-	<header class="mb-24">
-		<div class="tech-label mb-6">> System_Insights // Strategic_Research</div>
+<MainLayout title={`Research | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+	<header class="mb-16">
+		<div class="tech-label mb-6">> System_Insights // Research_&_Learning</div>
 		<h1 class="text-6xl md:text-8xl font-black tracking-tighter uppercase mb-8">
 			Tech<br/><span class="text-primary italic">Research</span>
 		</h1>
 		<p class="text-xl text-text-muted max-w-2xl leading-relaxed">
-			AX 트렌드와 시스템 설계에 대한 심층적인 분석 리포트입니다. 
-			단순한 정보 전달을 넘어, 기술이 비즈니스에 미치는 영향력을 탐구합니다.
+			RAG·에이전트·AX에 대한 심층 분석과 학습 기록입니다.
+			기술이 비즈니스에 미치는 영향과, 한계를 돌파한 과정을 함께 기록합니다.
 		</p>
 	</header>
+
+	{allTags.length > 0 && (
+		<div id="tag-filter" class="flex flex-wrap gap-3 mb-10">
+			<button class="tag-pill active" data-filter="*">All</button>
+			{allTags.map((tag) => (
+				<button class="tag-pill" data-filter={tag}>#{tag}</button>
+			))}
+		</div>
+	)}
 
 	<div class="bg-black/50 backdrop-blur-md rounded-sm border border-surface-highest/30 overflow-hidden">
 		<div class="grid grid-cols-12 gap-4 px-8 py-4 border-b border-surface-highest/30 bg-surface-low/50 tech-font text-[10px] opacity-40">
 			<div class="col-span-2">TIMESTAMP</div>
-			<div class="col-span-8">INSIGHT_TITLE</div>
-			<div class="col-span-2 text-right">METADATA</div>
+			<div class="col-span-7">INSIGHT_TITLE</div>
+			<div class="col-span-3 text-right">TAGS</div>
 		</div>
 		{posts.map((post) => (
-			<a href={`${base}/blog/${post.id}/`} class="grid grid-cols-12 gap-4 px-8 py-6 border-b border-white/5 hover:bg-primary/5 transition-colors group no-underline">
-				<div class="col-span-2 tech-font text-[10px] text-text-muted mt-1">
+			<a
+				href={`${base}/blog/${post.id}/`}
+				data-tags={(post.data.tags ?? []).join('|')}
+				class="post-row grid grid-cols-12 gap-4 px-8 py-6 border-b border-white/5 hover:bg-primary/5 transition-colors group no-underline"
+			>
+				<div class="col-span-2 tech-font text-xs text-text-muted mt-1">
 					<FormattedDate date={post.data.pubDate} />
 				</div>
-				<div class="col-span-8">
+				<div class="col-span-7">
 					<div class="font-bold text-lg group-hover:text-primary transition-colors">{post.data.title}</div>
-					<p class="text-xs text-text-muted mt-2 line-clamp-1 opacity-60 font-sans">{post.data.description}</p>
+					<p class="text-sm text-text-muted mt-2 line-clamp-1 opacity-60 font-sans">{post.data.description}</p>
 				</div>
-				<div class="col-span-2 text-right tech-font text-[10px] text-secondary opacity-60 mt-1 uppercase">
-					Entry // 0{posts.indexOf(post) + 1}
+				<div class="col-span-3 text-right flex flex-wrap justify-end gap-2 mt-1 self-start">
+					{(post.data.tags ?? []).slice(0, 3).map((tag) => (
+						<span class="text-xs tech-font text-secondary opacity-60">#{tag}</span>
+					))}
 				</div>
 			</a>
 		))}
 	</div>
 </MainLayout>
+
+<style>
+	.tag-pill {
+		font-family: var(--font-space-grotesk);
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		padding: 0.4rem 0.85rem;
+		border-radius: 9999px;
+		border: 1px solid var(--glass-border);
+		background-color: var(--color-surface-low);
+		color: var(--text-muted);
+		cursor: pointer;
+		transition: 0.15s;
+	}
+	.tag-pill:hover { border-color: var(--color-primary); color: var(--text-base); }
+	.tag-pill.active { background-color: var(--color-primary); color: var(--color-bg-base); border-color: var(--color-primary); }
+</style>
+
+<script>
+	function setupTagFilter() {
+		const bar = document.getElementById('tag-filter');
+		if (!bar) return;
+		const rows = [...document.querySelectorAll<HTMLElement>('.post-row')];
+		bar.querySelectorAll<HTMLElement>('[data-filter]').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const f = btn.dataset.filter ?? '*';
+				bar.querySelectorAll('[data-filter]').forEach((b) => b.classList.toggle('active', b === btn));
+				rows.forEach((r) => {
+					const tags = (r.dataset.tags ?? '').split('|').filter(Boolean);
+					r.style.display = f === '*' || tags.includes(f) ? '' : 'none';
+				});
+			});
+		});
+	}
+	setupTagFilter();
+	document.addEventListener('astro:after-swap', setupTagFilter);
+</script>

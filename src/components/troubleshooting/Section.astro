@@ -1,0 +1,16 @@
+---
+interface Props {
+	n: string;
+	label: string;
+}
+const { n, label } = Astro.props;
+---
+
+<section class="ts-section">
+	<div class="ts-section-head not-prose">
+		<span class="ts-section-n">{n}</span>
+		<span class="ts-section-label">{label}</span>
+		<span class="ts-section-rule"></span>
+	</div>
+	<slot />
+</section>

@@ -1,0 +1,14 @@
+---
+interface Props {
+	k: string;
+	v: string;
+	type?: 'ok' | 'fail';
+}
+const { k, v, type } = Astro.props;
+const cls = type === 'ok' ? 'ts-good' : type === 'fail' ? 'ts-bad' : '';
+---
+
+<div class="ts-kv">
+	<span class="ts-muted">{k}</span>
+	<span class={cls}>{v}</span>
+</div>

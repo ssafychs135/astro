@@ -18,14 +18,14 @@ const { title, description, pubDate, updatedDate, heroImage, stack, githubUrl, d
 
 	<body class="bg-bg-base text-text-base antialiased">
 		<Header />
-		<main class="max-w-5xl mx-auto px-6 py-24">
+		<main class="max-w-7xl mx-auto px-6 py-24">
 			<article>
 				<header class="mb-16">
 					<div class="tech-label mb-8">
 						<span class="text-secondary">> Project</span>
 						<span class="opacity-30">Project_Record</span>
 					</div>
-					<h1 class="text-5xl md:text-8xl font-black tracking-tighter uppercase mb-12 leading-[0.9]">
+					<h1 class="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-12 leading-[0.95]">
 						{title}
 					</h1>
 					
@@ -35,17 +35,17 @@ const { title, description, pubDate, updatedDate, heroImage, stack, githubUrl, d
 
 					<div class="telemetry-bar">
 						<div class="telemetry-item">
-							<span class="tech-label opacity-40 !text-[10px]">Timestamp</span>
-							<span class="font-bold"><FormattedDate date={pubDate} /></span>
+							<span class="tech-label opacity-50 !text-xs">Timestamp</span>
+							<span class="font-bold text-lg"><FormattedDate date={pubDate} /></span>
 						</div>
 						<div class="telemetry-item">
-							<span class="tech-label opacity-40 !text-[10px]">Primary_Role</span>
-							<span class="font-bold uppercase tech-font text-xs tracking-widest">{role || 'Architect'}</span>
+							<span class="tech-label opacity-50 !text-xs">Primary_Role</span>
+							<span class="font-bold uppercase tech-font text-sm tracking-widest">{role || 'Architect'}</span>
 						</div>
 						<div class="telemetry-item">
-							<span class="tech-label opacity-40 !text-[10px]">Tech_Stack</span>
+							<span class="tech-label opacity-50 !text-xs">Tech_Stack</span>
 							<div class="flex flex-wrap gap-2">
-								{stack?.map(s => <span class="tag-obsidian">{s}</span>)}
+								{stack?.map(s => <span class="tag-obsidian !text-xs">{s}</span>)}
 							</div>
 						</div>
 					</div>

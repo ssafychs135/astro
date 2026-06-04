@@ -1,0 +1,25 @@
+---
+interface Card {
+	icon?: string;
+	n?: string;
+	title: string;
+	sub?: string;
+}
+interface Props {
+	items: Card[];
+	cols?: number;
+}
+const { items, cols } = Astro.props;
+const n = cols ?? items.length;
+---
+
+<div class:list={['ts-grid', `cols-${n}`, 'not-prose']}>
+	{items.map((c) => (
+		<div class="ts-gcard">
+			{c.icon && <div class="ts-gcard-ico">{c.icon}</div>}
+			{c.n && <div class="ts-gcard-n">{c.n}</div>}
+			<h4>{c.title}</h4>
+			{c.sub && <p>{c.sub}</p>}
+		</div>
+	))}
+</div>

@@ -1,0 +1,19 @@
+---
+interface Item {
+	big: string;
+	cap: string;
+}
+interface Props {
+	items: Item[];
+}
+const { items } = Astro.props;
+---
+
+<div class="ts-metrics not-prose">
+	{items.map((it) => (
+		<div class="ts-metric">
+			<div class="ts-metric-big">{it.big}</div>
+			<div class="ts-metric-cap">{it.cap}</div>
+		</div>
+	))}
+</div>

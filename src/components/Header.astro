@@ -17,8 +17,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 		<div class="hidden md:flex items-center gap-10">
 			<HeaderLink href={`${base}/portfolio`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">01_Portfolio</HeaderLink>
 			<HeaderLink href={`${base}/blog`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">02_Research</HeaderLink>
-			<HeaderLink href={`${base}/study`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">03_Study_Log</HeaderLink>
-			<HeaderLink href={`${base}/about`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">04_Identity</HeaderLink>
+			<HeaderLink href={`${base}/about`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">03_Identity</HeaderLink>
 		</div>
 
 		<div class="flex items-center gap-4 md:gap-6">
@@ -60,12 +59,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 				<span class="tech-font text-primary text-sm mb-1 group-hover/link:translate-x-1 transition-transform">02_</span>
 				<span class="tech-font text-4xl font-black tracking-tight group-hover/link:text-primary transition-colors">RESEARCH</span>
 			</a>
-			<a href={`${base}/study`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-300 group-[.open]:opacity-100 group-[.open]:translate-x-0">
+			<a href={`${base}/about`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-300 group-[.open]:opacity-100 group-[.open]:translate-x-0">
 				<span class="tech-font text-primary text-sm mb-1 group-hover/link:translate-x-1 transition-transform">03_</span>
-				<span class="tech-font text-4xl font-black tracking-tight group-hover/link:text-primary transition-colors">STUDY_LOG</span>
-			</a>
-			<a href={`${base}/about`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-400 group-[.open]:opacity-100 group-[.open]:translate-x-0">
-				<span class="tech-font text-primary text-sm mb-1 group-hover/link:translate-x-1 transition-transform">04_</span>
 				<span class="tech-font text-4xl font-black tracking-tight group-hover/link:text-primary transition-colors">IDENTITY</span>
 			</a>
 		</nav>

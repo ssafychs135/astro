@@ -1,0 +1,134 @@
+---
+title: "iPhone 리뷰 & RAG 챗봇"
+description: "IT 기기 정보를 한곳에 모은 플랫폼. RAG 챗봇으로 사양을 자연어로 묻고, 리뷰 게시판은 YouTube 자막을 요약해 함께 보여줍니다."
+pubDate: 2025-12-26
+stack: ["Django", "DRF", "Vue 3", "ChromaDB", "LangChain", "LangGraph", "LM Studio", "Gemma"]
+role: "풀스택 (개인 프로젝트)"
+heroImage: "../../assets/blog-placeholder-3.jpg"
+---
+
+import Section from '../../components/troubleshooting/Section.astro';
+import Metrics from '../../components/troubleshooting/Metrics.astro';
+import Grid from '../../components/troubleshooting/Grid.astro';
+import Callout from '../../components/troubleshooting/Callout.astro';
+import Defect from '../../components/troubleshooting/Defect.astro';
+import Toggle from '../../components/troubleshooting/Toggle.astro';
+import Verdict from '../../components/troubleshooting/Verdict.astro';
+import Conf from '../../components/troubleshooting/Conf.astro';
+import Kv from '../../components/troubleshooting/Kv.astro';
+
+<Metrics
+  items={[
+    { big: '전 기능 구현', cap: '챗봇 · 검색 · 게시판' },
+    { big: '51종 / 678청크', cap: 'iPhone 데이터 임베딩' },
+    { big: '결정성 0→100%', cap: 'RAG 검색 재현성' },
+    { big: 'LangGraph 8노드', cap: '단계별 디버깅·검증' },
+  ]}
+/>
+
+<Section n="01" label="Overview">
+
+IT 기기 구매를 고민하는 사용자에게 신뢰할 수 있는 정보를 한곳에 모아주는 플랫폼입니다. 리뷰 영상은 길어 전부 보기 부담스럽고, 기기에 익숙하지 않은 사용자는 사양을 일일이 파악하기 어렵다는 문제에서 출발했습니다.
+
+2025년 12월에 챗봇부터 리뷰 게시판까지 전 기능을 구현했습니다.
+
+</Section>
+
+<Section n="02" label="Features">
+  <Grid
+    cols={2}
+    items={[
+      { icon: '💬', title: 'RAG 기반 Q&A 챗봇', sub: 'IT 기기의 사양과 특성을 자연어로 묻고 근거를 기반으로 답변합니다.' },
+      { icon: '📝', title: '리뷰 게시판', sub: '글 작성 시 YouTube 영상 ID를 넣으면 자막을 Gemini로 요약해 본문과 함께 게시합니다.' },
+    ]}
+  />
+</Section>
+
+<Section n="03" label="Defects">
+
+RAG 파이프라인을 처음 만들며 마주친 두 가지 함정입니다. 둘 다 오류 없이 조용히 틀리는 침묵 실패여서, 증상이 아니라 원인을 바이트와 흐름 단위로 파고들어야 했습니다.
+
+  <Grid
+    cols={2}
+    items={[
+      { icon: '🕳️', n: 'DEFECT 01', title: '침묵 실패', sub: 'NBSP 오염으로 메타데이터 필터 0건' },
+      { icon: '🎲', n: 'DEFECT 02', title: '비결정적 검색', sub: '작은 모델의 도구 선택이 흔들림' },
+    ]}
+  />
+
+  <Defect pnum="DEFECT 01" category="Unicode Hygiene" title="보이지 않는 글자가 검색을 막다">
+    <div slot="summary">
+      챗봇이 "iPhone 17" 질문에 15와 16 정보만 답했습니다. ChromaDB에는 17 데이터가 분명히 있는데(임베딩은 성공) 메타데이터 필터 결과가 <b>0건</b>이었습니다. 파일명을 눈으로 봐서는 어디가 깨졌는지 보이지 않았습니다.
+    </div>
+    <ul slot="tech">
+      <li>Apple 공식 페이지가 제품명에 <code>&nbsp;</code>(U+00A0)를 사용했고, 크롤러 <code>get_text()</code>가 이를 그대로 가져왔다.</li>
+      <li>일반 공백과 픽셀 단위로 같아 <code>print</code>로는 보이지 않았다.</li>
+      <li><b>진단</b>: <code>Counter</code>와 <code>repr()</code>로 바이트 수준 키 분포를 출력해 NBSP를 발견했다.</li>
+      <li><b>해결</b>: 텍스트가 들어오는 경계에 <code>NFKC 정규화</code>를 적용한 뒤 다시 인덱싱했다.</li>
+    </ul>
+
+    <Toggle heading={'질문: "iPhone 17 사양 알려줘"'} labelOff="NBSP 그대로" labelOn="NFKC 정규화">
+      <div slot="off">
+        <Verdict type="fail">메타데이터 필터 0건, 침묵 실패</Verdict>
+        <Kv k="컬렉션 키" v={'iPhone\\xa017\\xa0Pro'} type="fail" />
+        <div class="ts-io">답변: <span class="ts-bad">15·16 정보만 응답</span></div>
+      </div>
+      <div slot="on">
+        <Verdict type="ok">필터 정상 매칭</Verdict>
+        <Kv k="정규화 키" v="iPhone 17 Pro" type="ok" />
+        <div class="ts-io">답변: <span class="ts-good">17 데이터 검색·응답</span></div>
+      </div>
+    </Toggle>
+  </Defect>
+
+  <Defect pnum="DEFECT 02" category="Determinism" title="같은 질문에 매번 다른 답">
+    <div slot="summary">
+      작은 로컬 모델은 도구 선택이 흔들려, 같은 질문에도 검색 결과가 매번 달랐습니다. <b>결정적인 노드 흐름</b>이 작은 모델의 검색 품질을 더 안정적으로 보장합니다.
+    </div>
+    <ul slot="tech">
+      <li>단일 체인을 <b>LangGraph 8노드 구조</b>로 전환해 노드별 디버깅과 검증을 확보했다.</li>
+      <li>도구 호출(자유 선택) 대신 명시적 그래프로 흐름을 고정했다.</li>
+      <li>모델 제공 중단에 대응해 Upstage Solar에서 로컬(LM Studio, Gemma)로 이전했다.</li>
+      <li>어댑터를 교체하고 임베딩 모델 변경에 따라 전체를 다시 임베딩했다.</li>
+    </ul>
+
+    <Toggle heading="검색 흐름 제어 방식" labelOff="도구 호출(자유 선택)" labelOn="명시적 그래프(LangGraph)">
+      <div slot="off">
+        <Verdict type="fail">같은 질문 3회, 매번 다른 결과</Verdict>
+        <div class="ts-io">"iPhone 17과 16 비교" 질문에 <span class="ts-bad">호출마다 다른 답</span></div>
+        <Conf label="검색 결정성" value={0} type="lo" />
+      </div>
+      <div slot="on">
+        <Verdict type="ok">같은 질문 3회, 동일 결과</Verdict>
+        <div class="ts-io">고정된 8노드 흐름으로 <span class="ts-good">동일 결과 보장</span></div>
+        <Conf label="검색 결정성" value={1} type="hi" />
+      </div>
+    </Toggle>
+  </Defect>
+</Section>
+
+<Section n="04" label="Result">
+  <Metrics
+    items={[
+      { big: '5건 진단', cap: 'RAG 검색 결함 해결' },
+      { big: '0 → 100%', cap: '검색 결정성(3회 동일)' },
+      { big: '8노드', cap: 'LangGraph 단계 검증' },
+      { big: '무중단 이전', cap: 'Solar에서 LM Studio·Gemma로' },
+    ]}
+  />
+  <Grid
+    cols={2}
+    items={[
+      { title: '침묵 실패는 repr()로 잡는다', sub: 'print로 보이지 않는 NBSP는 바이트 단위로 확인한다.' },
+      { title: '경계에서 NFKC 정규화', sub: '외부 스크래핑이나 복사·붙여넣기가 들어오는 곳은 항상 정규화한다.' },
+      { title: '작은 모델에는 명시적 흐름', sub: '도구 선택보다 고정 그래프가 더 안정적이다.' },
+      { title: '공급 중단에 대비한다', sub: '어댑터 교체로 모델을 교체할 수 있게 설계한다.' },
+    ]}
+  />
+</Section>
+
+<Section n="05" label="Retrospective">
+  <Callout>
+    RAG 개발이 처음이라 여러 임베딩 모델을 검색 정확도로 정량 비교하지 못한 점이 아쉽습니다. 다음에는 <b>임베딩 후보를 정량 평가한 뒤 선택</b>하려 합니다.
+  </Callout>
+</Section>

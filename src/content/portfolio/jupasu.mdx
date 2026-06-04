@@ -1,0 +1,184 @@
+---
+title: "주(酒)파수: AI 소믈리에 와인 추천"
+description: "와인 라벨이나 메뉴판을 촬영하면 온디바이스 OCR로 읽고, 취향 기반으로 와인을 추천하는 PWA. SSAFY 특화 프로젝트 우수상."
+pubDate: 2026-03-20
+stack: ["Next.js", "FastAPI", "Spring Boot", "PaddleOCR", "ONNX", "LangChain", "pgvector"]
+role: "AI · OCR 파이프라인 (6인 팀)"
+heroImage: "../../assets/blog-placeholder-2.jpg"
+---
+
+import Section from '../../components/troubleshooting/Section.astro';
+import Metrics from '../../components/troubleshooting/Metrics.astro';
+import Grid from '../../components/troubleshooting/Grid.astro';
+import Callout from '../../components/troubleshooting/Callout.astro';
+import Defect from '../../components/troubleshooting/Defect.astro';
+import Toggle from '../../components/troubleshooting/Toggle.astro';
+import Cards from '../../components/troubleshooting/Cards.astro';
+import Verdict from '../../components/troubleshooting/Verdict.astro';
+import Conf from '../../components/troubleshooting/Conf.astro';
+import Kv from '../../components/troubleshooting/Kv.astro';
+
+<Metrics
+  items={[
+    { big: '특화 우수상', cap: 'SSAFY 특화 프로젝트' },
+    { big: '6인 팀', cap: 'AI · OCR 파이프라인 담당' },
+    { big: '5개 기능', cap: '라벨 · 메뉴판 스캔 추천' },
+    { big: '온디바이스', cap: '브라우저에서 OCR 구동' },
+  ]}
+/>
+
+<Section n="01" label="Overview">
+
+위스키는 어느 정도 대중화됐지만 와인은 정보 진입장벽이 높습니다. 주파수는 와인 선택 실패 경험을 보완하는 **개인화 추천 PWA**입니다.
+
+6인 팀(인프라 1, 백엔드 3, AI 2)에서 **LLM·RAG·OCR 파이프라인을 설계하고 구현**했습니다. 팀원들이 AI 개발을 경험하도록 업무를 나누고 안내했습니다.
+
+</Section>
+
+<Section n="02" label="Features">
+  <Grid
+    cols={3}
+    items={[
+      { icon: '🏷️', title: '라벨 스캔 추천', sub: '와인 라벨을 촬영하면 정보를 제공하고 취향 기반으로 추천합니다.' },
+      { icon: '👥', title: '함께 마실 추천', sub: '친구 취향까지 고려한 추천과 와인 페어링을 제공합니다.' },
+      { icon: '📋', title: '메뉴판 스캔', sub: '메뉴판 음식과 어울리는 와인 페어링을 추천합니다.' },
+    ]}
+  />
+</Section>
+
+<Section n="03" label="Defects">
+
+온디바이스 OCR(PaddleOCR)로 라벨을 읽고 LLM으로 정제하는 파이프라인에서, 작은 모델과 게이트웨이가 일으킨 현실 문제 세 건을 해결했습니다. 각 항목은 토글과 선택으로 직접 비교할 수 있습니다.
+
+  <Grid
+    cols={3}
+    items={[
+      { icon: '🔠', n: 'DEFECT 01', title: '인식률 저하', sub: '학습과 추론의 전처리가 달라 신뢰도가 0.5대' },
+      { icon: '🌀', n: 'DEFECT 02', title: 'LLM 환각', sub: '입력에 없는 와인을 생성하는 충실성 문제' },
+      { icon: '🧱', n: 'DEFECT 03', title: '구조화 출력', sub: 'function_calling 빈 응답을 json_schema로 해결' },
+    ]}
+  />
+
+  <Defect pnum="DEFECT 01" category="Recognition" title="학습한 적 없는 입력을 받은 모델">
+    <div slot="summary">
+      검출은 글자 박스를 잘 잡지만 인식 신뢰도가 0.5대로 들쭉날쭉하고 글자도 틀렸습니다. 모델이 혼동한 것이 아니라 <b>학습 때 본 적 없는 입력 분포</b>를 받은 것이 원인입니다.
+    </div>
+    <ul slot="tech">
+      <li>모델은 너비 320 고정과 <code>(x/255-0.5)/0.5</code> 정규화로 학습되었다.</li>
+      <li>추론 워커는 가변 너비와 ImageNet 정규화(검출용)를 인식 단계에 그대로 재사용했다.</li>
+      <li><b>해결</b>: <code>createRecTensor</code>로 학습과 동일한 전처리를 재현했다(너비 320 제로 패딩).</li>
+      <li>단서는 README가 아니라 <code>inference.yml</code> 모델 메타데이터에 있었다.</li>
+    </ul>
+
+    <Toggle heading="같은 이미지, 다른 전처리" labelOff="추론과 학습 불일치" labelOn="학습과 동일">
+      <div slot="off">
+        <Verdict type="fail">신뢰도 0.5대, 글자 오인식</Verdict>
+        <div class="ts-io">
+          <span class="ts-muted">박스 1</span> <span class="ts-bad">0AKOIB</span> &nbsp;
+          <span class="ts-muted">박스 2</span> <span class="ts-bad">SCEINEIDDR</span>
+        </div>
+        <Conf label="박스 1" value={0.54} type="lo" />
+        <Conf label="박스 2" value={0.62} type="lo" />
+      </div>
+      <div slot="on">
+        <Verdict type="ok">신뢰도 0.99 이상, 글자 교정</Verdict>
+        <div class="ts-io">
+          <span class="ts-muted">박스 1</span> <span class="ts-good">JAKOB</span> &nbsp;
+          <span class="ts-muted">박스 2</span> <span class="ts-good">SCHNEIDER</span>
+        </div>
+        <Conf label="박스 1" value={0.99} type="hi" />
+        <Conf label="박스 2" value={0.99} type="hi" />
+      </div>
+    </Toggle>
+  </Defect>
+
+  <Defect pnum="DEFECT 02" category="LLM Fidelity" title="입력에 없는 와인을 만들어내다">
+    <div slot="summary">
+      OCR이 추출한 텍스트를 LLM 정제 단계에 넣으면 <b>입력에 없던</b> 와인을 반환했습니다. 작은 모델(Gemma 4B)에서는 프롬프트 설계가 곧 입력 충실성을 좌우했습니다.
+    </div>
+    <ul slot="tech">
+      <li>원인 1: 시스템 프롬프트의 "추론하세요"가 자유로운 생성을 허용했다.</li>
+      <li>원인 2: 퓨샷 예시가 보르도에 편향되어 모델이 예시를 그대로 복사했다.</li>
+      <li>실패: 너무 강한 부정 명령은 모든 필드를 빈 문자열로 만들었다.</li>
+      <li><b>해결</b>: 명령 톤을 완화하고 퓨샷 예시를 4개국으로 다양화하며 분류 기준을 제시했다.</li>
+    </ul>
+
+    <Toggle heading={'입력: "JAKOB SCHNEIDER Niederhäuser…"'} labelOff="자유 생성 허용" labelOn="충실성 강제와 다양화">
+      <div slot="off">
+        <Verdict type="fail">입력에 없는 와인 생성(환각)</Verdict>
+        <Kv k="winery" v="Chateau Lafite Rothschild" type="fail" />
+        <Kv k="wineName" v="Pauillac" type="fail" />
+        <Kv k="vintage" v="2015" type="fail" />
+      </div>
+      <div slot="on">
+        <Verdict type="ok">입력 단어 유지, OCR 오타 교정</Verdict>
+        <Kv k="winery" v="Jakob Schneider" type="ok" />
+        <Kv k="wineName" v="Niederhäuser Felsensteyer" type="ok" />
+        <Kv k="vintage" v={'""'} type="ok" />
+      </div>
+    </Toggle>
+  </Defect>
+
+  <Defect pnum="DEFECT 03" category="Structured Output" title={'"공식 지원"이 곧 동작은 아니다'}>
+    <div slot="summary">
+      Gemma 4B는 모델 카드에 "Function Calling 지원"이라 적혀 있지만, 기본 <code>with_structured_output</code> 호출은 빈 객체만 반환했습니다. 게이트웨이별로 사용 가능한 방식을 직접 검증해야 했습니다.
+    </div>
+    <ul slot="tech">
+      <li>function_calling(기본): 표기와 달리 빈 래퍼가 잦았다.</li>
+      <li>json_mode: LM Studio가 거부했다(json_object 미지원).</li>
+      <li><b>json_schema</b>: 스키마를 프롬프트에 삽입해 일반 JSON으로 안정화했다.</li>
+      <li>침묵 실패는 <code>Pydantic</code> 경고 로그를 관찰해 발견했다.</li>
+    </ul>
+
+    <Cards
+      heading="LM Studio + Gemma 4B 조합에서"
+      cards={[
+        { key: 'fc', title: 'function_calling', sub: 'LangChain 기본' },
+        { key: 'jm', title: 'json_mode', sub: 'json_object' },
+        { key: 'js', title: 'json_schema', sub: '최종 채택' },
+      ]}
+    >
+      <div slot="s0">
+        <Verdict type="fail">빈 래퍼가 잦음. 스키마 강제의 부담</Verdict>
+        <div class="ts-io">WineInfo(winery=<span class="ts-bad">''</span>, wineName=<span class="ts-bad">''</span>, …)</div>
+      </div>
+      <div slot="s1">
+        <Verdict type="fail">게이트웨이가 거부</Verdict>
+        <div class="ts-io"><span class="ts-bad">'response_format.type' must be 'json_schema' or 'text'</span></div>
+      </div>
+      <div slot="s2">
+        <Verdict type="ok">일반 JSON으로 안정화(작은 모델에 더 안정적)</Verdict>
+        <div class="ts-io">with_structured_output(WineInfo, method=<span class="ts-good">"json_schema"</span>)</div>
+      </div>
+    </Cards>
+  </Defect>
+
+OCR은 **PaddleOCR(PP-OCRv5)를 ONNX로 변환해 브라우저 워커에서 온디바이스로** 구동했습니다. 학습을 위해 택한 방식이지만, 개인정보 보호와 서버 부하 절감이라는 이점도 확인했습니다.
+
+</Section>
+
+<Section n="04" label="Result">
+  <Metrics
+    items={[
+      { big: '0.54→0.99', cap: 'OCR 인식 신뢰도' },
+      { big: '환각 제거', cap: 'LLM 입력 충실성 확보' },
+      { big: 'json_schema', cap: '구조화 출력 안정화' },
+      { big: '3건 해결', cap: '온디바이스 OCR 문제' },
+    ]}
+  />
+  <Grid
+    cols={2}
+    items={[
+      { title: '학습과 추론은 같아야 한다', sub: '모델이 학습한 입력 분포(크기, 정규화)로 넣어야 정상 동작한다. 단서는 메타데이터에 있다.' },
+      { title: '작은 모델의 프롬프트는 균형이다', sub: '너무 강하면 빈 응답, 너무 약하면 환각이 발생한다.' },
+      { title: '"공식 지원"이 실사용 품질은 아니다', sub: '모델 카드보다 직접 검증이 우선이다.' },
+      { title: '침묵 실패를 잡는 습관', sub: 'Pydantic 경고와 바이트 단위 비교가 디버깅의 핵심이었다.' },
+    ]}
+  />
+</Section>
+
+<Section n="05" label="Retrospective">
+  <Callout>
+    이 프로젝트에서 제 역할은 OCR·LLM·RAG 등 여러 AI 기능을 <b>하나의 추천 흐름으로 설계하고 연결</b>하는 것이었습니다. 작은 모델과 게이트웨이의 제약을 전처리·프롬프트·출력 형식 설계로 보완했고, 모델을 바꾸지 않고도 품질을 높일 수 있음을 확인했습니다.
+  </Callout>
+</Section>

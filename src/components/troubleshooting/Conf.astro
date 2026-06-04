@@ -1,0 +1,15 @@
+---
+interface Props {
+	label: string;
+	value: number; // 0..1
+	type?: 'lo' | 'hi';
+}
+const { label, value, type = 'hi' } = Astro.props;
+const pct = `${Math.round(value * 100)}%`;
+---
+
+<div class="ts-conf">
+	<span class="lab">{label}</span>
+	<div class="ts-bar"><i class:list={[type]} data-w={pct} style={`width:${pct}`}></i></div>
+	<span class="pct">{value.toFixed(2)}</span>
+</div>

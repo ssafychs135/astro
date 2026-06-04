@@ -1,0 +1,29 @@
+---
+interface Props {
+	id: string;
+	eyebrow?: string;
+	heading: string;
+	nodes: string[];
+	caption?: string;
+}
+const { id, eyebrow = '⚙ 인터랙티브 · 흐름 재생', heading, nodes, caption } = Astro.props;
+---
+
+<div class="ts-ix not-prose">
+	<div class="ts-eyebrow">{eyebrow}</div>
+	<h4 class="ts-h">{heading}</h4>
+	<button class="ts-replay" data-ts-replay={id}>▶ 흐름 재생</button>
+	<div class="ts-result" id={id}>
+		<div class="ts-flow">
+			{nodes.map((n, i) => (
+				<>
+					<span class="ts-node" set:html={n.replace(/\n/g, '<br>')} />
+					{i < nodes.length - 1 && <span class="ts-arrow">→</span>}
+				</>
+			))}
+		</div>
+		{caption && <div class="ts-cap">{caption}</div>}
+	</div>
+</div>
+
+<script>import './runtime.ts';</script>

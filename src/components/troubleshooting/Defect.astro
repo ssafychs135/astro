@@ -1,0 +1,23 @@
+---
+interface Props {
+	pnum: string;
+	category: string;
+	title: string;
+}
+const { pnum, category, title } = Astro.props;
+---
+
+<div class="ts-defect not-prose">
+	<div>
+		<div class="ts-pnum">{pnum} · {category}</div>
+		<h3>{title}</h3>
+		<div class="ts-summary"><slot name="summary" /></div>
+		<div class="ts-tech">
+			<div class="ts-tech-h">기술 상세</div>
+			<slot name="tech" />
+		</div>
+	</div>
+	<div>
+		<slot />
+	</div>
+</div>

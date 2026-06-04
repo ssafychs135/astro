@@ -8,7 +8,7 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.props;
 ---
 
 <html lang="ko">
@@ -25,7 +25,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 						<span class="text-primary">> Research_Insights // Meta_Data</span>
 						<span class="opacity-30">Classification: Strategic_Analysis</span>
 					</div>
-					<h1 class="text-5xl md:text-8xl font-black tracking-tighter uppercase mb-12 leading-[0.9]">
+					<h1 class="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-12 leading-[0.95]">
 						{title}
 					</h1>
 					
@@ -46,6 +46,14 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 							<div class="telemetry-item">
 								<span class="tech-label opacity-40 !text-[10px]">Last_Update</span>
 								<span class="font-bold"><FormattedDate date={updatedDate} /></span>
+							</div>
+						)}
+						{tags && tags.length > 0 && (
+							<div class="telemetry-item">
+								<span class="tech-label opacity-40 !text-[10px]">Tags</span>
+								<div class="flex flex-wrap gap-2">
+									{tags.map((t) => <span class="tag-obsidian !text-xs">{t}</span>)}
+								</div>
 							</div>
 						)}
 					</div>

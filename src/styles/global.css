@@ -397,7 +397,7 @@ header.glass-panel {
 	-webkit-backdrop-filter: blur(10px);
 }
 
-/* Frosted list containers (blog / study / home logs) — lift off pure black */
+/* Frosted list containers (blog / home logs) — lift off pure black */
 .bg-black\/50.backdrop-blur-md {
 	background-color: var(--glass-bg) !important;
 	border-color: var(--glass-border);
@@ -656,3 +656,246 @@ a.bg-primary:hover {
 	background-size: 200% 200%, 150px 150px;
 	background-blend-mode: normal, overlay;
 }
+
+/* ===================================================================
+   Interactive troubleshooting widgets (embedded in .mdx posts)
+   Replicates the PJT deck interactions in the Quantum Obsidian system.
+   =================================================================== */
+:root {
+	--ts-ok: #34d399;
+	--ts-ok-bg: rgba(52, 211, 153, 0.12);
+	--ts-ok-bd: rgba(52, 211, 153, 0.34);
+	--ts-danger: #fb7185;
+	--ts-danger-bg: rgba(251, 113, 133, 0.10);
+	--ts-danger-bd: rgba(251, 113, 133, 0.32);
+}
+:root[data-theme="light"] {
+	--ts-ok: #059669;
+	--ts-ok-bg: rgba(5, 150, 105, 0.10);
+	--ts-ok-bd: rgba(5, 150, 105, 0.30);
+	--ts-danger: #e11d48;
+	--ts-danger-bg: rgba(225, 29, 72, 0.08);
+	--ts-danger-bd: rgba(225, 29, 72, 0.28);
+}
+
+/* Defect block: two-column on desktop, stacks on mobile */
+.ts-defect {
+	display: grid;
+	grid-template-columns: 1fr 1.35fr;
+	gap: 2.25rem;
+	align-items: start;
+	margin: 2.75rem 0;
+	padding: 1.75rem;
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius, 22px);
+	background-color: var(--color-surface-low);
+	-webkit-backdrop-filter: var(--glass-backdrop);
+	backdrop-filter: var(--glass-backdrop);
+}
+@media (max-width: 860px) {
+	.ts-defect { grid-template-columns: 1fr; gap: 1.5rem; padding: 1.25rem; }
+}
+.ts-pnum {
+	font-family: var(--font-space-grotesk);
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--color-primary);
+	margin-bottom: 0.6rem;
+}
+.ts-defect h3 {
+	font-size: 1.4rem;
+	font-weight: 800;
+	line-height: 1.3;
+	margin: 0 0 0.9rem;
+	color: var(--text-base);
+}
+.ts-summary { font-size: 0.97rem; line-height: 1.65; color: var(--text-base); margin-bottom: 1.1rem; }
+.ts-summary b, .ts-tech b { color: var(--color-primary); font-weight: 700; }
+.ts-tech {
+	background-color: var(--color-surface-high);
+	border: 1px solid var(--glass-border);
+	border-radius: 14px;
+	padding: 1rem 1.1rem;
+}
+.ts-tech-h {
+	margin: 0 0 0.7rem;
+	font-size: 0.66rem;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--text-muted);
+	font-family: var(--font-space-grotesk);
+}
+.ts-tech ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+.ts-tech li { font-size: 0.82rem; line-height: 1.55; color: var(--text-base); padding-left: 0.95rem; position: relative; }
+.ts-tech li::before { content: ""; position: absolute; left: 0; top: 0.5rem; width: 5px; height: 5px; border-radius: 50%; background: var(--color-primary); }
+
+/* Interactive panel */
+.ts-ix {
+	background-color: var(--color-surface-high);
+	border: 1px solid var(--glass-border);
+	border-radius: 16px;
+	padding: 1.35rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+.ts-eyebrow {
+	font-size: 0.66rem;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: var(--text-muted);
+	font-family: var(--font-space-grotesk);
+}
+.ts-h { font-size: 1rem; font-weight: 700; margin: 0; color: var(--text-base); }
+.ts-tabs {
+	display: inline-flex;
+	flex-wrap: wrap;
+	background-color: var(--color-surface-low);
+	border: 1px solid var(--glass-border);
+	border-radius: 11px;
+	padding: 4px;
+	gap: 4px;
+	align-self: flex-start;
+}
+.ts-tabs button {
+	border: none;
+	background: transparent;
+	color: var(--text-muted);
+	font-size: 0.82rem;
+	font-weight: 600;
+	padding: 0.45rem 0.95rem;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: 0.15s;
+	font-family: inherit;
+}
+.ts-tabs button:hover { color: var(--text-base); }
+.ts-tabs button.on { background: var(--color-primary); color: var(--color-bg-base); }
+.ts-result {
+	background-color: var(--color-surface-low);
+	border: 1px solid var(--glass-border);
+	border-radius: 12px;
+	padding: 1.1rem;
+	min-height: 150px;
+}
+.ts-panel { display: none; }
+.ts-panel.show { display: block; animation: tsFade 0.25s ease-out; }
+@keyframes tsFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Verdict pill */
+.ts-verdict {
+	display: flex; align-items: center; gap: 0.5rem;
+	font-size: 0.82rem; font-weight: 700;
+	padding: 0.55rem 0.85rem; border-radius: 9px; margin-bottom: 0.9rem;
+}
+.ts-verdict.fail { background: var(--ts-danger-bg); color: var(--ts-danger); border: 1px solid var(--ts-danger-bd); }
+.ts-verdict.ok { background: var(--ts-ok-bg); color: var(--ts-ok); border: 1px solid var(--ts-ok-bd); }
+
+/* Key/value + IO rows (mono) */
+.ts-kv, .ts-io {
+	font-family: var(--font-space-grotesk);
+	font-size: 0.8rem;
+}
+.ts-kv { display: flex; justify-content: space-between; gap: 1rem; padding: 0.45rem 0; border-bottom: 1px dashed var(--glass-border); }
+.ts-kv:last-child { border-bottom: none; }
+.ts-io { line-height: 1.7; }
+.ts-defect code, .ts-ix code {
+	font-family: var(--font-space-grotesk);
+	background-color: var(--color-surface-highest);
+	padding: 0.1em 0.4em;
+	border-radius: 5px;
+	font-size: 0.85em;
+	color: var(--text-base);
+}
+.ts-bad { color: var(--ts-danger); font-weight: 700; }
+.ts-good { color: var(--ts-ok); font-weight: 700; }
+.ts-muted { color: var(--text-muted); }
+
+/* Confidence bars */
+.ts-conf { display: flex; align-items: center; gap: 0.65rem; margin: 0.5rem 0; }
+.ts-conf .lab { font-family: var(--font-space-grotesk); font-size: 0.75rem; width: 5.5rem; color: var(--text-muted); }
+.ts-bar { flex: 1; height: 12px; background: var(--color-surface-highest); border-radius: 6px; overflow: hidden; }
+.ts-bar i { display: block; height: 100%; border-radius: 6px; transition: width 0.6s ease; }
+.ts-bar i.lo { background: var(--ts-danger); }
+.ts-bar i.hi { background: var(--ts-ok); }
+.ts-conf .pct { font-family: var(--font-space-grotesk); font-size: 0.75rem; width: 2.9rem; text-align: right; font-weight: 700; color: var(--text-base); }
+
+/* Card selector */
+.ts-cards { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.ts-card {
+	flex: 1; min-width: 7rem;
+	border: 1px solid var(--glass-border); border-radius: 10px;
+	padding: 0.7rem 0.85rem; background-color: var(--color-surface-low);
+	cursor: pointer; transition: 0.15s; text-align: left;
+}
+.ts-card:hover { border-color: var(--color-primary); }
+.ts-card.on { border-color: var(--color-primary); box-shadow: inset 0 0 0 1px var(--color-primary); }
+.ts-card .t { font-weight: 700; margin-bottom: 0.15rem; font-family: var(--font-space-grotesk); font-size: 0.78rem; color: var(--text-base); }
+.ts-card .s { font-size: 0.72rem; color: var(--text-muted); }
+
+/* Flow replay */
+.ts-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
+.ts-node {
+	padding: 0.55rem 0.8rem; border: 1px solid var(--glass-border); border-radius: 9px;
+	font-size: 0.74rem; font-family: var(--font-space-grotesk); text-align: center;
+	background-color: var(--color-surface-low); color: var(--text-base); transition: 0.3s;
+}
+.ts-node.hot { background: var(--color-primary); color: var(--color-bg-base); border-color: var(--color-primary); }
+.ts-arrow { color: var(--text-muted); }
+.ts-cap { font-size: 0.74rem; color: var(--text-muted); text-align: center; margin-top: 0.9rem; font-family: var(--font-space-grotesk); }
+.ts-svgwrap { display: flex; justify-content: center; padding: 0.5rem 0; }
+.ts-replay {
+	align-self: flex-start; font-size: 0.78rem; padding: 0.4rem 0.85rem;
+	border: 1px solid var(--glass-border); border-radius: 8px;
+	background-color: var(--color-surface-low); color: var(--text-muted); cursor: pointer; transition: 0.15s;
+	font-family: inherit;
+}
+.ts-replay:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+/* ---- Deck-style page sections ---- */
+.ts-section { margin: 3.5rem 0; }
+.ts-section-head { display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1.6rem; }
+.ts-section-n { font-family: var(--font-space-grotesk); font-size: 1.15rem; font-weight: 800; letter-spacing: 0.04em; color: var(--color-primary); }
+.ts-section-label { font-family: var(--font-space-grotesk); font-size: 1.15rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-base); white-space: nowrap; }
+.ts-section-rule { flex: 1; height: 1px; background: linear-gradient(to right, var(--glass-border), transparent); }
+/* Keep pure-prose lines readable while grids/defects span the wide container */
+.ts-section > p { max-width: 74ch; }
+
+/* Metric tiles (hero band + result grid) */
+.ts-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem; margin: 2rem 0; }
+@media (max-width: 760px) { .ts-metrics { grid-template-columns: repeat(2, 1fr); } }
+.ts-metric {
+	border: 1px solid var(--glass-border); border-radius: 14px; padding: 1.1rem 1.2rem;
+	background-color: var(--color-surface-low);
+	-webkit-backdrop-filter: var(--glass-backdrop); backdrop-filter: var(--glass-backdrop);
+}
+.ts-metric-big { font-family: var(--font-space-grotesk); font-size: 1.5rem; font-weight: 800; color: var(--color-primary); line-height: 1.1; }
+.ts-metric-cap { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.45; }
+
+/* Static card grid (features, defect mini-TOC) */
+.ts-grid { display: grid; gap: 1rem; margin: 1.5rem 0; }
+.ts-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.ts-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 760px) { .ts-grid.cols-2, .ts-grid.cols-3 { grid-template-columns: 1fr; } }
+.ts-gcard {
+	border: 1px solid var(--glass-border); border-radius: 14px; padding: 1.3rem;
+	background-color: var(--color-surface-low);
+	-webkit-backdrop-filter: var(--glass-backdrop); backdrop-filter: var(--glass-backdrop);
+	transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.ts-gcard:hover { border-color: var(--color-primary); transform: translateY(-3px); }
+.ts-gcard-ico { font-size: 1.6rem; margin-bottom: 0.6rem; }
+.ts-gcard-n { font-family: var(--font-space-grotesk); font-size: 0.66rem; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 0.4rem; }
+.ts-gcard h4 { font-size: 1rem; font-weight: 700; margin: 0 0 0.4rem; color: var(--text-base); }
+.ts-gcard p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.55; margin: 0; }
+
+/* Retro callout */
+.ts-callout {
+	border-left: 3px solid var(--color-primary);
+	background-color: var(--color-surface-low);
+	border-radius: 0 12px 12px 0; padding: 1.2rem 1.4rem; margin: 1.5rem 0;
+	font-size: 0.97rem; line-height: 1.75; color: var(--text-base);
+}
+.ts-callout b { color: var(--color-primary); }
