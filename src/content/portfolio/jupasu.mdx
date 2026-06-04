@@ -14,7 +14,6 @@ import Callout from '../../components/troubleshooting/Callout.astro';
 import Defect from '../../components/troubleshooting/Defect.astro';
 import Toggle from '../../components/troubleshooting/Toggle.astro';
 import Flow from '../../components/troubleshooting/Flow.astro';
-import Cards from '../../components/troubleshooting/Cards.astro';
 import Verdict from '../../components/troubleshooting/Verdict.astro';
 import Kv from '../../components/troubleshooting/Kv.astro';
 import Shot from '../../components/troubleshooting/Shot.astro';
@@ -73,14 +72,14 @@ import ocrAfter from '../../assets/portfolio/ts/jupasu-ocr-after.png';
 
 <Section n="04" label="Defects">
 
-온디바이스 OCR(PaddleOCR)로 라벨을 읽고 LLM으로 정제하는 파이프라인에서, 작은 모델·게이트웨이·읽기 경로가 일으킨 현실 문제 네 건을 해결했습니다. 각 항목은 토글과 선택으로 직접 비교할 수 있습니다.
+온디바이스 OCR(PaddleOCR)로 라벨을 읽고 LLM으로 정제하는 파이프라인에서, 작은 모델·실행 환경·읽기 경로가 일으킨 현실 문제 네 건을 해결했습니다. 각 항목은 토글과 선택으로 직접 비교할 수 있습니다.
 
   <Grid
     cols={2}
     items={[
       { icon: '🔠', n: 'DEFECT 01', title: '인식률 저하', sub: '학습과 추론의 전처리가 달라 신뢰도가 0.5대' },
       { icon: '🌀', n: 'DEFECT 02', title: 'LLM 환각', sub: '입력에 없는 와인을 생성하는 충실성 문제' },
-      { icon: '🧱', n: 'DEFECT 03', title: '구조화 출력', sub: 'function_calling 빈 응답을 json_schema로 해결' },
+      { icon: '🧱', n: 'DEFECT 03', title: '구조화 출력', sub: '실행 환경 옵션 OFF로 빈 응답 → json_schema' },
       { icon: '🐢', n: 'DEFECT 04', title: '느린 기동', sub: '읽기마다 임베딩 전체 로드 → DTO projection' },
     ]}
   />
@@ -135,38 +134,27 @@ import ocrAfter from '../../assets/portfolio/ts/jupasu-ocr-after.png';
     </Toggle>
   </Defect>
 
-  <Defect pnum="DEFECT 03" category="Structured Output" title={'"공식 지원"이 곧 동작은 아니다'}>
+  <Defect pnum="DEFECT 03" category="Structured Output" title="구조화 출력이 빈 응답으로 돌아오다">
     <div slot="summary">
-      Gemma 4B는 모델 카드에 "Function Calling 지원"이라 적혀 있지만, 기본 <code>with_structured_output</code> 호출은 빈 객체만 반환했습니다. 게이트웨이별로 사용 가능한 방식을 직접 검증해야 했습니다.
+      형식을 지정해 답을 요청하면 빈 결과만 돌아왔습니다. 모델의 기능 표기만 믿고 넘어갔는데, 실제로는 <b>실행 환경(LM Studio)에서 구조화 출력 옵션이 꺼져 있어</b> 형식 강제가 무시된 것이 원인이었습니다.
     </div>
     <ul slot="tech">
-      <li>function_calling(기본): 표기와 달리 빈 래퍼가 잦았다.</li>
-      <li>json_mode: LM Studio가 거부했다(json_object 미지원).</li>
-      <li><b>json_schema</b>: 스키마를 프롬프트에 삽입해 일반 JSON으로 안정화했다.</li>
-      <li>침묵 실패는 <code>Pydantic</code> 경고 로그를 관찰해 발견했다.</li>
+      <li>옵션이 꺼진 상태라 <code>with_structured_output</code> 호출이 빈 객체만 반환했다.</li>
+      <li>오류 없이 조용히 비는 침묵 실패라, <code>Pydantic</code> 경고 로그를 관찰해 발견했다.</li>
+      <li><b>해결</b>: LM Studio의 구조화 출력 옵션을 확인하고 <code>json_schema</code> 방식으로 전환했다.</li>
+      <li><code>with_structured_output(WineInfo, method="json_schema")</code>로 스키마를 강제하고, 원하는 구조를 안내 문구로도 제시했다.</li>
     </ul>
 
-    <Cards
-      heading="LM Studio + Gemma 4B 조합에서"
-      cards={[
-        { key: 'fc', title: 'function_calling', sub: 'LangChain 기본' },
-        { key: 'jm', title: 'json_mode', sub: 'json_object' },
-        { key: 'js', title: 'json_schema', sub: '최종 채택' },
-      ]}
-    >
-      <div slot="s0">
-        <Verdict type="fail">빈 래퍼가 잦음. 스키마 강제의 부담</Verdict>
-        <div class="ts-io">WineInfo(winery=<span class="ts-bad">''</span>, wineName=<span class="ts-bad">''</span>, …)</div>
+    <Toggle heading="구조화 출력 요청 결과" labelOff="환경 옵션 OFF" labelOn="환경 점검 + json_schema">
+      <div slot="off">
+        <Verdict type="fail">형식 강제가 무시되어 빈 응답</Verdict>
+        <div class="ts-io"><span class="ts-bad">{'{ }'}</span> — 모든 필드 빈 값</div>
       </div>
-      <div slot="s1">
-        <Verdict type="fail">게이트웨이가 거부</Verdict>
-        <div class="ts-io"><span class="ts-bad">'response_format.type' must be 'json_schema' or 'text'</span></div>
+      <div slot="on">
+        <Verdict type="ok">필요한 항목을 모두 채움</Verdict>
+        <div class="ts-io"><span class="ts-good">{'{ name, region, vintage, grape }'}</span></div>
       </div>
-      <div slot="s2">
-        <Verdict type="ok">일반 JSON으로 안정화(작은 모델에 더 안정적)</Verdict>
-        <div class="ts-io">with_structured_output(WineInfo, method=<span class="ts-good">"json_schema"</span>)</div>
-      </div>
-    </Cards>
+    </Toggle>
   </Defect>
 
   <Defect pnum="DEFECT 04" category="Read Path" title="읽기마다 임베딩 벡터를 통째로 로드하다">
@@ -212,7 +200,7 @@ OCR은 **PaddleOCR(PP-OCRv5)를 ONNX로 변환해 브라우저 워커에서 온�
     items={[
       { title: '학습과 추론은 같아야 한다', sub: '모델이 학습한 입력 분포(크기, 정규화)로 넣어야 정상 동작한다. 단서는 메타데이터에 있다.' },
       { title: '작은 모델의 프롬프트는 균형이다', sub: '너무 강하면 빈 응답, 너무 약하면 환각이 발생한다.' },
-      { title: '"공식 지원"이 실사용 품질은 아니다', sub: '모델 카드보다 직접 검증이 우선이다.' },
+      { title: '기능 지원은 모델 표기만이 아니다', sub: '실행 환경 설정까지 확인해야 형식 강제가 동작한다.' },
       { title: '침묵 실패를 잡는 습관', sub: 'Pydantic 경고와 바이트 단위 비교가 디버깅의 핵심이었다.' },
       { title: '읽기 경로엔 필요한 컬럼만', sub: '무거운 임베딩 벡터는 유사도 검색이 필요할 때만 불러온다. 읽기 모델과 도메인을 분리한다.' },
     ]}
@@ -221,6 +209,6 @@ OCR은 **PaddleOCR(PP-OCRv5)를 ONNX로 변환해 브라우저 워커에서 온�
 
 <Section n="06" label="Retrospective">
   <Callout>
-    이 프로젝트에서 제 역할은 OCR·LLM·RAG 등 여러 AI 기능을 <b>하나의 추천 흐름으로 설계하고 연결</b>하는 것이었습니다. 작은 모델과 게이트웨이의 제약을 전처리·프롬프트·출력 형식 설계로 보완했고, 모델을 바꾸지 않고도 품질을 높일 수 있음을 확인했습니다.
+    이 프로젝트에서 제 역할은 OCR·LLM·RAG 등 여러 AI 기능을 <b>하나의 추천 흐름으로 설계하고 연결</b>하는 것이었습니다. 작은 모델과 실행 환경의 제약을 전처리·프롬프트·출력 형식 설계로 보완했고, 모델을 바꾸지 않고도 품질을 높일 수 있음을 확인했습니다.
   </Callout>
 </Section>
