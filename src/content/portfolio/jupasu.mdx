@@ -16,15 +16,10 @@ import Toggle from '../../components/troubleshooting/Toggle.astro';
 import Flow from '../../components/troubleshooting/Flow.astro';
 import Cards from '../../components/troubleshooting/Cards.astro';
 import Verdict from '../../components/troubleshooting/Verdict.astro';
-import Conf from '../../components/troubleshooting/Conf.astro';
 import Kv from '../../components/troubleshooting/Kv.astro';
 import Shot from '../../components/troubleshooting/Shot.astro';
-import ShotRow from '../../components/troubleshooting/ShotRow.astro';
 import ocrBefore from '../../assets/portfolio/ts/jupasu-ocr-before.png';
 import ocrAfter from '../../assets/portfolio/ts/jupasu-ocr-after.png';
-import appHome from '../../assets/portfolio/app/jupasu_home.jpg';
-import appScan from '../../assets/portfolio/app/jupasu_scan.jpg';
-import appChat from '../../assets/portfolio/app/jupasu_chat.jpg';
 
 <Metrics
   items={[
@@ -74,12 +69,6 @@ import appChat from '../../assets/portfolio/app/jupasu_chat.jpg';
       { icon: '📋', title: '메뉴판 스캔', sub: '메뉴판 음식과 어울리는 와인 페어링을 추천합니다.' },
     ]}
   />
-
-  <ShotRow cols={3}>
-    <Shot src={appHome} alt="주파수 홈 · VIBE GALLERY와 소믈리에 PICK" caption="홈 · 취향 기반 추천" />
-    <Shot src={appScan} alt="와인 라벨 스캔 검색 결과 화면" caption="스캔 · 라벨 인식 결과" />
-    <Shot src={appChat} alt="소믈리에 챗봇 페어링 추천 화면" caption="챗봇 · 페어링 추천" />
-  </ShotRow>
 </Section>
 
 <Section n="04" label="Defects">
@@ -87,7 +76,7 @@ import appChat from '../../assets/portfolio/app/jupasu_chat.jpg';
 온디바이스 OCR(PaddleOCR)로 라벨을 읽고 LLM으로 정제하는 파이프라인에서, 작은 모델·게이트웨이·읽기 경로가 일으킨 현실 문제 네 건을 해결했습니다. 각 항목은 토글과 선택으로 직접 비교할 수 있습니다.
 
   <Grid
-    cols={4}
+    cols={2}
     items={[
       { icon: '🔠', n: 'DEFECT 01', title: '인식률 저하', sub: '학습과 추론의 전처리가 달라 신뢰도가 0.5대' },
       { icon: '🌀', n: 'DEFECT 02', title: 'LLM 환각', sub: '입력에 없는 와인을 생성하는 충실성 문제' },
@@ -110,23 +99,11 @@ import appChat from '../../assets/portfolio/app/jupasu_chat.jpg';
     <Toggle heading="같은 이미지, 다른 전처리" labelOff="추론과 학습 불일치" labelOn="학습과 동일">
       <div slot="off">
         <Verdict type="fail">신뢰도 0.5대, 글자 오인식</Verdict>
-        <Shot src={ocrBefore} alt="추론 전처리 불일치로 깨진 OCR 인식 결과" tag="Before" caption="실제 인식 · BROYTHEKS·DIENID 등 오인식" />
-        <div class="ts-io">
-          <span class="ts-muted">박스 1</span> <span class="ts-bad">0AKOIB</span> &nbsp;
-          <span class="ts-muted">박스 2</span> <span class="ts-bad">SCEINEIDDR</span>
-        </div>
-        <Conf label="박스 1" value={0.55} type="lo" />
-        <Conf label="박스 2" value={0.62} type="lo" />
+        <Shot src={ocrBefore} alt="추론 전처리 불일치로 깨진 OCR 인식 결과" tag="Before" caption="실제 인식 · BROYTHEKS·DIENID 등 오인식 (신뢰도 0.5대)" />
       </div>
       <div slot="on">
         <Verdict type="ok">신뢰도 0.88로 향상, 글자 교정</Verdict>
-        <Shot src={ocrAfter} alt="학습과 동일한 전처리로 교정된 OCR 인식 결과" tag="After" caption="실제 인식 · BROTHERS·ESTATE WINES 교정" />
-        <div class="ts-io">
-          <span class="ts-muted">박스 1</span> <span class="ts-good">JAKOB</span> &nbsp;
-          <span class="ts-muted">박스 2</span> <span class="ts-good">SCHNEIDER</span>
-        </div>
-        <Conf label="박스 1" value={0.88} type="hi" />
-        <Conf label="박스 2" value={0.90} type="hi" />
+        <Shot src={ocrAfter} alt="학습과 동일한 전처리로 교정된 OCR 인식 결과" tag="After" caption="실제 인식 · BROTHERS·ESTATE WINES 교정 (신뢰도 0.88)" />
       </div>
     </Toggle>
   </Defect>
