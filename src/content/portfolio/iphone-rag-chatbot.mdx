@@ -3,7 +3,7 @@ title: "iPhone 리뷰 & RAG 챗봇"
 description: "IT 기기 정보를 한곳에 모은 플랫폼. RAG 챗봇으로 사양을 자연어로 묻고, 리뷰 게시판은 YouTube 자막을 요약해 함께 보여줍니다."
 pubDate: 2025-12-26
 stack: ["Django", "DRF", "Vue 3", "ChromaDB", "LangChain", "LangGraph", "LM Studio", "Gemma"]
-role: "풀스택 (개인 프로젝트)"
+role: "RAG · 데이터 전반 (team9)"
 heroImage: "../../assets/blog-placeholder-3.jpg"
 ---
 
@@ -13,13 +13,14 @@ import Grid from '../../components/troubleshooting/Grid.astro';
 import Callout from '../../components/troubleshooting/Callout.astro';
 import Defect from '../../components/troubleshooting/Defect.astro';
 import Toggle from '../../components/troubleshooting/Toggle.astro';
+import Flow from '../../components/troubleshooting/Flow.astro';
 import Verdict from '../../components/troubleshooting/Verdict.astro';
 import Conf from '../../components/troubleshooting/Conf.astro';
 import Kv from '../../components/troubleshooting/Kv.astro';
 
 <Metrics
   items={[
-    { big: '전 기능 구현', cap: '챗봇 · 검색 · 게시판' },
+    { big: 'RAG·데이터 전반', cap: 'team9 · 직접 구현' },
     { big: '51종 / 678청크', cap: 'iPhone 데이터 임베딩' },
     { big: '결정성 0→100%', cap: 'RAG 검색 재현성' },
     { big: 'LangGraph 8노드', cap: '단계별 디버깅·검증' },
@@ -30,7 +31,7 @@ import Kv from '../../components/troubleshooting/Kv.astro';
 
 IT 기기 구매를 고민하는 사용자에게 신뢰할 수 있는 정보를 한곳에 모아주는 플랫폼입니다. 리뷰 영상은 길어 전부 보기 부담스럽고, 기기에 익숙하지 않은 사용자는 사양을 일일이 파악하기 어렵다는 문제에서 출발했습니다.
 
-2025년 12월에 챗봇부터 리뷰 게시판까지 전 기능을 구현했습니다.
+team9 프로젝트에서 **RAG 챗봇과 데이터 파이프라인 전반을 직접 구현**했습니다. 리뷰 영상 자막을 요약해 게시판에 함께 제공하는 데이터 흐름까지 맡았습니다.
 
 </Section>
 
@@ -49,10 +50,13 @@ IT 기기 구매를 고민하는 사용자에게 신뢰할 수 있는 정보를 
 RAG 파이프라인을 처음 만들며 마주친 두 가지 함정입니다. 둘 다 오류 없이 조용히 틀리는 침묵 실패여서, 증상이 아니라 원인을 바이트와 흐름 단위로 파고들어야 했습니다.
 
   <Grid
-    cols={2}
+    cols={3}
     items={[
       { icon: '🕳️', n: 'DEFECT 01', title: '침묵 실패', sub: 'NBSP 오염으로 메타데이터 필터 0건' },
-      { icon: '🎲', n: 'DEFECT 02', title: '비결정적 검색', sub: '작은 모델의 도구 선택이 흔들림' },
+      { icon: '🎲', n: 'DEFECT 02', title: '비결정적 검색', sub: '작은 모델의 모델명 추출이 매번 흔들림' },
+      { icon: '🔢', n: 'DEFECT 03', title: '숫자 오매칭', sub: '한국어 숫자와 모델명을 잘못 연결' },
+      { icon: '⚖️', n: 'DEFECT 04', title: '비교 누락', sub: '두 모델 비교에 한쪽만 응답' },
+      { icon: '🧩', n: 'DEFECT 05', title: '단일 체인 한계', sub: '검색·답변이 한 덩어리라 단계 점검 불가' },
     ]}
   />
 
@@ -83,27 +87,93 @@ RAG 파이프라인을 처음 만들며 마주친 두 가지 함정입니다. �
 
   <Defect pnum="DEFECT 02" category="Determinism" title="같은 질문에 매번 다른 답">
     <div slot="summary">
-      작은 로컬 모델은 도구 선택이 흔들려, 같은 질문에도 검색 결과가 매번 달랐습니다. <b>결정적인 노드 흐름</b>이 작은 모델의 검색 품질을 더 안정적으로 보장합니다.
+      같은 질문을 세 번 보내도 검색 결과가 매번 달랐습니다. 검색용 모델명을 <b>작은 모델이 매번 자유롭게 추론</b>해, 추출되는 모델명이 호출마다 흔들린 것이 원인입니다.
     </div>
     <ul slot="tech">
-      <li>단일 체인을 <b>LangGraph 8노드 구조</b>로 전환해 노드별 디버깅과 검증을 확보했다.</li>
-      <li>도구 호출(자유 선택) 대신 명시적 그래프로 흐름을 고정했다.</li>
-      <li>모델 제공 중단에 대응해 Upstage Solar에서 로컬(LM Studio, Gemma)로 이전했다.</li>
-      <li>어댑터를 교체하고 임베딩 모델 변경에 따라 전체를 다시 임베딩했다.</li>
+      <li>같은 입력에도 출력이 흔들려 추출 모델명이 호출마다 변했다.</li>
+      <li><b>해결</b>: 출력을 미리 정의한 51개 모델 열거형으로 제한했다.</li>
+      <li><code>ModelLiteral = Literal[*valid_models]</code>로 구조화 출력을 강제했다.</li>
+      <li>목록에 없으면 "해당 없음"으로 처리해, 권유보다 구조로 강제했다.</li>
     </ul>
 
-    <Toggle heading="검색 흐름 제어 방식" labelOff="도구 호출(자유 선택)" labelOn="명시적 그래프(LangGraph)">
+    <Toggle heading={'질문: "아이폰 15 프로 카메라 알려줘"'} labelOff="자유 추론(작은 모델)" labelOn="열거형 출력 제약">
       <div slot="off">
-        <Verdict type="fail">같은 질문 3회, 매번 다른 결과</Verdict>
-        <div class="ts-io">"iPhone 17과 16 비교" 질문에 <span class="ts-bad">호출마다 다른 답</span></div>
+        <Verdict type="fail">3회 모두 다른 모델 참조</Verdict>
+        <div class="ts-io">iPhone 14 기준으로 답변 <span class="ts-bad">(재질문마다 변동)</span></div>
         <Conf label="검색 결정성" value={0} type="lo" />
       </div>
       <div slot="on">
-        <Verdict type="ok">같은 질문 3회, 동일 결과</Verdict>
-        <div class="ts-io">고정된 8노드 흐름으로 <span class="ts-good">동일 결과 보장</span></div>
+        <Verdict type="ok">51개 열거형 안에서만 선택</Verdict>
+        <div class="ts-io">iPhone 15 Pro 기준으로 답변 <span class="ts-good">(3회 동일)</span></div>
         <Conf label="검색 결정성" value={1} type="hi" />
       </div>
     </Toggle>
+  </Defect>
+
+  <Defect pnum="DEFECT 03" category="Post-processing" title="‘17 프로 맥스’를 15로 인식하다">
+    <div slot="summary">
+      '17 프로 맥스'를 15로 인식하고, 모델명이 없는 질문에도 임의 모델을 골랐습니다. 한국어 숫자와 영문 모델명을 정확히 연결하지 못하고 <b>학습 빈도가 높은 모델로 치우친</b> 것이 원인입니다.
+    </div>
+    <ul slot="tech">
+      <li>출력 제한만으로는 부족해, 안내 문구 강화 위에 후처리 숫자 검증을 더했다.</li>
+      <li><code>any(n in nums_in_query for n in nums_in_model)</code> — 모델 숫자가 질문에 있어야 통과.</li>
+      <li>고른 모델명의 숫자가 질문에 없으면 코드가 결정적으로 무효 처리했다.</li>
+      <li>안내 문구와 후처리 검증의 <b>이중 방어</b>가 가장 확실했다.</li>
+    </ul>
+
+    <Toggle heading={'질문: "17 프로 맥스 사양 알려줘"'} labelOff="안내 문구만" labelOn="숫자 검증 후처리">
+      <div slot="off">
+        <Verdict type="fail">학습 빈도 높은 모델로 치우침</Verdict>
+        <div class="ts-io">iPhone <span class="ts-bad">15</span> 사양을 안내드릴게요</div>
+      </div>
+      <div slot="on">
+        <Verdict type="ok">숫자 검증 통과</Verdict>
+        <div class="ts-io">iPhone <span class="ts-good">17 Pro Max</span> 사양을 안내드릴게요</div>
+      </div>
+    </Toggle>
+  </Defect>
+
+  <Defect pnum="DEFECT 04" category="Retrieval Coverage" title="두 모델 비교에 한쪽만 답하다">
+    <div slot="summary">
+      두 모델 비교 질문에 한쪽만 답하고 다른 쪽은 정보가 없다며 회피했습니다. <b>모델을 하나만 추출</b>하고, 검색 문서에 어느 모델인지 출처 표시가 없던 것이 원인입니다.
+    </div>
+    <ul slot="tech">
+      <li>단수 추출 구조라 비교 의도를 담지 못했다.</li>
+      <li><b>해결</b>: 다중 추출로 바꾸고, 모델별로 고르게 분리 검색했다.</li>
+      <li><code>doc_prompt = PromptTemplate.from_template("[{`{model_name}`}] {`{page_content}`}")</code> — 문서마다 출처 모델명 주입.</li>
+      <li>검색이 담는 정보량이 답변 품질의 상한임을 확인했다.</li>
+    </ul>
+
+    <Toggle heading={'질문: "15 프로랑 16 프로 비교해줘"'} labelOff="단수 추출" labelOn="다중 추출 + 출처 표기">
+      <div slot="off">
+        <Verdict type="fail">한쪽만 응답 · 회피</Verdict>
+        <div class="ts-io">iPhone 15 Pro는 A17 Pro… <span class="ts-bad">16 Pro는 정보가 없습니다</span></div>
+      </div>
+      <div slot="on">
+        <Verdict type="ok">두 모델 항목별 비교</Verdict>
+        <Kv k="iPhone 15 Pro" v="A17 Pro · 3배 줌" type="ok" />
+        <Kv k="iPhone 16 Pro" v="A18 Pro · 5배 줌" type="ok" />
+      </div>
+    </Toggle>
+  </Defect>
+
+  <Defect pnum="DEFECT 05" category="Architecture" title="단일 체인을 6단계 그래프로 분리하다">
+    <div slot="summary">
+      답이 틀려도 원인 단계를 찾지 못하고, 통제를 맡긴 안내 문구만 계속 길어졌습니다. <b>검색과 답변이 한 덩어리</b>로 묶여 단계별 점검과 검증·재시도 추가가 어려웠습니다.
+    </div>
+    <ul slot="tech">
+      <li>전체 흐름을 여섯 단계로 분리해 재구성했다(의도 분기·질의 정리·검색·정렬·답변·검증).</li>
+      <li><code>g.add_conditional_edges("router", _route_after_router)</code> — 의도별로 흐름 분기.</li>
+      <li>단계별 중간 상태를 추적해 어디서 틀렸는지 확인 가능해졌다.</li>
+      <li>안내 문구가 계속 늘어나는 것은 단일 구조의 한계 신호였다 — 단계로 나누니 문구가 짧아졌다.</li>
+    </ul>
+
+    <Flow
+      id="iphone-graph"
+      heading="단일 체인 → LangGraph 6단계"
+      nodes={['질문', 'router\n의도 분기', 'contextualize\n질의 정리', 'retrieve\n검색', 'rerank\n정렬', 'compose\n답변', 'verify\n검증', '답변']}
+      caption="검색·응답을 한 덩어리에서 단계별로 분리해 점검·검증을 확보했다."
+    />
   </Defect>
 </Section>
 

@@ -2,7 +2,7 @@
 title: "RETINA FIT: AR 안경 피팅"
 description: "안경점용 태블릿 도구. 얼굴을 촬영해 PD·OH를 mm 단위로 측정하고, 추천 안경을 AR로 착용해봅니다. SSAFY 자율(Final) 프로젝트 우수상."
 pubDate: 2026-05-20
-stack: ["Svelte 5", "Three.js", "MediaPipe", "ONNX Runtime Web", "OpenCV.js", "Trellis2", "Flutter"]
+stack: ["Svelte 5", "Three.js", "MediaPipe", "ONNX Runtime Web", "OpenCV.js", "ComfyUI", "Trellis2", "Flutter"]
 role: "AR · 측정 엔진 (7인 팀)"
 heroImage: "../../assets/blog-placeholder-5.jpg"
 ---
@@ -63,12 +63,12 @@ import Glasses from '../../components/troubleshooting/Glasses.astro';
     </div>
     <ul slot="tech">
       <li>원인: 생성 모델의 강한 사전 편향으로, 입력에 렌즈가 없어도 렌즈를 생성했다.</li>
-      <li><b>해결</b>: 전처리 파이프라인에 <code>BiRefNet</code> 매팅을 추가했다.</li>
-      <li>배경을 제거해 <b>안경테 정보만</b> 모델에 전달했다.</li>
-      <li>생성 모델의 편향을 전처리로 입력을 정제해 해결했다.</li>
+      <li><b>해결</b>: ComfyUI 생성 워크플로 앞단에 <code>matting</code> 노드를 추가했다.</li>
+      <li>배경을 제거해 <b>안경테만</b> Trellis2에 전달했다.</li>
+      <li>재학습 대신 전처리로 입력을 정제해 생성 모델의 편향을 보완했다.</li>
     </ul>
 
-    <Toggle heading="렌즈 없는 안경테로 3D 생성" labelOff="매팅 없음" labelOn="BiRefNet 매팅">
+    <Toggle heading="렌즈 없는 안경테로 3D 생성" labelOff="매팅 없음" labelOn="ComfyUI matting">
       <div slot="off">
         <Verdict type="fail">렌즈 환각, 없던 렌즈 생성</Verdict>
         <Glasses lens={true} />
@@ -88,6 +88,7 @@ import Glasses from '../../components/troubleshooting/Glasses.astro';
     </div>
     <ul slot="tech">
       <li>생성물의 방향이 제각각이라 <b>도메인 지식(대칭성)으로 정면과 중앙을 자동 탐지</b>했다.</li>
+      <li><code>const forward_flip = mean_z &lt; 0</code> — 안경 다리 평균 Z 부호로 정면 방향을 자동 정규화했다.</li>
       <li>MediaPipe 얼굴 랜드마크의 기준점에 안경 모델을 정렬하고 배치했다.</li>
       <li>임의 방향으로 생성돼도 자동으로 정렬되어 정확히 착용된다.</li>
       <li>생성물의 불일치를 도메인 지식 기반 정규화와 정합으로 해결했다.</li>

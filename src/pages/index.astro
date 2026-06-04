@@ -16,12 +16,26 @@ const latestLogs = (await getCollection('blog'))
 	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
 	.slice(0, 3);
 
-// 3. 스킬 데이터 정의 (단계형)
-const coreSpecs = [
-	{ name: 'RAG_ARCHITECTURE', level: 5, status: 'OPTIMAL' },
-	{ name: 'AGENTIC_WORKFLOW', level: 4, status: 'ACTIVE' },
-	{ name: 'FULLSTACK_DEV', level: 5, status: 'STABLE' },
-	{ name: 'MODEL_TUNING', level: 4, status: 'TUNING' }
+// 3. 스킬 — 실제 역량 (설명 기반)
+const skills = [
+	{ name: 'LLM Application', status: 'CORE', desc: 'LangChain·임베딩·Vector DB로 RAG 파이프라인 구축. 여러 LLM(Upstage·Gemini·로컬 Gemma)을 연동·교체.' },
+	{ name: 'Python Backend', status: 'STABLE', desc: 'FastAPI·Django로 AI 기능을 API로 구현. 비동기·외부 LLM 게이트웨이 연동.' },
+	{ name: 'AI 활용 개발', status: 'ACTIVE', desc: 'AI 에이전트로 시도·검증 주기를 단축하고, 결과를 이해·검증해 활용.' }
+];
+
+// 4. 학력
+const education = [
+	{ org: 'SSAFY 14기', detail: '삼성청년 SW·AI 아카데미', state: '재학 중' },
+	{ org: '중앙정보처리학원', detail: 'Java 풀스택 과정', state: '이수' },
+	{ org: '경기대학교 경제학과', detail: '학사', state: '졸업' }
+];
+
+// 5. 수상 · 자격
+const awards = [
+	{ title: 'SSAFY 자율 프로젝트 우수상', detail: 'RETINA FIT' },
+	{ title: 'SSAFY 특화 프로젝트 우수상', detail: 'Jupasu' },
+	{ title: 'SSAFY 공통 프로젝트 우수상', detail: 'BlueFox' },
+	{ title: 'JLPT N3', detail: '일본어 자격' }
 ];
 ---
 
@@ -55,35 +69,53 @@ const coreSpecs = [
 					</div>
 				</div>
 
-				<!-- Telemetry Resume: Experience & Skills (Segmented Steps) -->
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-16 py-20 border-y border-surface-highest/20">
-					<div class="space-y-8">
-						<span class="tech-label text-base opacity-50 font-bold">Background</span>
-						<ul class="text-base space-y-8 list-none p-0 opacity-90">
-							<li><span class="text-secondary font-black text-lg">SSAFY 14기</span><br/>삼성 청년 SW 아카데미 · AI 활용 SW 개발</li>
-							<li><span class="text-secondary font-black text-lg">Focus</span><br/>RAG · Agentic Workflow · Full-stack</li>
-						</ul>
-					</div>
-					<div class="space-y-8 md:col-span-2">
-						<span class="tech-label text-base opacity-50 font-bold">Core_Engine_Specs (Expertise_Level)</span>
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-12">
-							{coreSpecs.map((spec) => (
-								<div class="space-y-4">
-									<div class="flex justify-between text-[11px] tech-font font-black tracking-widest">
-										<span class="opacity-60">{spec.name}</span>
-										<span class="text-primary tracking-tighter">{spec.status}</span>
+				<!-- Resume: Skills / Education / Awards (도시에 기준) -->
+				<div class="py-20 border-y border-surface-highest/20 space-y-20">
+					<!-- Core Skills -->
+					<div class="space-y-10">
+						<span class="tech-label text-base opacity-50 font-bold">> Core_Skills</span>
+						<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+							{skills.map((s) => (
+								<div class="card-obsidian p-8 rounded-sm space-y-5">
+									<div class="flex justify-between items-center gap-4">
+										<span class="font-black text-lg tracking-tight">{s.name}</span>
+										<span class="tech-font text-[10px] text-primary tracking-widest font-black shrink-0">{s.status}</span>
 									</div>
-									<div class="flex gap-1.5">
-										{[1, 2, 3, 4, 5].map((step) => (
-											<div class={`h-3 flex-1 rounded-sm transition-all duration-500 ${step <= spec.level ? 'bg-primary shadow-[0_0_10px_var(--primary)]' : 'bg-surface-highest opacity-20'}`}></div>
-										))}
-									</div>
-									<div class="flex justify-between text-[10px] tech-font opacity-30 font-bold">
-										<span>LVL_01</span>
-										<span>LVL_05</span>
-									</div>
+									<p class="text-sm text-text-muted leading-relaxed">{s.desc}</p>
 								</div>
 							))}
+						</div>
+					</div>
+
+					<!-- Education & Awards -->
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-16">
+						<div class="space-y-8">
+							<span class="tech-label text-base opacity-50 font-bold">> Education</span>
+							<ul class="list-none p-0 space-y-6 m-0">
+								{education.map((e) => (
+									<li class="flex justify-between items-baseline gap-4 border-b border-white/5 pb-5">
+										<div>
+											<div class="font-black text-base">{e.org}</div>
+											<div class="text-sm text-text-muted mt-1">{e.detail}</div>
+										</div>
+										<span class="tech-font text-xs text-secondary font-bold tracking-widest whitespace-nowrap">{e.state}</span>
+									</li>
+								))}
+							</ul>
+						</div>
+						<div class="space-y-8">
+							<span class="tech-label text-base opacity-50 font-bold">> Awards & Certs</span>
+							<ul class="list-none p-0 space-y-6 m-0">
+								{awards.map((a) => (
+									<li class="flex items-baseline gap-4 border-b border-white/5 pb-5">
+										<span class="text-primary tech-font text-sm shrink-0 mt-0.5">▰</span>
+										<div>
+											<div class="font-black text-base">{a.title}</div>
+											<div class="text-sm text-text-muted mt-1">{a.detail}</div>
+										</div>
+									</li>
+								))}
+							</ul>
 						</div>
 					</div>
 				</div>

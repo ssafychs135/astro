@@ -48,14 +48,15 @@ import Kv from '../../components/troubleshooting/Kv.astro';
 
 <Section n="03" label="Defects">
 
-온디바이스 OCR(PaddleOCR)로 라벨을 읽고 LLM으로 정제하는 파이프라인에서, 작은 모델과 게이트웨이가 일으킨 현실 문제 세 건을 해결했습니다. 각 항목은 토글과 선택으로 직접 비교할 수 있습니다.
+온디바이스 OCR(PaddleOCR)로 라벨을 읽고 LLM으로 정제하는 파이프라인에서, 작은 모델·게이트웨이·읽기 경로가 일으킨 현실 문제 네 건을 해결했습니다. 각 항목은 토글과 선택으로 직접 비교할 수 있습니다.
 
   <Grid
-    cols={3}
+    cols={4}
     items={[
       { icon: '🔠', n: 'DEFECT 01', title: '인식률 저하', sub: '학습과 추론의 전처리가 달라 신뢰도가 0.5대' },
       { icon: '🌀', n: 'DEFECT 02', title: 'LLM 환각', sub: '입력에 없는 와인을 생성하는 충실성 문제' },
       { icon: '🧱', n: 'DEFECT 03', title: '구조화 출력', sub: 'function_calling 빈 응답을 json_schema로 해결' },
+      { icon: '🐢', n: 'DEFECT 04', title: '느린 기동', sub: '읽기마다 임베딩 전체 로드 → DTO projection' },
     ]}
   />
 
@@ -77,17 +78,17 @@ import Kv from '../../components/troubleshooting/Kv.astro';
           <span class="ts-muted">박스 1</span> <span class="ts-bad">0AKOIB</span> &nbsp;
           <span class="ts-muted">박스 2</span> <span class="ts-bad">SCEINEIDDR</span>
         </div>
-        <Conf label="박스 1" value={0.54} type="lo" />
+        <Conf label="박스 1" value={0.55} type="lo" />
         <Conf label="박스 2" value={0.62} type="lo" />
       </div>
       <div slot="on">
-        <Verdict type="ok">신뢰도 0.99 이상, 글자 교정</Verdict>
+        <Verdict type="ok">신뢰도 0.88로 향상, 글자 교정</Verdict>
         <div class="ts-io">
           <span class="ts-muted">박스 1</span> <span class="ts-good">JAKOB</span> &nbsp;
           <span class="ts-muted">박스 2</span> <span class="ts-good">SCHNEIDER</span>
         </div>
-        <Conf label="박스 1" value={0.99} type="hi" />
-        <Conf label="박스 2" value={0.99} type="hi" />
+        <Conf label="박스 1" value={0.88} type="hi" />
+        <Conf label="박스 2" value={0.90} type="hi" />
       </div>
     </Toggle>
   </Defect>
@@ -153,6 +154,31 @@ import Kv from '../../components/troubleshooting/Kv.astro';
     </Cards>
   </Defect>
 
+  <Defect pnum="DEFECT 04" category="Read Path" title="읽기마다 임베딩 벡터를 통째로 로드하다">
+    <div slot="summary">
+      서버를 띄울 때와 첫 조회가 느리고, 임베딩 벡터가 메모리에 통째로 상주했습니다. 와인을 읽을 때 <b>추천 계산에 쓰지 않는 임베딩 벡터까지 항상 함께 불러온 것</b>이 원인입니다.
+    </div>
+    <ul slot="tech">
+      <li>엔티티에 임베딩이 묶여 있어 목록과 검색에도 전부 로드됐다.</li>
+      <li>수천 건의 고차원 벡터를 매번 파싱하고, 캐시에도 임베딩 포함 엔티티가 그대로 적재됐다.</li>
+      <li><b>해결</b>: 스코어링용 조회를 임베딩을 뺀 경량 뷰로 분리했다 — <code>List&lt;WineScoreView&gt; findAllScoreViews()</code>.</li>
+      <li>추천 계산은 인터페이스로 받아 엔티티와 뷰를 함께 처리하고, 벡터는 유사도 검색이 필요할 때만 로드했다.</li>
+    </ul>
+
+    <Toggle heading="와인 목록·스코어링 조회 시" labelOff="엔티티 전체 로드" labelOn="임베딩 제외 projection">
+      <div slot="off">
+        <Verdict type="fail">읽기 경로에 임베딩까지 전부 로드</Verdict>
+        <Kv k="조회" v="Wine 전체 (임베딩 포함)" type="fail" />
+        <Kv k="캐시" v="74.9MB" type="fail" />
+      </div>
+      <div slot="on">
+        <Verdict type="ok">필요한 컬럼만 조회</Verdict>
+        <Kv k="조회" v="WineScoreView (임베딩 제외)" type="ok" />
+        <Kv k="캐시" v="334KB" type="ok" />
+      </div>
+    </Toggle>
+  </Defect>
+
 OCR은 **PaddleOCR(PP-OCRv5)를 ONNX로 변환해 브라우저 워커에서 온디바이스로** 구동했습니다. 학습을 위해 택한 방식이지만, 개인정보 보호와 서버 부하 절감이라는 이점도 확인했습니다.
 
 </Section>
@@ -160,10 +186,10 @@ OCR은 **PaddleOCR(PP-OCRv5)를 ONNX로 변환해 브라우저 워커에서 온�
 <Section n="04" label="Result">
   <Metrics
     items={[
-      { big: '0.54→0.99', cap: 'OCR 인식 신뢰도' },
-      { big: '환각 제거', cap: 'LLM 입력 충실성 확보' },
+      { big: '0.55→0.88', cap: 'OCR 인식 신뢰도 (라벨 1종)' },
+      { big: '74.9MB→334KB', cap: '읽기 경로 캐시 (임베딩 제외)' },
       { big: 'json_schema', cap: '구조화 출력 안정화' },
-      { big: '3건 해결', cap: '온디바이스 OCR 문제' },
+      { big: '4건 해결', cap: 'OCR·LLM·읽기 경로' },
     ]}
   />
   <Grid
@@ -173,6 +199,7 @@ OCR은 **PaddleOCR(PP-OCRv5)를 ONNX로 변환해 브라우저 워커에서 온�
       { title: '작은 모델의 프롬프트는 균형이다', sub: '너무 강하면 빈 응답, 너무 약하면 환각이 발생한다.' },
       { title: '"공식 지원"이 실사용 품질은 아니다', sub: '모델 카드보다 직접 검증이 우선이다.' },
       { title: '침묵 실패를 잡는 습관', sub: 'Pydantic 경고와 바이트 단위 비교가 디버깅의 핵심이었다.' },
+      { title: '읽기 경로엔 필요한 컬럼만', sub: '무거운 임베딩 벡터는 유사도 검색이 필요할 때만 불러온다. 읽기 모델과 도메인을 분리한다.' },
     ]}
   />
 </Section>
