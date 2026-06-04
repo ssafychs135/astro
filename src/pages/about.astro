@@ -19,12 +19,10 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 					<span class="text-primary">AI 네이티브 개발자</span>입니다.
 				</p>
 				<p class="mb-6">
-					기술의 발달보다 중요한 것은 그 기술이 실제 비즈니스의 문제를 어떻게 해결하느냐라고 믿습니다. 
-					단순히 모델을 가져다 쓰는 것에 그치지 않고, 데이터의 흐름부터 사용자 경험까지 전체적인 아키텍처를 고민합니다.
+					생성·언어 모델을 실제 제품에 적용하는 프로젝트를 진행했습니다. 모델을 가져다 쓰는 데 그치지 않고, 데이터 흐름부터 사용자 경험까지 전체 구조를 고민하며 <strong class="text-white">모델의 한계를 엔지니어링으로 보완</strong>하는 데 강점이 있습니다.
 				</p>
 				<p class="mb-12">
-					저는 특히 <strong class="text-white">RAG(Retrieval-Augmented Generation)</strong> 시스템의 고도화와 <strong class="text-white">자율형 에이전트(Agentic Workflows)</strong> 구현에 깊은 관심을 가지고 연구하고 있습니다.
-					복잡한 시스템을 정교하게 설계(Blueprinting)하고 이를 실무에 바로 적용 가능한 수준으로 구현하는 것이 저의 핵심 역량입니다.
+					세 개의 팀 프로젝트에서 <strong class="text-white">RAG 파이프라인</strong>(LangChain·LangGraph), <strong class="text-white">온디바이스 OCR·AI 적용</strong>(PaddleOCR·임베딩 검색), <strong class="text-white">AR·컴퓨터 비전</strong>(MediaPipe·Three.js)을 직접 구현했습니다. 코드는 AI와 함께 빠르게 작성하되, 결과를 이해하고 검증해 활용하는 것을 중요하게 생각합니다.
 				</p>
 
 				<h3 class="text-xl font-bold text-white mb-6 uppercase tech-font opacity-60">Core_Specialties</h3>
@@ -32,22 +30,29 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 					<li class="flex items-start gap-4">
 						<span class="text-primary mt-1 text-lg font-bold">></span>
 						<div>
-							<strong class="text-white">Full-stack AX Implementation</strong>
-							<p class="text-sm opacity-70">Next.js, Astro, FastAPI 등을 활용한 엔드투엔드 AI 서비스 구축</p>
+							<strong class="text-white">RAG 파이프라인 설계</strong>
+							<p class="text-sm opacity-70">LangChain·LangGraph 다단계 그래프로 검색·검증을 분리한 RAG 챗봇 구축 (iPhone 리뷰 & RAG 챗봇)</p>
 						</div>
 					</li>
 					<li class="flex items-start gap-4">
 						<span class="text-primary mt-1 text-lg font-bold">></span>
 						<div>
-							<strong class="text-white">Agentic Workflow Design</strong>
-							<p class="text-sm opacity-70">LangChain, LangGraph 기반의 다단계 추론 및 자율 실행 시스템 설계</p>
+							<strong class="text-white">온디바이스 OCR · AI 적용</strong>
+							<p class="text-sm opacity-70">PaddleOCR(ONNX)를 브라우저 워커에서 구동하고 LLM 정제·임베딩 검색으로 추천 파이프라인 구성 (주파수)</p>
+						</div>
+					</li>
+					<li class="flex items-start gap-4">
+						<span class="text-primary mt-1 text-lg font-bold">></span>
+						<div>
+							<strong class="text-white">AR · 컴퓨터 비전 / 생성형 3D</strong>
+							<p class="text-sm opacity-70">MediaPipe·ArUco 광학 측정, Three.js AR, ComfyUI·Trellis2 생성형 3D 파이프라인 (RETINA FIT)</p>
 						</div>
 					</li>
 					<li class="flex items-start gap-4">
 						<span class="text-primary mt-1 text-lg font-bold">></span>
 						<div>
 							<strong class="text-white">AI-Native Workflow</strong>
-							<p class="text-sm opacity-70">AI를 활용한 빠른 프로토타이핑과 반복 검증으로 학습·개발 주기를 단축</p>
+							<p class="text-sm opacity-70">AI를 지렛대로 빠르게 시도·검증하고, 결과를 이해·검증해 활용</p>
 						</div>
 					</li>
 				</ul>
@@ -63,7 +68,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 				<div class="p-8 bg-surface-low rounded-sm border border-primary/20">
 					<div class="tech-label text-[10px] mb-6 opacity-40">Tech_Stack</div>
 						<div class="flex flex-wrap gap-2">
-							{['Astro', 'Next.js', 'TypeScript', 'FastAPI', 'LangChain', 'LangGraph', 'RAG', 'Tailwind CSS'].map((s) => (
+							{['RAG', 'LangChain', 'LangGraph', 'PaddleOCR', 'pgvector', 'ChromaDB', 'MediaPipe', 'Three.js', 'ComfyUI', 'FastAPI', 'Django', 'Spring Boot'].map((s) => (
 								<span class="tag-obsidian">{s}</span>
 							))}
 						</div>
@@ -72,7 +77,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 				<div class="p-8 bg-surface-low rounded-sm border border-surface-highest/30">
 					<div class="tech-label text-[10px] mb-4 opacity-40">Current_Focus</div>
 					<p class="text-sm leading-relaxed italic opacity-80">
-						"멀티 에이전트 시스템 간의 효율적인 통신 프로토콜과 메모리 최적화 연구 중"
+						"RAG 검색 품질(임베딩·정규화·청킹)과 온디바이스 AI 적용을 공부하며 기록 중"
 					</p>
 				</div>
 			</div>
