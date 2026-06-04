@@ -15,7 +15,6 @@ import Defect from '../../components/troubleshooting/Defect.astro';
 import Toggle from '../../components/troubleshooting/Toggle.astro';
 import Flow from '../../components/troubleshooting/Flow.astro';
 import Verdict from '../../components/troubleshooting/Verdict.astro';
-import Glasses from '../../components/troubleshooting/Glasses.astro';
 import Shot from '../../components/troubleshooting/Shot.astro';
 import ShotRow from '../../components/troubleshooting/ShotRow.astro';
 import lensBefore from '../../assets/portfolio/ts/retina-lens-before.png';
@@ -108,14 +107,10 @@ import orientAfter from '../../assets/portfolio/ts/retina-orient-after.png';
       <div slot="off">
         <Verdict type="fail">렌즈 환각, 없던 렌즈 생성</Verdict>
         <Shot src={lensBefore} alt="렌즈가 채워진 채 생성된 3D 안경" tag="Before" caption="실제 생성 결과 · 렌즈 채워짐" />
-        <Glasses lens={true} />
-        <div class="ts-cap">도식 비교</div>
       </div>
       <div slot="on">
         <Verdict type="ok">안경테만 정상 생성</Verdict>
         <Shot src={lensAfter} alt="렌즈 없이 테만 생성된 3D 안경" tag="After" caption="실제 생성 결과 · 테만 생성" />
-        <Glasses lens={false} />
-        <div class="ts-cap">도식 비교</div>
       </div>
     </Toggle>
   </Defect>
