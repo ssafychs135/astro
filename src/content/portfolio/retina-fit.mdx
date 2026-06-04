@@ -1,9 +1,9 @@
 ---
 title: "RETINA FIT: AR 안경 피팅"
-description: "안경점용 태블릿 도구. 얼굴을 촬영해 PD·OH를 mm 단위로 측정하고, 추천 안경을 AR로 착용해봅니다. SSAFY 자율(Final) 프로젝트 우수상."
+description: "안경점용 태블릿 도구. 얼굴을 촬영해 광학 수치(OH·PD)를 측정하고, 추천 안경을 AR로 착용해봅니다. SSAFY 자율(Final) 프로젝트 우수상."
 pubDate: 2026-05-20
 stack: ["Svelte 5", "Three.js", "MediaPipe", "ONNX Runtime Web", "OpenCV.js", "ComfyUI", "Trellis2", "Flutter"]
-role: "AR · 측정 엔진 (7인 팀)"
+role: "AR · 측정 엔진 (팀 프로젝트)"
 heroImage: "../../assets/portfolio/retina-overview.jpg"
 ---
 
@@ -25,7 +25,7 @@ import orientAfter from '../../assets/portfolio/ts/retina-orient-after.png';
 <Metrics
   items={[
     { big: '자율 우수상', cap: 'SSAFY Final 프로젝트' },
-    { big: '7인 팀', cap: 'AR · 측정 엔진 단독 담당' },
+    { big: '장비 0', cap: '전용 측정 장비 없이 태블릿만으로' },
     { big: '측정 4종', cap: '얼굴형 · 피부톤 · OH · PD' },
     { big: '모든 기기', cap: '브라우저와 카메라면 동작' },
   ]}
@@ -35,7 +35,7 @@ import orientAfter from '../../assets/portfolio/ts/retina-orient-after.png';
 
 전문 측정 장비는 비싸고 공간을 차지합니다. RETINA FIT은 그 과정을 **태블릿 하나로 유사하게 모사**해, 안경점이 간단히 도입할 수 있는 측정·피팅 도구입니다.
 
-7인 팀 프로젝트에서 **AR과 측정 엔진을 단독으로 담당**했습니다. 3D 안경 생성 파이프라인, MediaPipe·ArUco 광학 측정, Three.js AR 피팅을 맡았습니다.
+**AR·측정 엔진을 담당**했습니다. 얼굴·광학 측정과 Three.js AR 피팅을 구현하고, 3D 안경 생성은 ComfyUI 워크플로(4방향 이미지→matting→Trellis2)로 구성했습니다.
 
 </Section>
 
@@ -75,7 +75,7 @@ import orientAfter from '../../assets/portfolio/ts/retina-orient-after.png';
     items={[
       { icon: '📸', title: '자동 촬영 · 측정', sub: '6DRepNet360 머리자세 추정으로 특정 각도에서 자동 촬영하여 얼굴형과 피부톤을 측정합니다.' },
       { icon: '🕶️', title: 'AR 착용 미리보기', sub: '측정 결과로 안경테 형태와 색상을 추천하고 AR로 착용을 미리 봅니다.' },
-      { icon: '📐', title: 'mm 단위 광학 측정', sub: 'OH·PD 등 광학 수치를 mm 단위로 측정해 렌즈 가공 정보를 제공합니다.' },
+      { icon: '📐', title: '광학 수치 측정', sub: 'OH·PD 등 광학 수치를 측정해 렌즈 가공 가이드를 제공합니다.' },
     ]}
   />
 </Section>
@@ -163,6 +163,6 @@ import orientAfter from '../../assets/portfolio/ts/retina-orient-after.png';
 
 <Section n="06" label="Retrospective">
   <Callout>
-    기술 구현보다 <b>도메인 이해가 더 큰 과제</b>였습니다. 안경사를 현장에서 면담해 실제 요구를 파악했고, 그 내용이 측정 항목과 측정 화면 설계에 직접 반영됐습니다.
+    기술적 난점보다 <b>안경사가 실제로 필요로 하는 기능을 파악하는 것</b>이 더 중요했습니다. 매장 방문과 인터뷰에서 구체적인 요구사항을 확인할 수 있었습니다.
   </Callout>
 </Section>

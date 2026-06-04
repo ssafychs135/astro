@@ -52,7 +52,8 @@ team9 프로젝트에서 **RAG 챗봇과 데이터 파이프라인 전반을 직
       { icon: '🔀', title: '라우팅', sub: '일반 대화는 RAG를 우회해 불필요한 검색과 환각을 차단한다.' },
       { icon: '🎯', title: '검색기', sub: 'Pydantic Literal enum으로 model_name 출력을 제약해 결정성을 확보한다.' },
       { icon: '🔢', title: '후처리', sub: '숫자 토큰 검증으로 ‘17→16’ 같은 환각 매핑을 차단한다.' },
-      { icon: '🔁', title: 'LLM 이전', sub: 'Upstage Solar 제공 중단에 대응해 로컬 LLM 서빙(LM Studio·Gemma)으로 마이그레이션했다.' },
+      { icon: '🔎', title: '검색 구현', sub: '직접 구현한 IPhoneQueryRetriever로 결정적 검색을 수행한다.' },
+      { icon: '🔁', title: 'LLM 이전', sub: 'Upstage Solar 제공 중단에 대응해 로컬 LLM 서빙으로 마이그레이션했다.' },
     ]}
   />
 
@@ -63,14 +64,14 @@ team9 프로젝트에서 **RAG 챗봇과 데이터 파이프라인 전반을 직
     cols={2}
     items={[
       { icon: '💬', title: 'RAG 기반 Q&A 챗봇', sub: 'IT 기기의 사양과 특성을 자연어로 묻고 근거를 기반으로 답변합니다.' },
-      { icon: '📝', title: '리뷰 게시판', sub: '글 작성 시 YouTube 영상 ID를 넣으면 자막을 Gemini로 요약해 본문과 함께 게시합니다.' },
+      { icon: '📝', title: '리뷰 게시판', sub: 'YouTube 영상 자막을 요약해 게시글 본문과 함께 제공합니다.' },
     ]}
   />
 </Section>
 
 <Section n="04" label="Defects">
 
-RAG 파이프라인을 처음 만들며 마주친 두 가지 함정입니다. 둘 다 오류 없이 조용히 틀리는 침묵 실패여서, 증상이 아니라 원인을 바이트와 흐름 단위로 파고들어야 했습니다.
+RAG 파이프라인을 처음 만들며 마주친 다섯 가지 함정입니다. 오류 없이 조용히 틀리는 경우가 많아, 증상이 아니라 원인을 바이트와 흐름 단위로 파고들어야 했습니다.
 
   <Grid
     cols={3}
@@ -206,7 +207,7 @@ RAG 파이프라인을 처음 만들며 마주친 두 가지 함정입니다. �
       { big: '5건 진단', cap: 'RAG 검색 결함 해결' },
       { big: '0 → 100%', cap: '검색 결정성(3회 동일)' },
       { big: '8노드', cap: 'LangGraph 단계 검증' },
-      { big: '무중단 이전', cap: 'Solar에서 LM Studio·Gemma로' },
+      { big: 'LLM 이전', cap: 'Solar 중단 → 로컬 LLM 서빙' },
     ]}
   />
   <Grid
@@ -222,6 +223,6 @@ RAG 파이프라인을 처음 만들며 마주친 두 가지 함정입니다. �
 
 <Section n="06" label="Retrospective">
   <Callout>
-    RAG 개발이 처음이라 여러 임베딩 모델을 검색 정확도로 정량 비교하지 못한 점이 아쉽습니다. 다음에는 <b>임베딩 후보를 정량 평가한 뒤 선택</b>하려 합니다.
+    RAG 검색 품질이 <b>임베딩·정규화·출력 스키마</b>에 크게 좌우됨을 확인했습니다. RAG 챗봇을 처음부터 만들어보면서, 단일 체인 구조를 LangGraph 그래프로 재구성해 검색과 응답을 단계별로 설계하는 법을 익혔습니다.
   </Callout>
 </Section>

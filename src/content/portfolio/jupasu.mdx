@@ -1,9 +1,9 @@
 ---
-title: "주(酒)파수: AI 소믈리에 와인 추천"
-description: "와인 라벨이나 메뉴판을 촬영하면 온디바이스 OCR로 읽고, 취향 기반으로 와인을 추천하는 PWA. SSAFY 특화 프로젝트 우수상."
+title: "주(酒)파수: 개인화 와인 추천"
+description: "와인 라벨과 메뉴판을 스캔해 정보를 제공하고, 취향 기반으로 와인을 추천하는 서비스. OCR + RAG. SSAFY 특화 프로젝트 우수상."
 pubDate: 2026-03-20
-stack: ["Next.js", "FastAPI", "Spring Boot", "PaddleOCR", "ONNX", "LangChain", "pgvector"]
-role: "AI · OCR 파이프라인 (6인 팀)"
+stack: ["Next.js", "FastAPI", "Spring Boot", "PaddleOCR", "ONNX", "LangChain", "Gemma", "pgvector"]
+role: "AI · OCR 파이프라인 (팀 프로젝트)"
 heroImage: "../../assets/portfolio/jupasu-overview.jpg"
 ---
 
@@ -23,17 +23,17 @@ import ocrAfter from '../../assets/portfolio/ts/jupasu-ocr-after.png';
 <Metrics
   items={[
     { big: '특화 우수상', cap: 'SSAFY 특화 프로젝트' },
-    { big: '6인 팀', cap: 'AI · OCR 파이프라인 담당' },
-    { big: '5개 기능', cap: '라벨 · 메뉴판 스캔 추천' },
+    { big: '팀 프로젝트', cap: 'AI · OCR 파이프라인 담당' },
+    { big: '3개 기능', cap: '라벨 · 메뉴판 스캔 추천' },
     { big: '온디바이스', cap: '브라우저에서 OCR 구동' },
   ]}
 />
 
 <Section n="01" label="Overview">
 
-위스키는 어느 정도 대중화됐지만 와인은 정보 진입장벽이 높습니다. 주파수는 와인 선택 실패 경험을 보완하는 **개인화 추천 PWA**입니다.
+와인 라벨과 메뉴판을 스캔해 정보를 제공하고 취향 기반으로 추천하는 서비스입니다.
 
-6인 팀(인프라 1, 백엔드 3, AI 2)에서 **LLM·RAG·OCR 파이프라인을 설계하고 구현**했습니다. 팀원들이 AI 개발을 경험하도록 업무를 나누고 안내했습니다.
+팀 프로젝트에서 **LLM·RAG·OCR AI 파이프라인을 설계하고 구현**하는 역할을 담당했습니다.
 
 </Section>
 
@@ -109,27 +109,25 @@ import ocrAfter from '../../assets/portfolio/ts/jupasu-ocr-after.png';
 
   <Defect pnum="DEFECT 02" category="LLM Fidelity" title="입력에 없는 와인을 만들어내다">
     <div slot="summary">
-      OCR이 추출한 텍스트를 LLM 정제 단계에 넣으면 <b>입력에 없던</b> 와인을 반환했습니다. 작은 모델(Gemma 4B)에서는 프롬프트 설계가 곧 입력 충실성을 좌우했습니다.
+      OCR이 추출한 텍스트를 LLM 정제 단계에 넣으면 <b>입력에 없던</b> 와인을 반환했습니다. 작은 모델에서는 안내 문구 설계가 곧 입력 충실성을 좌우했습니다.
     </div>
     <ul slot="tech">
-      <li>원인 1: 시스템 프롬프트의 "추론하세요"가 자유로운 생성을 허용했다.</li>
-      <li>원인 2: 퓨샷 예시가 보르도에 편향되어 모델이 예시를 그대로 복사했다.</li>
-      <li>실패: 너무 강한 부정 명령은 모든 필드를 빈 문자열로 만들었다.</li>
-      <li><b>해결</b>: 명령 톤을 완화하고 퓨샷 예시를 4개국으로 다양화하며 분류 기준을 제시했다.</li>
+      <li>원인 1: "추론하라" 지시가 자유로운 생성을 허용했다.</li>
+      <li>원인 2: 치우친 예시를 모델이 그대로 복사했다.</li>
+      <li>실패: 너무 강한 금지 명령은 모든 필드를 빈 값으로 만들었다.</li>
+      <li><b>해결</b>: 지시 강도를 중간 수준으로 조정하고, 여러 나라 와인으로 예시를 다양화했다.</li>
     </ul>
 
-    <Toggle heading={'입력: "JAKOB SCHNEIDER Niederhäuser…"'} labelOff="자유 생성 허용" labelOn="충실성 강제와 다양화">
+    <Toggle heading={'입력: "메를로 2018"'} labelOff="자유 생성 허용" labelOn="충실성 강제와 다양화">
       <div slot="off">
         <Verdict type="fail">입력에 없는 와인 생성(환각)</Verdict>
-        <Kv k="winery" v="Chateau Lafite Rothschild" type="fail" />
-        <Kv k="wineName" v="Pauillac" type="fail" />
-        <Kv k="vintage" v="2015" type="fail" />
+        <Kv k="입력" v="메를로 2018" type="fail" />
+        <Kv k="출력" v="까베르네" type="fail" />
       </div>
       <div slot="on">
-        <Verdict type="ok">입력 단어 유지, OCR 오타 교정</Verdict>
-        <Kv k="winery" v="Jakob Schneider" type="ok" />
-        <Kv k="wineName" v="Niederhäuser Felsensteyer" type="ok" />
-        <Kv k="vintage" v={'""'} type="ok" />
+        <Verdict type="ok">입력 유지, 오타만 교정</Verdict>
+        <Kv k="입력" v="메를로 2018" type="ok" />
+        <Kv k="출력" v="메를로 2018 (오타만 교정)" type="ok" />
       </div>
     </Toggle>
   </Defect>
@@ -182,7 +180,7 @@ import ocrAfter from '../../assets/portfolio/ts/jupasu-ocr-after.png';
     </Toggle>
   </Defect>
 
-OCR은 **PaddleOCR(PP-OCRv5)를 ONNX로 변환해 브라우저 워커에서 온디바이스로** 구동했습니다. 학습을 위해 택한 방식이지만, 개인정보 보호와 서버 부하 절감이라는 이점도 확인했습니다.
+OCR은 **PaddleOCR를 브라우저 워커에서 온디바이스로** 구동했습니다.
 
 </Section>
 
@@ -209,6 +207,6 @@ OCR은 **PaddleOCR(PP-OCRv5)를 ONNX로 변환해 브라우저 워커에서 온�
 
 <Section n="06" label="Retrospective">
   <Callout>
-    이 프로젝트에서 제 역할은 OCR·LLM·RAG 등 여러 AI 기능을 <b>하나의 추천 흐름으로 설계하고 연결</b>하는 것이었습니다. 작은 모델과 실행 환경의 제약을 전처리·프롬프트·출력 형식 설계로 보완했고, 모델을 바꾸지 않고도 품질을 높일 수 있음을 확인했습니다.
+    코드 구현보다 여러 AI 기능(OCR·RAG·LLM)을 <b>하나의 제품 흐름으로 통합하는 설계</b>가 핵심이었습니다. 챗봇과 OCR 코어 구조를 잡은 뒤 세부 기능을 팀원들에게 분배해 함께 만들었습니다.
   </Callout>
 </Section>
