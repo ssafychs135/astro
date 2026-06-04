@@ -17,6 +17,8 @@ import Flow from '../../components/troubleshooting/Flow.astro';
 import Verdict from '../../components/troubleshooting/Verdict.astro';
 import Conf from '../../components/troubleshooting/Conf.astro';
 import Kv from '../../components/troubleshooting/Kv.astro';
+import Shot from '../../components/troubleshooting/Shot.astro';
+import appHome from '../../assets/portfolio/app/iphone_home.jpg';
 
 <Metrics
   items={[
@@ -66,6 +68,8 @@ team9 프로젝트에서 **RAG 챗봇과 데이터 파이프라인 전반을 직
       { icon: '📝', title: '리뷰 게시판', sub: '글 작성 시 YouTube 영상 ID를 넣으면 자막을 Gemini로 요약해 본문과 함께 게시합니다.' },
     ]}
   />
+
+  <Shot src={appHome} alt="SummaryHub 랜딩 · AI가 분석한 리뷰 요약부터 제품 추천까지" caption="SummaryHub 랜딩 · 리뷰 요약과 AI 상담 진입" width={1100} />
 </Section>
 
 <Section n="04" label="Defects">

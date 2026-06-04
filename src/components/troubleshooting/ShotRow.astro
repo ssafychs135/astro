@@ -1,0 +1,17 @@
+---
+interface Props {
+	cols?: number;
+}
+const { cols = 3 } = Astro.props;
+---
+
+<div class:list={['ts-shotrow', `cols-${cols}`, 'not-prose']}><slot /></div>
+
+<style>
+	.ts-shotrow { display: grid; gap: 1rem; margin: 1.5rem 0; }
+	.ts-shotrow.cols-2 { grid-template-columns: repeat(2, 1fr); }
+	.ts-shotrow.cols-3 { grid-template-columns: repeat(3, 1fr); }
+	@media (max-width: 640px) {
+		.ts-shotrow.cols-3 { grid-template-columns: 1fr 1fr; }
+	}
+</style>

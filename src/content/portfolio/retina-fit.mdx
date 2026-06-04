@@ -16,6 +16,12 @@ import Toggle from '../../components/troubleshooting/Toggle.astro';
 import Flow from '../../components/troubleshooting/Flow.astro';
 import Verdict from '../../components/troubleshooting/Verdict.astro';
 import Glasses from '../../components/troubleshooting/Glasses.astro';
+import Shot from '../../components/troubleshooting/Shot.astro';
+import ShotRow from '../../components/troubleshooting/ShotRow.astro';
+import lensBefore from '../../assets/portfolio/ts/retina-lens-before.png';
+import lensAfter from '../../assets/portfolio/ts/retina-lens-after.png';
+import orientBefore from '../../assets/portfolio/ts/retina-orient-before.png';
+import orientAfter from '../../assets/portfolio/ts/retina-orient-after.png';
 
 <Metrics
   items={[
@@ -101,13 +107,15 @@ import Glasses from '../../components/troubleshooting/Glasses.astro';
     <Toggle heading="렌즈 없는 안경테로 3D 생성" labelOff="매팅 없음" labelOn="ComfyUI matting">
       <div slot="off">
         <Verdict type="fail">렌즈 환각, 없던 렌즈 생성</Verdict>
+        <Shot src={lensBefore} alt="렌즈가 채워진 채 생성된 3D 안경" tag="Before" caption="실제 생성 결과 · 렌즈 채워짐" />
         <Glasses lens={true} />
-        <div class="ts-cap">생성 결과: 렌즈 채워짐</div>
+        <div class="ts-cap">도식 비교</div>
       </div>
       <div slot="on">
         <Verdict type="ok">안경테만 정상 생성</Verdict>
+        <Shot src={lensAfter} alt="렌즈 없이 테만 생성된 3D 안경" tag="After" caption="실제 생성 결과 · 테만 생성" />
         <Glasses lens={false} />
-        <div class="ts-cap">생성 결과: 테만 생성(렌즈 없음)</div>
+        <div class="ts-cap">도식 비교</div>
       </div>
     </Toggle>
   </Defect>
@@ -123,6 +131,11 @@ import Glasses from '../../components/troubleshooting/Glasses.astro';
       <li>임의 방향으로 생성돼도 자동으로 정렬되어 정확히 착용된다.</li>
       <li>생성물의 불일치를 도메인 지식 기반 정규화와 정합으로 해결했다.</li>
     </ul>
+
+    <ShotRow cols={2}>
+      <Shot src={orientBefore} alt="방향이 어긋난 채 얼굴 옆에 놓인 안경" tag="Before" caption="정합 전 · 방향 제각각" />
+      <Shot src={orientAfter} alt="얼굴 기준점에 정렬되어 착용된 안경" tag="After" caption="정합 후 · 얼굴에 정렬" />
+    </ShotRow>
 
     <Flow
       id="retina-flow"

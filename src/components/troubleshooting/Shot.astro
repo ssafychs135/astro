@@ -1,0 +1,47 @@
+---
+import { Image } from 'astro:assets';
+
+interface Props {
+	src: ImageMetadata;
+	alt?: string;
+	caption?: string;
+	width?: number;
+	tag?: string;
+}
+const { src, alt = '', caption, width = 640, tag } = Astro.props;
+---
+
+<figure class="ts-shot not-prose">
+	<div class="ts-shot-frame">
+		{tag && <span class="ts-shot-tag">{tag}</span>}
+		<Image src={src} alt={alt} width={width} class="ts-shot-img" />
+	</div>
+	{caption && <figcaption class="ts-cap">{caption}</figcaption>}
+</figure>
+
+<style>
+	.ts-shot { margin: 0; }
+	.ts-shot-frame {
+		position: relative;
+		border: 1px solid color-mix(in srgb, var(--color-primary) 22%, transparent);
+		border-radius: 8px;
+		overflow: hidden;
+		background: var(--surface);
+	}
+	.ts-shot-img { display: block; width: 100%; height: auto; }
+	.ts-shot-tag {
+		position: absolute;
+		top: 8px;
+		left: 8px;
+		z-index: 1;
+		font-family: var(--font-space-grotesk);
+		font-size: 0.6rem;
+		font-weight: 800;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		padding: 2px 8px;
+		border-radius: 4px;
+		background: var(--color-primary);
+		color: var(--color-bg-base);
+	}
+</style>

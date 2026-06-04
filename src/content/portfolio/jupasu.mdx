@@ -18,6 +18,13 @@ import Cards from '../../components/troubleshooting/Cards.astro';
 import Verdict from '../../components/troubleshooting/Verdict.astro';
 import Conf from '../../components/troubleshooting/Conf.astro';
 import Kv from '../../components/troubleshooting/Kv.astro';
+import Shot from '../../components/troubleshooting/Shot.astro';
+import ShotRow from '../../components/troubleshooting/ShotRow.astro';
+import ocrBefore from '../../assets/portfolio/ts/jupasu-ocr-before.png';
+import ocrAfter from '../../assets/portfolio/ts/jupasu-ocr-after.png';
+import appHome from '../../assets/portfolio/app/jupasu_home.jpg';
+import appScan from '../../assets/portfolio/app/jupasu_scan.jpg';
+import appChat from '../../assets/portfolio/app/jupasu_chat.jpg';
 
 <Metrics
   items={[
@@ -67,6 +74,12 @@ import Kv from '../../components/troubleshooting/Kv.astro';
       { icon: '📋', title: '메뉴판 스캔', sub: '메뉴판 음식과 어울리는 와인 페어링을 추천합니다.' },
     ]}
   />
+
+  <ShotRow cols={3}>
+    <Shot src={appHome} alt="주파수 홈 · VIBE GALLERY와 소믈리에 PICK" caption="홈 · 취향 기반 추천" />
+    <Shot src={appScan} alt="와인 라벨 스캔 검색 결과 화면" caption="스캔 · 라벨 인식 결과" />
+    <Shot src={appChat} alt="소믈리에 챗봇 페어링 추천 화면" caption="챗봇 · 페어링 추천" />
+  </ShotRow>
 </Section>
 
 <Section n="04" label="Defects">
@@ -97,6 +110,7 @@ import Kv from '../../components/troubleshooting/Kv.astro';
     <Toggle heading="같은 이미지, 다른 전처리" labelOff="추론과 학습 불일치" labelOn="학습과 동일">
       <div slot="off">
         <Verdict type="fail">신뢰도 0.5대, 글자 오인식</Verdict>
+        <Shot src={ocrBefore} alt="추론 전처리 불일치로 깨진 OCR 인식 결과" tag="Before" caption="실제 인식 · BROYTHEKS·DIENID 등 오인식" />
         <div class="ts-io">
           <span class="ts-muted">박스 1</span> <span class="ts-bad">0AKOIB</span> &nbsp;
           <span class="ts-muted">박스 2</span> <span class="ts-bad">SCEINEIDDR</span>
@@ -106,6 +120,7 @@ import Kv from '../../components/troubleshooting/Kv.astro';
       </div>
       <div slot="on">
         <Verdict type="ok">신뢰도 0.88로 향상, 글자 교정</Verdict>
+        <Shot src={ocrAfter} alt="학습과 동일한 전처리로 교정된 OCR 인식 결과" tag="After" caption="실제 인식 · BROTHERS·ESTATE WINES 교정" />
         <div class="ts-io">
           <span class="ts-muted">박스 1</span> <span class="ts-good">JAKOB</span> &nbsp;
           <span class="ts-muted">박스 2</span> <span class="ts-good">SCHNEIDER</span>
