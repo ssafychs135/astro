@@ -1,8 +1,10 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
+import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import profileImg from '../assets/profile.png';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -55,7 +57,7 @@ const awards = [
 					<div class="relative group shrink-0">
 						<div class="absolute -inset-1 bg-gradient-to-tr from-primary to-secondary rounded-sm blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
 						<div class="relative w-48 h-48 md:w-64 md:h-64 bg-surface-low rounded-sm overflow-hidden border border-white/5">
-							<div class="w-full h-full flex items-center justify-center tech-font text-sm opacity-30">PROFILE_IMG</div>
+							<Image src={profileImg} alt="최형선 프로필" width={600} class="w-full h-full object-cover object-top" />
 						</div>
 					</div>
 					
