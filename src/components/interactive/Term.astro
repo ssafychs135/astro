@@ -1,0 +1,88 @@
+---
+// Inline glossary term: dotted underline, click to toggle a definition popover.
+// Click-outside / second-click closes. Event delegation bound once to `document`,
+// so it survives View Transitions (same pattern as troubleshooting/runtime.ts).
+interface Props {
+	word: string; // 본문에 표시될 용어
+	def: string; // 팝오버에 표시될 정의
+}
+const { word, def } = Astro.props;
+---
+
+<span class="term-wrap" data-term>
+	<button class="term-word" type="button">{word}</button>
+	<span class="term-pop" role="tooltip">{def}</span>
+</span>
+
+<style>
+	.term-wrap {
+		position: relative;
+		display: inline;
+	}
+	.term-word {
+		all: unset;
+		cursor: help;
+		color: var(--color-primary);
+		border-bottom: 1px dotted color-mix(in srgb, var(--color-primary) 70%, transparent);
+		padding-bottom: 1px;
+		transition: 0.15s;
+	}
+	.term-word:hover {
+		border-bottom-style: solid;
+	}
+	.term-pop {
+		display: none;
+		position: absolute;
+		left: 50%;
+		bottom: calc(100% + 8px);
+		transform: translateX(-50%);
+		width: max-content;
+		max-width: min(290px, 78vw);
+		z-index: 30;
+		padding: 0.65rem 0.8rem;
+		border-radius: 10px;
+		background: var(--color-surface-high, #101730);
+		border: 1px solid var(--glass-border);
+		box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+		font-size: 0.78rem;
+		line-height: 1.6;
+		color: var(--text-base);
+		font-weight: 400;
+		text-align: left;
+		word-break: keep-all;
+	}
+	.term-pop::after {
+		content: '';
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		border: 6px solid transparent;
+		border-top-color: var(--glass-border);
+	}
+	.term-wrap.open .term-pop {
+		display: block;
+		animation: termFade 0.18s ease-out;
+	}
+	@keyframes termFade {
+		from { opacity: 0; transform: translateX(-50%) translateY(3px); }
+		to { opacity: 1; transform: translateX(-50%) translateY(0); }
+	}
+</style>
+
+<script>
+	function onClick(ev: MouseEvent) {
+		const target = ev.target as HTMLElement;
+		const wrap = target.closest<HTMLElement>('[data-term]');
+		// Close all others; toggle the clicked one.
+		document.querySelectorAll<HTMLElement>('[data-term].open').forEach((t) => {
+			if (t !== wrap) t.classList.remove('open');
+		});
+		if (wrap && target.closest('.term-word')) wrap.classList.toggle('open');
+	}
+
+	if (!(window as unknown as Record<string, boolean>).__termBound) {
+		(window as unknown as Record<string, boolean>).__termBound = true;
+		document.addEventListener('click', onClick);
+	}
+</script>

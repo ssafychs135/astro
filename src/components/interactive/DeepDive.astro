@@ -1,0 +1,87 @@
+---
+// Collapsible deep-dive box for supplementary explanations.
+// Uses native <details>/<summary> — no JS needed, inherently View-Transitions-safe.
+interface Props {
+	title: string;
+	eyebrow?: string;
+}
+const { title, eyebrow = '🔍 더 깊이' } = Astro.props;
+---
+
+<details class="dd not-prose">
+	<summary class="dd-summary">
+		<span class="dd-eyebrow">{eyebrow}</span>
+		<span class="dd-title">{title}</span>
+		<span class="dd-icon" aria-hidden="true">＋</span>
+	</summary>
+	<div class="dd-body"><slot /></div>
+</details>
+
+<style>
+	.dd {
+		margin: 1.5rem 0;
+		border: 1px solid var(--glass-border);
+		border-radius: 14px;
+		background: color-mix(in srgb, var(--color-secondary) 4%, transparent);
+		overflow: hidden;
+	}
+	.dd[open] {
+		border-color: color-mix(in srgb, var(--color-secondary) 40%, transparent);
+	}
+	.dd-summary {
+		display: flex;
+		align-items: center;
+		gap: 0.7rem;
+		padding: 0.9rem 1.15rem;
+		cursor: pointer;
+		list-style: none;
+		user-select: none;
+		transition: background 0.15s;
+	}
+	.dd-summary::-webkit-details-marker {
+		display: none;
+	}
+	.dd-summary:hover {
+		background: color-mix(in srgb, var(--color-secondary) 7%, transparent);
+	}
+	.dd-eyebrow {
+		flex-shrink: 0;
+		font-family: var(--font-space-grotesk);
+		font-size: 0.64rem;
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		font-weight: 700;
+		color: var(--color-secondary);
+	}
+	.dd-title {
+		font-size: 0.92rem;
+		font-weight: 700;
+		color: var(--text-base);
+		word-break: keep-all;
+	}
+	.dd-icon {
+		margin-left: auto;
+		font-size: 0.95rem;
+		color: var(--color-secondary);
+		transition: transform 0.2s;
+	}
+	.dd[open] .dd-icon {
+		transform: rotate(45deg);
+	}
+	.dd-body {
+		padding: 0.2rem 1.15rem 1.1rem;
+		font-size: 0.88rem;
+		line-height: 1.75;
+		color: var(--text-muted);
+		border-top: 1px dashed var(--glass-border);
+	}
+	.dd-body :global(p) {
+		margin: 0.7rem 0;
+	}
+	.dd-body :global(strong) {
+		color: var(--text-base);
+	}
+	.dd-body :global(code) {
+		font-size: 0.82em;
+	}
+</style>

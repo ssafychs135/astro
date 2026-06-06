@@ -1,0 +1,200 @@
+---
+title: "Gemma 4 QAT 릴리스 분석: 양자화를 학습 단계로 끌어들이다"
+description: "Google이 Gemma 4 전 라인업에 공개한 QAT 체크포인트를 분석합니다. PTQ와 QAT의 차이, 4가지 릴리스 포맷, 그리고 모바일 전용 양자화 스키마까지 인터랙티브하게 정리합니다."
+pubDate: 2026-06-06
+heroImage: "../../assets/blog-placeholder-2.jpg"
+tags: ["LLM", "On-Device"]
+---
+
+import Metrics from '../../components/troubleshooting/Metrics.astro';
+import Toggle from '../../components/troubleshooting/Toggle.astro';
+import Cards from '../../components/troubleshooting/Cards.astro';
+import Kv from '../../components/troubleshooting/Kv.astro';
+import QatMemoryCalc from '../../components/interactive/QatMemoryCalc.astro';
+import Term from '../../components/interactive/Term.astro';
+import DeepDive from '../../components/interactive/DeepDive.astro';
+
+2026년 6월 5일, Google DeepMind가 **Gemma 4 QAT(Quantization-Aware Training) 체크포인트**를 공개했다. 특정 모델 하나가 아니라 **E2B, E4B, 12B, 26B A4B, 31B 전 라인업**이 대상이며, 포맷도 표준 Q4_0부터 모바일 전용 커스텀 스키마까지 다양하다. 핵심 메시지는 하나다 — **bfloat16 수준의 품질을 유지하면서 메모리 사용량을 약 1/4로 줄인다.**
+
+<Metrics
+	items={[
+		{ big: '5종', cap: 'E2B부터 31B까지 전 라인업 QAT 적용' },
+		{ big: '4가지 포맷', cap: 'Q4_0 · GGUF · Mobile · Compressed Tensors' },
+		{ big: '~1/4', cap: 'bf16 대비 메모리 사용량' },
+		{ big: '1GB', cap: 'E2B 모바일 포맷 메모리 풋프린트' },
+	]}
+/>
+
+## 양자화란 무엇인가
+
+LLM의 가중치는 보통 bfloat16, 즉 파라미터당 16비트(2바이트)로 저장된다. 12B 모델이라면 가중치만 약 24GB, 31B 모델이라면 60GB 이상이 필요하다는 뜻이다. **양자화(Quantization)**는 이 정밀도를 4비트(Q4) 수준으로 낮춰 메모리 사용량을 줄이고, 메모리 대역폭 병목이 완화되는 만큼 디코딩 속도도 끌어올리는 기술이다.
+
+문제는 정밀도를 낮추는 과정에서 발생하는 **품질 저하**다. 16비트로 표현하던 값을 4비트의 16개 구간으로 욱여넣으면 반올림 오차가 누적되고, 모델 출력 품질이 떨어진다.
+
+<DeepDive title="스케일(scale)과 캘리브레이션 — 실수를 정수 격자에 매핑하는 법">
+	양자화는 실수를 정수 격자에 매핑하는 작업이고, "실수 몇이 정수 1에 해당하는지"를 정하는
+	변환 비율이 **스케일(scale)**이다. 값 범위가 ±8.0이고 8비트 정수(±127)로 저장한다면
+	`scale = 8.0 / 127 ≈ 0.063`이 되어, `3.1`은 `round(3.1 / 0.063) = 49`로 저장된다.
+
+	**가중치**는 학습이 끝나면 값이 고정이라 범위를 재서 스케일을 미리 정하면 된다. 까다로운
+	건 **활성화(activation)** — 레이어를 통과하며 생기는 중간 계산 결과는 입력마다 값 범위가
+	달라서, 범위를 미리 알 수 없다.
+
+	그래서 PTQ에서는 완성된 모델에 대표 샘플 수백~수천 개를 넣어보며 각 레이어의 활성화
+	min/max 분포를 기록하고 스케일을 고정하는데, 이를 **캘리브레이션(calibration)**이라 한다.
+	캘리브레이션 데이터가 실사용 입력과 다르면 범위가 어긋나 품질이 떨어지는 게 약점이다.
+	QAT는 이 범위를 훈련 내내 관찰하거나 아예 학습 가능한 파라미터로 두므로, 사후
+	캘리브레이션 없이도 스케일이 정해져 있다.
+</DeepDive>
+
+## PTQ vs QAT: 언제 양자화하느냐의 차이
+
+같은 4비트라도 **언제** 양자화하느냐에 따라 결과가 달라진다. 아래 토글로 두 방식을 비교해보자.
+
+<Toggle
+	eyebrow="⚙ 인터랙티브 · 비교"
+	heading="양자화 시점에 따른 차이"
+	labelOff="PTQ (사후 양자화)"
+	labelOn="QAT (양자화 인식 훈련)"
+>
+	<div slot="off">
+		<Kv k="양자화 시점" v="학습 완료 후 사후 압축" />
+		<Kv k="모델의 인지 여부" v="양자화될 것을 모른 채 학습됨" type="fail" />
+		<Kv k="정밀도 손실 대응" v="무방비 — 반올림 오차 그대로 노출" type="fail" />
+		<Kv k="비용" v="추가 학습 불필요, 즉시 변환 가능" type="ok" />
+		<Kv k="대표 사례" v="커뮤니티 GGUF 변환 대부분" />
+
+		완성된 옷을 **줄여 입는** 방식. 간편하지만 몸에 완벽히 맞지는 않는다.
+	</div>
+	<div slot="on">
+		<Kv k="양자화 시점" v="학습 과정에 양자화를 통합" />
+		<Kv k="모델의 인지 여부" v="훈련 중 양자화를 시뮬레이션" type="ok" />
+		<Kv k="정밀도 손실 대응" v="저정밀 환경에 맞는 가중치 분포를 스스로 학습" type="ok" />
+		<Kv k="비용" v="모델 제공자가 별도 훈련 파이프라인 운영" type="fail" />
+		<Kv k="대표 사례" v="이번 Gemma 4 QAT 체크포인트" />
+
+		처음부터 줄어든 치수에 맞춰 **옷을 짓는** 방식. Google에 따르면 QAT 체크포인트는 표준 PTQ
+		베이스라인보다 전반적으로 더 높은 품질을 보였다.
+	</div>
+</Toggle>
+
+<DeepDive title="QAT는 어떻게 양자화를 '시뮬레이션'하나 — fake quantization">
+	훈련 중에 실제로 4비트 정수로 바꾸는 게 아니라, **양자화했다가 다시 되돌리는
+	연산(quantize → dequantize)**을 forward 계산 직전에 끼워 넣는다. 스케일이 0.5라면
+	가중치 `1.37`은 `round(1.37 / 0.5) × 0.5 = 1.5`가 된 채로 계산이 진행된다. 숫자는
+	여전히 float이지만, 값 자체는 4비트 격자 위의 값(`{..., 1.0, 1.5, 2.0, ...}`)만 갖게
+	된다. 그래서 "가짜(fake)"다 — 메모리 절약은 전혀 없고, 반올림 오차만 그대로 재현한다.
+
+	정리하면 **진짜 양자화 = 이득(메모리·속도) + 부작용(반올림 오차)**, **fake quantization =
+	부작용만**이다. 훈련에 필요한 건 부작용 쪽뿐이다. `1.37`을 쓰고 싶어도 추론 시엔 `1.5`가
+	될 운명이니, 훈련은 "1.5가 되어도 결과가 좋은" 가중치 조합을 찾는 방향으로 진행되고,
+	가중치 분포 자체가 격자에 잘 떨어지는 형태로 이동한다.
+
+	디테일 하나: `round()`는 거의 모든 곳에서 기울기가 0이라 역전파가 막히는데, 역전파 때만
+	round가 없는 것처럼 기울기를 통과시키는 **STE(Straight-Through Estimator)** 트릭으로
+	해결한다. 훈련이 끝나면 가중치는 이미 격자에 적응된 상태라, 진짜 4비트로 변환해 메모리
+	이득을 챙겨도 품질 손실이 거의 없다.
+</DeepDive>
+
+## 생각보다 많다: 이번 릴리스의 4가지 포맷
+
+"QAT 모델"이 하나의 체크포인트를 의미하는 게 아니다. 같은 QAT 파이프라인에서 나온 가중치가 용도별로 4가지 포맷으로 제공된다.
+
+| 포맷 | 설명 | 지원 모델 |
+|---|---|---|
+| **Unquantized QAT** (Q4_0) | QAT 파이프라인에서 추출한 half-precision 가중치. 원하는 포맷으로 직접 변환·양자화 가능. 연구 및 커스텀 컴파일용 | 전 모델 + MTP 드래프터 |
+| **GGUF** (Q4_0) | llama.cpp / Ollama / LM Studio 생태계용 즉시 배포 포맷 | 전 모델 |
+| **Mobile** (wNa8o8) | 모바일 하드웨어 전용 커스텀 스키마. 2비트 디코딩 레이어, 정적 활성화 포함 | E2B, E4B |
+| **Compressed Tensors** (w4a16) | vLLM 네이티브 추론용 직렬화 포맷 | E2B, E4B, 12B, 31B |
+
+눈에 띄는 점 두 가지. 첫째, **Multi-Token Prediction(MTP)** <Term word="드래프터" def="추측 디코딩(speculative decoding)에서 초안 토큰을 빠르게 생성하는 보조 모델. 본 모델은 초안을 검증만 하면 되므로 추론이 빨라진다." /> 모델의 QAT 체크포인트도 함께 공개되어, 양자화 후에도 MTP 추론 가속을 그대로 유지할 수 있다. 둘째, vLLM용 compressed-tensors 포맷이 출시일부터 제공된다는 것은 QAT가 단순히 "노트북에서 돌리는 용도"가 아니라 **서빙 인프라 비용 절감**까지 겨냥하고 있다는 의미다.
+
+## 어떤 모델이 내 하드웨어에 맞을까
+
+모델과 정밀도를 바꿔가며 메모리 요구량과 구동 가능한 하드웨어를 직접 확인해보자.
+
+<QatMemoryCalc />
+
+- **E2B / E4B**: 모바일·엣지 타깃. 모바일 포맷 적용 시 E2B는 **1GB**, 오디오·비전 인코더를 뗀 텍스트 전용 구성이면 **1GB 미만**. 스마트폰 온디바이스 LLM의 현실적 기준점이다.
+- **12B Unified**: 약 7GB. 보급형 GPU나 16GB 램 노트북에서 멀티모달 + 256K 컨텍스트를 돌릴 수 있는 스윗스팟.
+- **26B A4B (<Term word="MoE" def="Mixture-of-Experts. 여러 전문가 서브네트워크 중 입력마다 일부만 골라 계산하는 구조. 전체 파라미터 대비 실제 연산량이 훨씬 적다." />)**: 추론 시 3.8B만 활성화되는 MoE. 양자화와 결합하면 "4B급 속도로 도는 26B급 품질"을 로컬에서 노릴 수 있다.
+- **31B Dense**: 양자화해도 16GB+ VRAM이 필요한 고사양 타깃. 워크스테이션·서버용.
+
+## 모바일 전용 양자화 스키마 (wNa8o8)
+
+이번 릴리스에서 기술적으로 가장 흥미로운 부분이다. 표준 압축 포맷은 모바일 프로세서가 효율적으로 처리하기 어렵기 때문에, Google은 엣지 하드웨어에 맞춘 별도 스키마를 설계했다. 네 가지 핵심 기법을 하나씩 눌러보자.
+
+<Cards
+	eyebrow="⚙ 인터랙티브 · 기법 탐색"
+	heading="wNa8o8 스키마의 4가지 핵심 기법"
+	cards={[
+		{ key: 'static', title: '정적 활성화', sub: 'Static activations' },
+		{ key: 'channel', title: '채널 단위 양자화', sub: 'Channel-wise' },
+		{ key: 'twobit', title: '선택적 2비트', sub: 'Targeted 2-bit' },
+		{ key: 'kv', title: '임베딩·KV 캐시', sub: 'Cache optimization' },
+	]}
+>
+	<div slot="s0">
+		<Kv k="대상" v="활성화(activation) 스케일링" />
+		<Kv k="기법" v="스케일 값을 추론 시점이 아닌 훈련 중에 미리 산출" type="ok" />
+		<Kv k="효과" v="모바일 칩의 연산 부담 감소 → 응답 속도 향상" type="ok" />
+
+		활성화(레이어를 통과하며 생기는 중간 계산 결과)는 입력마다 값 범위가 달라서, 보통은
+		추론할 때마다 min/max를 재며 스케일을 동적으로 다시 계산한다(스케일 개념은 위 "스케일과
+		캘리브레이션" 심화 박스 참고). Gemma 4 모바일 포맷은 이 스케일을 훈련 중 대표 분포로
+		**미리 고정**해, 모바일 칩이 매번 계산할 필요를 없앴다.
+	</div>
+	<div slot="s1">
+		<Kv k="대상" v="가중치 행렬의 스케일 적용 단위" />
+		<Kv k="기법" v="텐서 전체가 아닌 출력 채널마다 별도 스케일 부여" type="ok" />
+		<Kv k="효과" v="이상치에 강하고, NPU가 네이티브로 처리 가능한 규칙적 배치" type="ok" />
+
+		**채널 단위란?** 스케일을 "어느 단위로 하나 두느냐"의 문제다. 행렬 전체에 스케일
+		하나만 쓰면(per-tensor), 채널 A의 가중치 범위가 ±0.1인데 채널 B에 ±5.0짜리 이상치가
+		있을 때 스케일이 ±5.0에 맞춰진다. 그러면 채널 A는 4비트의 16개 구간 중 1~2개만 쓰게
+		되어 정보가 뭉개진다.
+
+		출력 채널마다 스케일을 따로 두면(per-channel) 각 채널이 자기 범위에 맞는 풀 해상도를
+		쓴다. 덤으로 데이터 배치가 채널 단위로 규칙적이라, 모바일 가속기(NPU)의 벡터 연산
+		유닛이 느린 우회 연산 없이 한 채널씩 통째로 처리할 수 있다.
+	</div>
+	<div slot="s2">
+		<Kv k="대상" v="토큰 생성을 담당하는 디코딩 레이어" />
+		<Kv k="기법" v="디코딩 레이어만 2비트로 강하게 압축, 핵심 추론 레이어는 고정밀 유지" type="ok" />
+		<Kv k="효과" v="저장 공간 절약 + 지능 보존" type="ok" />
+
+		균일하게 4비트로 누르는 Q4_0과 달리, 레이어의 역할에 따라 2비트부터 8비트까지 정밀도를
+		차등 배분하는 **혼합 정밀도(mixed-precision)** 설계다.
+	</div>
+	<div slot="s3">
+		<Kv k="대상" v="262K 어휘 임베딩 테이블 + KV 캐시" />
+		<Kv k="기법" v="가장 메모리를 많이 먹는 두 영역을 집중 압축" type="ok" />
+		<Kv k="효과" v="긴 대화에서도 활성 메모리 여유 확보" type="ok" />
+
+		Gemma 4의 어휘는 26만 토큰 규모로 임베딩 테이블이 크고, 대화가 길어질수록 <Term word="KV 캐시" def="추론 중 이전 토큰들의 Key/Value 행렬을 저장해두는 단기 기억. 매 토큰마다 다시 계산하지 않기 위한 캐시로, 컨텍스트가 길어질수록 메모리를 많이 차지한다." />가 불어난다. 이 둘을 잡으면서 E2B의 풋프린트가 **1GB**까지 내려갔다.
+	</div>
+</Cards>
+
+## 직접 실행해보기
+
+배포 생태계 지원이 출시일부터 갖춰져 있다.
+
+```bash
+# Ollama
+ollama run gemma4
+
+# llama.cpp — OpenAI 호환 로컬 서버
+llama-server -hf google/gemma-4-12B-it-qat-q4_0-gguf:Q4_0
+```
+
+이 외에도 LM Studio(데스크톱), vLLM·SGLang(서빙), Apple Silicon용 MLX, 웹 실행용 Transformers.js, 모바일·엣지 배포용 LiteRT-LM, 파인튜닝용 Hugging Face Transformers·Unsloth까지 주요 워크플로가 모두 지원된다.
+
+## 정리
+
+Gemma 4 QAT 릴리스는 "양자화는 품질 타협"이라는 통념을 무디게 만든다. 양자화를 사후 처리가 아니라 학습의 일부로 끌어들이면, 4비트로도 bfloat16에 근접한 품질이 나온다. 그리고 이번 릴리스의 진짜 의미는 범위에 있다 — 1GB 모바일 모델부터 vLLM 서빙용 31B까지, **하나의 QAT 파이프라인이 엣지부터 서버까지 전 구간을 커버**한다. 온디바이스 LLM은 더 이상 실험이 아니라 실무 선택지다.
+
+### 참고 자료
+- [Gemma 4 QAT models — Google 공식 블로그](https://blog.google/innovation-and-ai/technology/developers-tools/quantization-aware-training-gemma-4/)
+- [Gemma 4 QAT Q4_0 컬렉션 — Hugging Face](https://huggingface.co/collections/google/gemma-4-qat-q4-0)
+- [Gemma 4 QAT Mobile 컬렉션 — Hugging Face](https://huggingface.co/collections/google/gemma-4-qat-mobile)
+- [Gemma 공식 문서 — QAT 배포 가이드](https://ai.google.dev/gemma/docs/core#qat)

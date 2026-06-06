@@ -1,0 +1,200 @@
+---
+// Interactive memory calculator: model size × precision → VRAM estimate + device fit.
+// Self-contained: event delegation bound once to `document` (survives View Transitions),
+// default state (12B × Q4_0) is pre-rendered statically so no init script is needed.
+interface Props {
+	eyebrow?: string;
+	heading?: string;
+}
+const { eyebrow = '⚙ 인터랙티브 · 계산기', heading = '모델 × 정밀도 → 메모리 요구량' } = Astro.props;
+
+const models = [
+	{ key: 'e2b', label: 'E2B', bf16: 10.2, q4: 3.0, mobile: 1.0 },
+	{ key: 'e4b', label: 'E4B', bf16: 16.0, q4: 4.7, mobile: 1.9 },
+	{ key: '12b', label: '12B', bf16: 23.9, q4: 7.0, mobile: null },
+	{ key: '26b', label: '26B A4B', bf16: 50.4, q4: 14.7, mobile: null },
+	{ key: '31b', label: '31B', bf16: 61.4, q4: 17.9, mobile: null },
+];
+const devices = [
+	{ label: '📱 스마트폰', max: 2 },
+	{ label: '💻 8GB 노트북', max: 5 },
+	{ label: '🎮 12GB GPU · 16GB 맥북', max: 8 },
+	{ label: '🖥 24GB GPU', max: 16 },
+	{ label: '🏢 워크스테이션·서버', max: 999 },
+];
+// Pre-rendered default: 12B × Q4_0 = 7.0GB
+const DEF = 7.0;
+const MAX = 62;
+---
+
+<div class="ts-ix not-prose" data-qmc data-max={MAX}>
+	<div class="ts-eyebrow">{eyebrow}</div>
+	<h4 class="ts-h">{heading}</h4>
+
+	<div class="ts-tabs" data-qmc-row="model">
+		{models.map((m) => (
+			<button
+				class:list={[{ on: m.key === '12b' }]}
+				data-qmc-model={m.key}
+				data-bf16={m.bf16}
+				data-q4={m.q4}
+				data-mobile={m.mobile ?? ''}
+			>{m.label}</button>
+		))}
+	</div>
+
+	<div class="ts-tabs" data-qmc-row="prec">
+		<button data-qmc-prec="bf16">bfloat16 (원본)</button>
+		<button class="on" data-qmc-prec="q4">QAT Q4_0</button>
+		<button data-qmc-prec="mobile" disabled>Mobile (wNa8o8)</button>
+	</div>
+
+	<div class="ts-result">
+		<div class="qmc-readout">
+			<span class="qmc-gb" data-qmc-gb>{DEF.toFixed(1)}</span>
+			<span class="qmc-unit">GB</span>
+			<span class="qmc-delta" data-qmc-delta>bf16 대비 −71%</span>
+		</div>
+		<div class="qmc-bar"><i data-qmc-bar style={`width:${(DEF / MAX) * 100}%`}></i></div>
+		<div class="qmc-devices">
+			{devices.map((d) => (
+				<span class:list={['qmc-chip', { fit: DEF <= d.max }]} data-qmc-dev data-dev-max={d.max}>
+					{d.label}
+				</span>
+			))}
+		</div>
+		<p class="qmc-foot">
+			가중치 로드 기준 추정치 (12B Q4_0 GGUF 6.98GB 실측 환산 · KV 캐시/활성화 제외). 26B A4B는 MoE라
+			로드는 전체 25.2B 기준이지만 추론 시엔 3.8B만 활성화된다.
+		</p>
+	</div>
+</div>
+
+<style>
+	.qmc-readout {
+		display: flex;
+		align-items: baseline;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+	.qmc-gb {
+		font-family: var(--font-space-grotesk);
+		font-size: 2.4rem;
+		font-weight: 800;
+		color: var(--color-primary);
+		line-height: 1;
+		transition: color 0.2s;
+	}
+	.qmc-unit {
+		font-family: var(--font-space-grotesk);
+		font-size: 1rem;
+		font-weight: 700;
+		color: var(--text-muted);
+	}
+	.qmc-delta {
+		margin-left: auto;
+		font-family: var(--font-space-grotesk);
+		font-size: 0.78rem;
+		font-weight: 700;
+		color: var(--color-secondary);
+	}
+	.qmc-bar {
+		height: 10px;
+		margin: 0.9rem 0 1rem;
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--text-muted) 14%, transparent);
+		overflow: hidden;
+	}
+	.qmc-bar > i {
+		display: block;
+		height: 100%;
+		border-radius: 999px;
+		background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+		transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	.qmc-devices {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.45rem;
+	}
+	.qmc-chip {
+		font-size: 0.74rem;
+		font-weight: 600;
+		padding: 0.32rem 0.65rem;
+		border-radius: 999px;
+		border: 1px dashed var(--glass-border);
+		color: var(--text-muted);
+		opacity: 0.45;
+		transition: 0.2s;
+	}
+	.qmc-chip.fit {
+		opacity: 1;
+		border-style: solid;
+		border-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
+		color: var(--color-primary);
+		background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+	}
+	.qmc-foot {
+		margin: 0.9rem 0 0;
+		font-size: 0.72rem;
+		line-height: 1.55;
+		color: var(--text-muted);
+	}
+	[data-qmc-row] button:disabled {
+		opacity: 0.35;
+		cursor: not-allowed;
+	}
+</style>
+
+<script>
+	function update(group: HTMLElement) {
+		const modelBtn = group.querySelector<HTMLElement>('[data-qmc-model].on');
+		const precRow = group.querySelector<HTMLElement>('[data-qmc-row="prec"]');
+		if (!modelBtn || !precRow) return;
+
+		// Mobile format only exists for E2B/E4B — disable & fall back otherwise.
+		const hasMobile = modelBtn.dataset.mobile !== '';
+		const mobileBtn = precRow.querySelector<HTMLButtonElement>('[data-qmc-prec="mobile"]');
+		if (mobileBtn) {
+			mobileBtn.disabled = !hasMobile;
+			if (!hasMobile && mobileBtn.classList.contains('on')) {
+				mobileBtn.classList.remove('on');
+				precRow.querySelector('[data-qmc-prec="q4"]')?.classList.add('on');
+			}
+		}
+
+		const prec = precRow.querySelector<HTMLElement>('[data-qmc-prec].on')?.dataset.qmcPrec ?? 'q4';
+		const gb = parseFloat(modelBtn.dataset[prec === 'bf16' ? 'bf16' : prec === 'q4' ? 'q4' : 'mobile'] ?? '0');
+		const bf16 = parseFloat(modelBtn.dataset.bf16 ?? '0');
+		const max = parseFloat(group.dataset.max ?? '62');
+
+		const gbEl = group.querySelector<HTMLElement>('[data-qmc-gb]');
+		const barEl = group.querySelector<HTMLElement>('[data-qmc-bar]');
+		const deltaEl = group.querySelector<HTMLElement>('[data-qmc-delta]');
+		if (gbEl) gbEl.textContent = gb.toFixed(1);
+		if (barEl) barEl.style.width = `${Math.max((gb / max) * 100, 1.5)}%`;
+		if (deltaEl)
+			deltaEl.textContent =
+				prec === 'bf16' ? '기준선 (양자화 전)' : `bf16 대비 −${Math.round((1 - gb / bf16) * 100)}%`;
+
+		group.querySelectorAll<HTMLElement>('[data-qmc-dev]').forEach((chip) => {
+			chip.classList.toggle('fit', gb <= parseFloat(chip.dataset.devMax ?? '0'));
+		});
+	}
+
+	function onClick(ev: MouseEvent) {
+		const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-qmc-model], [data-qmc-prec]');
+		if (!btn || btn.disabled) return;
+		const group = btn.closest<HTMLElement>('[data-qmc]');
+		const row = btn.closest<HTMLElement>('[data-qmc-row]');
+		if (!group || !row) return;
+		row.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === btn));
+		update(group);
+	}
+
+	// Bound once to document → survives View Transitions without re-binding.
+	if (!(window as unknown as Record<string, boolean>).__qmcBound) {
+		(window as unknown as Record<string, boolean>).__qmcBound = true;
+		document.addEventListener('click', onClick);
+	}
+</script>
