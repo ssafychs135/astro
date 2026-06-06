@@ -580,14 +580,26 @@ a.bg-primary:hover {
    Markdown tables (token-based → adapts to both themes)
    =================================================================== */
 .prose-obsidian table {
+	/* Mobile: display:block + overflow-x:auto contains wide tables in their own
+	   horizontal scroll so they never overflow the viewport. */
 	display: block;
 	width: 100%;
-	overflow-x: auto;            /* mobile: scroll wide tables instead of overflowing */
+	overflow-x: auto;
 	border-collapse: collapse;
 	margin: 2.5rem 0;
 	font-size: 0.95rem;
 	border: 1px solid var(--glass-border);
 	border-radius: 12px;
+}
+/* Desktop: switch to real table layout so the cell grid fills width:100% and
+   distributes columns. `display:block` makes the grid shrink-to-fit and bunch
+   left while the border box stretches to 100%, leaving an empty bordered gap on
+   the right — only visible when the content is narrower than the container. */
+@media (min-width: 768px) {
+	.prose-obsidian table {
+		display: table;
+		table-layout: auto;
+	}
 }
 .prose-obsidian thead {
 	background-color: var(--color-surface-high);
