@@ -1,0 +1,131 @@
+---
+// Stack-switching horizontal bar chart for throughput comparison.
+// Reuses the troubleshooting runtime: data-ts-group / data-ts-tab / data-ts-panel
+// drive tab switching, and `.ts-bar > i[data-w]` is re-animated on each switch.
+// Bar widths are scaled against a single global max so magnitudes stay comparable
+// across tabs — the punchline bar (SGLang self-spec) visibly dwarfs the rest.
+interface Bar {
+	label: string;
+	value: number;
+	tag?: string; // e.g. "2.48×" — shown as a chip next to the value
+}
+interface Group {
+	key: string;
+	label: string;
+	bars: Bar[];
+}
+interface Props {
+	eyebrow?: string;
+	heading: string;
+	unit?: string;
+	foot?: string;
+	groups: Group[];
+}
+const { eyebrow = '⚙ 인터랙티브 · 스택 비교', heading, unit = 'tok/s', foot, groups } = Astro.props;
+
+const globalMax = Math.max(...groups.flatMap((g) => g.bars.map((b) => b.value)));
+---
+
+<div class="ts-ix not-prose" data-ts-group>
+	<div class="ts-eyebrow">{eyebrow}</div>
+	<h4 class="ts-h">{heading}</h4>
+
+	<div class="ts-tabs">
+		{groups.map((g, i) => (
+			<button class:list={[{ on: i === 0 }]} data-ts-tab={g.key}>{g.label}</button>
+		))}
+	</div>
+
+	<div class="ts-result">
+		{groups.map((g, i) => {
+			const gMax = Math.max(...g.bars.map((b) => b.value));
+			return (
+				<div class:list={['ts-panel', { show: i === 0 }]} data-ts-panel data-key={g.key}>
+					{g.bars.map((b) => {
+						const pct = `${((b.value / globalMax) * 100).toFixed(1)}%`;
+						const win = b.value === gMax;
+						return (
+							<div class="bc-row">
+								<span class="bc-name">{b.label}</span>
+								<div class="ts-bar"><i class:list={[{ win }]} data-w={pct} style={`width:${pct}`}></i></div>
+								<span class:list={['bc-val', { win }]}>
+									{b.value.toFixed(1)}
+									{b.tag && <em>{b.tag}</em>}
+								</span>
+							</div>
+						);
+					})}
+				</div>
+			);
+		})}
+	</div>
+
+	<div class="bc-meta">
+		<span class="bc-unit">단위 · {unit} · 막대는 전체 최댓값 기준</span>
+		{foot && <p class="bc-foot">{foot}</p>}
+	</div>
+</div>
+
+<style>
+	.bc-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin: 0.55rem 0;
+	}
+	.bc-name {
+		flex: 0 0 5.5rem;
+		font-family: var(--font-space-grotesk);
+		font-size: 0.78rem;
+		font-weight: 700;
+		color: var(--text-base);
+	}
+	.bc-row .ts-bar i {
+		background: color-mix(in srgb, var(--color-secondary) 55%, transparent);
+	}
+	.bc-row .ts-bar i.win {
+		background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+	}
+	.bc-val {
+		flex: 0 0 auto;
+		min-width: 4.5rem;
+		text-align: right;
+		font-family: var(--font-space-grotesk);
+		font-size: 0.82rem;
+		font-weight: 700;
+		color: var(--text-muted);
+	}
+	.bc-val.win {
+		color: var(--color-primary);
+	}
+	.bc-val em {
+		display: inline-block;
+		margin-left: 0.35rem;
+		padding: 0.06rem 0.36rem;
+		border-radius: 999px;
+		font-style: normal;
+		font-size: 0.66rem;
+		font-weight: 800;
+		background: color-mix(in srgb, var(--color-primary) 16%, transparent);
+		color: var(--color-primary);
+	}
+	.bc-meta {
+		margin-top: 0.9rem;
+	}
+	.bc-unit {
+		display: block;
+		font-family: var(--font-space-grotesk);
+		font-size: 0.68rem;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+	.bc-foot {
+		margin: 0.55rem 0 0;
+		font-size: 0.72rem;
+		line-height: 1.55;
+		color: var(--text-muted);
+	}
+</style>
+
+<script>import '../troubleshooting/runtime.ts';</script>
