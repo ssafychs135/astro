@@ -170,12 +170,12 @@ import ocrAfter from '../../assets/portfolio/ts/jupasu-ocr-after.png';
       <div slot="off">
         <Verdict type="fail">읽기 경로에 임베딩까지 전부 로드</Verdict>
         <Kv k="조회" v="Wine 전체 (임베딩 포함)" type="fail" />
-        <Kv k="캐시" v="74.9MB" type="fail" />
+        <Kv k="캐시" v="18.66MB" type="fail" />
       </div>
       <div slot="on">
         <Verdict type="ok">필요한 컬럼만 조회</Verdict>
         <Kv k="조회" v="WineScoreView (임베딩 제외)" type="ok" />
-        <Kv k="캐시" v="334KB" type="ok" />
+        <Kv k="캐시" v="1.36MB" type="ok" />
       </div>
     </Toggle>
   </Defect>
@@ -188,7 +188,7 @@ OCR은 **PaddleOCR를 브라우저 워커에서 온디바이스로** 구동했�
   <Metrics
     items={[
       { big: '0.55→0.88', cap: 'OCR 인식 신뢰도 (라벨 1종)' },
-      { big: '74.9MB→334KB', cap: '읽기 경로 캐시 (임베딩 제외)' },
+      { big: '18.66MB→1.36MB', cap: '읽기 경로 캐시 (임베딩 제외 · 적재 약 20배)' },
       { big: 'json_schema', cap: '구조화 출력 안정화' },
       { big: '4건 해결', cap: 'OCR·LLM·읽기 경로' },
     ]}
