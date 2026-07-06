@@ -27,3 +27,6 @@ pnpm-debug.log*
 graphify-out/
 .serena/
 .gstack/
+
+# personal documents (not site source)
+*.pdf
