@@ -18,7 +18,7 @@ import Term from '../../components/interactive/Term.astro';
 	items={[
 		{ big: '6개', cap: '비교 대상 도구' },
 		{ big: '4개', cap: '추상화 층위' },
-		{ big: '1개', cap: '기반 패턴 (ReAct)' },
+		{ big: 'Layer 0', cap: '기반 패턴 (ReAct)' },
 		{ big: '조합', cap: '택일이 아님' },
 	]}
 />
@@ -137,7 +137,7 @@ app = g.compile()
 	후자는 "부품을 배선한다"에 가깝다.
 </Callout>
 
-## 종합 비교
+## 종합 비교표
 
 | 도구 | 층위 | 성격 | 대표 사용처 | 의존 |
 | --- | --- | --- | --- | --- |
@@ -145,7 +145,7 @@ app = g.compile()
 | LangChain | 컴포넌트 | 범용 통합 | 다양한 서비스 연결·프로토타입 | LLM · 통합 패키지 |
 | LlamaIndex | 컴포넌트 | 데이터 · RAG | 문서 QA · 지식 검색 | 임베딩 · 벡터 스토어 |
 | LangGraph | 오케스트레이션 | 저수준 제어 | 상태 기반 복잡 워크플로우 | 컴포넌트 층 |
-| CrewAI | 멀티에이전트 | 역할 협업 | 역할 분담 자동화 | LLM · Pydantic |
+| CrewAI | 멀티에이전트 | 역할 협업 + 흐름 | 역할 분담 자동화 | LLM · Pydantic |
 | Atomic Agents | 멀티에이전트 | 스키마 배선 | 타입 안전 파이프라인 | Instructor · Pydantic |
 
 ## 마무리: 택일이 아니라 조합
