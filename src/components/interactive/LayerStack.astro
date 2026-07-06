@@ -1,0 +1,106 @@
+---
+// LayerStack — 에이전트 프레임워크 지형도의 추상화 층위 다이어그램.
+// 순수 CSS 시각화(클라이언트 JS 없음): 위→아래로 쌓인 층위 밴드.
+// 각 밴드는 층 이름·설명·소속 프레임워크 칩·성격 힌트를 보여준다.
+interface Layer {
+	label: string; // 예: "Layer 1 · 컴포넌트"
+	sub: string; // 짧은 설명
+	frameworks: string[]; // 칩으로 표시할 프레임워크들
+	note: string; // 성격 힌트 (예: "부품 · 조립")
+}
+interface Props {
+	layers: Layer[]; // 전달 순서대로 위→아래 렌더
+}
+const { layers } = Astro.props;
+---
+
+<div class="ls not-prose">
+	{layers.map((l) => (
+		<div class="ls-band">
+			<div class="ls-meta">
+				<span class="ls-label">{l.label}</span>
+				<span class="ls-sub">{l.sub}</span>
+			</div>
+			<div class="ls-chips">
+				{l.frameworks.map((f) => <span class="ls-chip">{f}</span>)}
+			</div>
+			<span class="ls-note">{l.note}</span>
+		</div>
+	))}
+</div>
+
+<style>
+	.ls {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+		margin: 2rem 0;
+	}
+	.ls-band {
+		display: grid;
+		grid-template-columns: minmax(9rem, 1.1fr) 2fr auto;
+		align-items: center;
+		gap: 1rem;
+		padding: 0.9rem 1.15rem;
+		border: 1px solid var(--glass-border);
+		border-radius: 14px;
+		background: color-mix(in srgb, var(--color-primary) 4%, transparent);
+		transition: border-color 0.15s, background 0.15s;
+	}
+	.ls-band:hover {
+		border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+		background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+	}
+	.ls-meta {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+	}
+	.ls-label {
+		font-family: var(--font-space-grotesk);
+		font-size: 0.7rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		font-weight: 800;
+		color: var(--color-primary);
+	}
+	.ls-sub {
+		font-size: 0.8rem;
+		color: var(--text-muted);
+		word-break: keep-all;
+	}
+	.ls-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+	}
+	.ls-chip {
+		font-size: 0.82rem;
+		font-weight: 700;
+		color: var(--text-base);
+		padding: 0.25rem 0.6rem;
+		border: 1px solid var(--glass-border);
+		border-radius: 999px;
+		background: var(--surface);
+		white-space: nowrap;
+	}
+	.ls-note {
+		justify-self: end;
+		font-family: var(--font-space-grotesk);
+		font-size: 0.62rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-weight: 700;
+		color: var(--color-secondary);
+		white-space: nowrap;
+	}
+	@media (max-width: 640px) {
+		.ls-band {
+			grid-template-columns: 1fr;
+			gap: 0.55rem;
+		}
+		.ls-note {
+			justify-self: start;
+		}
+	}
+</style>
