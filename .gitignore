@@ -26,3 +26,4 @@ pnpm-debug.log*
 # tooling / generated artifacts (not part of the site source)
 graphify-out/
 .serena/
+.gstack/
