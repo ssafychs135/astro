@@ -1,0 +1,103 @@
+---
+title: "AI 에이전트 프레임워크 비교"
+description: "주요 AI 에이전트 프레임워크를 무엇을·언제·얼마나 쓰는지 비교한다."
+pubDate: 2026-07-06
+heroImage: "../../assets/blog-placeholder-3.jpg"
+tags: ["AI Agent", "Framework"]
+---
+
+import Metrics from '../../components/troubleshooting/Metrics.astro';
+import LayerStack from '../../components/interactive/LayerStack.astro';
+import Term from '../../components/interactive/Term.astro';
+
+이 글은 주요 AI 에이전트 프레임워크를 하는 일에 따라 패턴·컴포넌트·오케스트레이션·멀티에이전트·프로덕션 SDK로 나눠, 각각 무엇이고 언제 쓰며 지금 얼마나 쓰이는지 비교한다.
+
+<Metrics
+	items={[
+		{ big: '5가지', cap: '패턴 → 프로덕션 SDK' },
+		{ big: '10+', cap: '비교 프레임워크' },
+		{ big: 'LangGraph', cap: '오케스트레이션 표준' },
+		{ big: '조합', cap: '택일 아닌 병용' },
+	]}
+/>
+
+## 한눈에 보기
+
+<LayerStack
+	layers={[
+		{ label: '프로덕션 SDK', sub: '배포·운영까지 아우름 (2025~)', frameworks: ['OpenAI Agents SDK', 'Google ADK', 'AWS Strands', 'Pydantic AI'], note: '타입 안전 · MCP' },
+		{ label: '멀티에이전트', sub: '여러 에이전트를 팀으로', frameworks: ['CrewAI', 'AutoGen'], note: '역할 협업' },
+		{ label: '오케스트레이션', sub: '제어 흐름을 그래프로', frameworks: ['LangGraph'], note: '상태 · 제어' },
+		{ label: '컴포넌트', sub: 'LLM 앱의 부품·통합', frameworks: ['LangChain', 'LlamaIndex'], note: '도구 · RAG' },
+		{ label: '패턴', sub: '에이전트의 사고 방식', frameworks: ['ReAct', 'CoT'], note: '기반' },
+	]}
+/>
+
+## 패턴: ReAct · CoT
+
+- **무엇** — <Term word="ReAct" def="Reasoning + Acting. 2022년 논문에서 제안된, 생각 → 행동 → 관찰을 반복하는 프롬프트 패턴." />는 도구를 쓰는 에이전트의 기반 패턴이다. CoT는 답 전에 추론을 단계적으로 서술하게 하는 기법이다. 둘 다 프레임워크가 아니라 개념이다.
+- **언제** — 직접 "선택"하기보다, 아래 도구들이 내부에서 이 패턴을 구현한다. 개념으로 이해해 두면 나머지가 쉬워진다.
+- **현재 채택** — 여전히 거의 모든 에이전트의 바탕이다. LangGraph의 `create_react_agent`처럼 이름에도 남아 있다.
+
+## 컴포넌트: LangChain · LlamaIndex
+
+LLM 애플리케이션을 이루는 부품(모델·프롬프트·도구·리트리버)과 외부 통합을 제공한다.
+
+**LangChain**
+- **무엇** — 범용 부품과 방대한 통합을 갖춘 라이브러리.
+- **언제** — 다양한 서비스·모델을 빠르게 연결해 프로토타입을 만들 때.
+- **현재 채택** — 생태계가 가장 넓다. 사실상 표준 부품 라이브러리로 쓰인다.
+
+**LlamaIndex**
+- **무엇** — 문서 수집·인덱싱·검색(RAG)에 특화된 데이터 프레임워크.
+- **언제** — 지식베이스 위에 질의응답을 얹는 RAG가 중심일 때.
+- **현재 채택** — RAG 영역의 대표 도구다.
+
+## 오케스트레이션: LangGraph
+
+- **무엇** — 제어 흐름을 상태 그래프로 명시하는 저수준 런타임. 지속 실행, 휴먼 인 더 루프, 메모리를 내장한다.
+- **언제** — 분기·반복·중단과 재개가 있는 복잡한 흐름을 직접 설계해야 할 때. 컴포넌트(LangChain 등)를 노드 안에서 호출한다.
+- **현재 채택** — 프로덕션 에이전트 오케스트레이션의 사실상 표준으로 자리 잡았다.
+
+## 멀티에이전트: CrewAI · AutoGen
+
+여러 에이전트를 역할별로 묶어 협업시킨다.
+
+**CrewAI**
+- **무엇** — 역할 기반 자율 협업(Crew)과 이벤트 기반 제어(Flow)의 두 축을 가진 프레임워크.
+- **언제** — 리서치 → 작성 → 편집처럼 역할이 분담되는 작업을 빠르게 조립할 때.
+- **현재 채택** — 멀티에이전트 중 가장 대중적이다.
+
+**AutoGen**
+- **무엇** — 대화형 멀티에이전트 프레임워크(Microsoft). 커뮤니티 포크 AG2로도 이어진다.
+- **언제** — 에이전트 간 대화·협상 구조가 필요할 때.
+- **현재 채택** — 연구와 Microsoft 생태계에서 유의미하게 쓰인다.
+
+## 프로덕션 SDK
+
+에이전트를 실전 배포로 옮기면서 벤더들이 내놓았다. 앞의 것들을 묶고 타입 안전·가드레일·관측성·<Term word="durable execution" def="프로세스가 중간에 죽어도 도구 호출과 상태를 잃지 않고 이어서 실행하는 내구 실행." />을 더한다. 도구를 프레임워크에 묶지 않는 표준 규약 <Term word="MCP" def="Model Context Protocol. 에이전트가 표준 방식으로 외부 도구·데이터를 발견하고 호출하도록 정한 규약. 대부분의 SDK가 지원한다." />도 이 시기에 자리 잡았다. 접근은 벤더마다 갈린다.
+
+- **OpenAI Agents SDK** — 실험작 Swarm의 정식 후속(2025년 3월). Agent·Runner·Handoff·Guardrail 프리미티브로 제어를 명시한다. OpenAI 스택에서 가볍게 쓰며, 채택이 빠르게 늘고 있다.
+- **Google ADK** — 버전 관리·테스트·배포까지 소프트웨어 공학의 방식을 적용한다. Vertex·Gemini 기반 엔터프라이즈에서 쓰인다.
+- **AWS Strands** — 흐름을 하드코딩하지 않고 도구와 목표만 준 뒤 모델이 ReAct 방식으로 오케스트레이션하게 한다. 스캐폴딩을 줄이고 강한 모델에 맡기는 접근이다.
+- **Pydantic AI** — 타입 안전을 앞세운 에이전트 프레임워크. 검증·구조화를 중시하는 쪽에서 빠르게 인기를 얻고 있다.
+
+## 한 장으로 비교
+
+| 프레임워크 | 역할 | 무엇 | 언제 | 현재 채택 |
+| --- | --- | --- | --- | --- |
+| ReAct | 패턴 | 추론+행동 루프 | 모든 에이전트의 기반 | 바탕에 상존 |
+| LangChain | 컴포넌트 | 범용 부품·통합 | 빠른 연결·프로토타입 | 가장 광범위 |
+| LlamaIndex | 컴포넌트 | RAG 특화 | 문서·지식 검색 | RAG 대표 |
+| LangGraph | 오케스트레이션 | 상태 그래프 런타임 | 복잡한 흐름 제어 | 오케스트레이션 표준 |
+| CrewAI | 멀티에이전트 | 역할 협업 + 흐름 | 역할 분담 자동화 | 멀티에이전트 대중적 |
+| AutoGen | 멀티에이전트 | 대화형 협업 | 에이전트 간 대화 | 연구 · MS 생태계 |
+| OpenAI Agents SDK | 프로덕션 SDK | Swarm 후속 | OpenAI 스택 | 빠르게 확산 |
+| Pydantic AI | 프로덕션 SDK | 타입 안전 | 검증 중시 | 성장 |
+| Google ADK · AWS Strands | 프로덕션 SDK | 소프트웨어 공학식 · 모델 주도 | GCP · AWS 기반 | 벤더별 |
+
+## 정리: 무엇을 언제
+
+하는 일이 다르므로 이들은 택일이 아니라 조합이다. 실제 시스템은 대개 컴포넌트(LangChain·LlamaIndex)를 LangGraph로 묶고, 필요하면 멀티에이전트나 프로덕션 SDK를 얹는다.
+
+새로 시작한다면 컴포넌트로 기본기를 익히고 LangGraph로 흐름을 잡은 뒤, 규모에 따라 멀티에이전트나 프로덕션 SDK로 넓혀 가는 순서를 권한다.
