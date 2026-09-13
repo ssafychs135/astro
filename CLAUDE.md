@@ -55,7 +55,7 @@ Tabs in `.astro`, `.ts`, and `.css` files.
 
 **Writing style is a hard requirement: follow the "문체 규칙" checklist in `CONTENT_GUIDE.md` for ALL prose** (blog, portfolio, UI copy). In short: formal 문어체; no ornate/metaphor/dramatic phrasing; no disclaimer openers or meta-commentary justifying the article's own structure; cut hedging/filler and stay on the substance; minimal em-dash connectors; short titles/descriptions; prefer everyday wording over stiff jargon. **When writing or editing content, run the `content-style` skill** to check the prose against these rules (mechanical lint + holistic review).
 
-When adding posts, follow the per-collection templates in `CONTENT_GUIDE.md` (and `GEMINI.md`). Key rules: filenames are lowercase-with-hyphens; `pubDate`/`updatedDate` use `YYYY-MM-DD`; `heroImage` references `src/assets/` via relative path (`../../assets/<file>`) so Astro's `<Image>`/sharp optimization applies; frontmatter must satisfy the target collection's schema or the build fails. `portfolio` posts have recommended section structures documented in the guides.
+When adding posts, scaffold with `npm run new` and follow `CONTENT_GUIDE.md` (publishing steps, per-collection frontmatter and structure, MDX component usage). Key rules: filenames are lowercase-with-hyphens; `pubDate`/`updatedDate` use `YYYY-MM-DD`; `heroImage` references `src/assets/` via relative path (`../../assets/<file>`) so Astro's `<Image>`/sharp optimization applies; frontmatter must satisfy the target collection's schema or the build fails. `portfolio` posts use the six-`<Section>` structure documented in the guide. There is no draft mechanism: any committed file in a collection is published on push, so never commit work-in-progress posts.
 
 ## Deployment
 
