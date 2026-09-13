@@ -3,14 +3,17 @@ import rss from '@astrojs/rss';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 export async function GET(context) {
+	const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 	const posts = await getCollection('blog');
 	return rss({
 		title: SITE_TITLE,
 		description: SITE_DESCRIPTION,
-		site: context.site,
+		// context.site has no base path, so the channel link and item links
+		// must both carry the base explicitly.
+		site: new URL(`${base}/`, context.site).href,
 		items: posts.map((post) => ({
 			...post.data,
-			link: `/blog/${post.id}/`,
+			link: `${base}/blog/${post.id}/`,
 		})),
 	});
 }
