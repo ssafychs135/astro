@@ -2,6 +2,7 @@
 import MainLayout from '../layouts/MainLayout.astro';
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
+import { byPubDateDesc } from '../utils/sortPosts';
 import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import profileImg from '../assets/profile.png';
@@ -15,7 +16,7 @@ const projects = (await getCollection('portfolio')).sort(
 
 // 2. 최신 연구 로그 요약 (하단 트랙용)
 const latestLogs = (await getCollection('blog'))
-	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.sort(byPubDateDesc)
 	.slice(0, 3);
 
 // 3. 스킬 — 숙련도 레벨(1~5), 프로젝트 근거 태그와 함께

@@ -28,6 +28,8 @@ const blog = defineCollection({
 			heroImage: z.optional(image()),
 			tags: z.array(z.string()).optional(),
 			category: z.string().optional(),
+			// Part number within a series; only breaks same-day ties in list order (see utils/sortPosts.ts).
+			seriesOrder: z.number().int().positive().optional(),
 		}),
 });
 
