@@ -1,0 +1,287 @@
+---
+// likelihood displacement explainer for part 4.
+// Three bars = probability mass on chosen outputs, rejected outputs, and outputs that never appear in the
+// preference pairs. The three heights always sum to the same total (probabilities sum to 1), so mass that
+// leaves the first two bars visibly lands in the third. Dashed markers stay at the pre-training height:
+// the reference model is frozen, and a reward is the change from that marker, not an absolute score.
+// Bar heights are schematic. Displayed numbers are copied from blog_title_lora_series.md part 4 only.
+interface Props {
+	mode: 'concept' | 'round2' | 'round3';
+}
+const { mode } = Astro.props;
+
+// Schematic shares (percent of a fixed total). Each "after" triple sums to the same 100 as "before".
+const BEFORE = { chosen: 40, rejected: 34, other: 26 };
+const AFTER = {
+	concept: { chosen: 26, rejected: 10, other: 64 },
+	round2: { chosen: 26, rejected: 10, other: 64 },
+	round3: { chosen: 40, rejected: 20, other: 40 },
+}[mode];
+
+const COPY = {
+	concept: {
+		eyebrow: '⚙ 애니메이션 · likelihood displacement',
+		heading: '두 확률이 함께 내려가도 손실은 줄어든다',
+		loss: 'DPO 손실',
+		otherLabel: '선호쌍에 없던 출력',
+		otherSub: '벌점을 받지 않은 영역',
+		steps: [
+			{ at: 1, text: '보상은 현재 모델의 로그확률에서 참조 모델의 로그확률을 뺀 값에 β를 곱한 값이다. 학습을 시작하기 전에는 두 모델이 같으므로 좋은 출력과 나쁜 출력의 보상이 모두 0이다. 점선은 이 출발점이며, 참조 모델은 학습 중에 바뀌지 않으므로 점선도 움직이지 않는다.' },
+			{ at: 2, text: 'DPO 손실은 두 보상의 차이만 본다. 좋은 출력과 나쁜 출력의 확률이 함께 내려가도 나쁜 쪽이 더 많이 내려가면 차이가 벌어지고 손실이 줄어든다.' },
+			{ at: 3, text: '내려간 확률은 사라지지 않는다. 확률의 총합이 1이므로, 벌점을 받지 않은 영역인 선호쌍에 등장하지 않은 출력으로 이동한다.' },
+		],
+		stats: [] as { k: string; v: string }[],
+	},
+	round2: {
+		eyebrow: '⚙ 애니메이션 · DPO 2회차',
+		heading: '지표는 좋아졌지만 좋은 출력의 확률도 떨어졌다',
+		loss: 'DPO 손실',
+		otherLabel: '선호쌍에 없던 출력',
+		otherSub: '반복 구간, 학습 데이터에 없던 문자',
+		steps: [
+			{ at: 1, text: '학습 전 로그확률은 좋은 출력이 -38.5, 나쁜 출력이 -42였다.' },
+			{ at: 2, text: '학습률을 4배로 올리고 에포크를 두 배로 늘리자 좋은 출력은 -64, 나쁜 출력은 -95로 함께 내려갔다. 보상 정확도는 0.814, 마진은 2.71이었다.' },
+			{ at: 3, text: '줄어든 확률은 반복 구간과 학습 데이터에 없던 문자 쪽으로 이동했다. 같은 말을 세 번 이상 반복하는 제목이 23건(기준 모델 1건), 외국 문자가 섞인 제목이 6건 나타났다.' },
+		],
+		stats: [
+			{ k: '좋은 출력의 로그확률', v: '-38.5 → -64' },
+			{ k: '나쁜 출력의 로그확률', v: '-42 → -95' },
+			{ k: '보상 정확도', v: '0.814' },
+			{ k: '마진', v: '2.71' },
+		],
+	},
+	round3: {
+		eyebrow: '⚙ 애니메이션 · DPO 3회차 (RPO)',
+		heading: '좋은 출력의 확률을 유지해도 확률은 다른 곳으로 이동했다',
+		loss: 'DPO 손실 + 좋은 출력의 교차 엔트로피 손실',
+		otherLabel: '선호쌍에 없던 출력',
+		otherSub: '번호 나열 형식, 문어체 대사',
+		steps: [
+			{ at: 1, text: '좋은 출력에 대한 교차 엔트로피 손실을 DPO 손실에 함께 걸었다. 좋은 출력의 확률이 떨어지면 손실이 늘어나므로, 차이를 벌리는 방법이 나쁜 쪽을 내리는 것만 남는다.' },
+			{ at: 2, text: '학습 전 로그확률은 좋은 출력이 -38.5, 나쁜 출력이 -42였다. 좋은 출력은 -38.4로 유지되었고 나쁜 출력만 -48까지 내려갔다. 보상 정확도는 0.819, 마진은 0.53이었다.' },
+			{ at: 3, text: '나쁜 출력에서 빠진 확률은 여전히 벌점이 없는 영역으로 이동했다. 형식이나 방향에서 벗어난 글은 기준 모델이 7건, 3회차 학습 모델이 23건이었고, 깨진 문장의 합계는 66건(6.2%)과 62건(5.9%)으로 차이가 없었다.' },
+		],
+		stats: [
+			{ k: '좋은 출력의 로그확률', v: '-38.5 → -38.4 (유지)' },
+			{ k: '나쁜 출력의 로그확률', v: '-42 → -48' },
+			{ k: '보상 정확도', v: '0.819' },
+			{ k: '마진', v: '0.53' },
+			{ k: '깨진 문장의 합계', v: '기준 6.2% · 3회차 5.9%' },
+		],
+	},
+}[mode];
+
+const bars = [
+	{ key: 'chosen', label: '좋은 출력', sub: 'chosen' },
+	{ key: 'rejected', label: '나쁜 출력', sub: 'rejected' },
+	{ key: 'other', label: COPY.otherLabel, sub: COPY.otherSub },
+] as const;
+---
+
+<div class="ts-ix not-prose ld" data-anim-group>
+	<div class="ax-head">
+		<div>
+			<div class="ts-eyebrow">{COPY.eyebrow}</div>
+			<h4 class="ts-h">{COPY.heading}</h4>
+		</div>
+		<button class="ax-play" data-anim-play type="button">▶ 다시 재생</button>
+	</div>
+
+	<div class="ts-result">
+		<div class={`ax-panel show ld-${mode}`} data-anim data-key={mode} data-phases="0,900,2100">
+			<div class="ld-stage">
+				<div class="ld-bars" role="img"
+					aria-label={`막대 세 개: ${bars.map((b) => b.label).join(', ')}. 앞의 막대에서 줄어든 만큼 마지막 막대가 늘어나며, 세 막대의 합은 일정하다.`}>
+					{bars.map((b) => {
+						const before = BEFORE[b.key];
+						const after = AFTER[b.key];
+						return (
+							<div class={`ld-col ld-col-${b.key}`}>
+								<div class="ld-track">
+									<span class="ld-ref" style={`bottom:${before}%`} aria-hidden="true"></span>
+									<i class="ld-fill" style={`--before:${before}%;--after:${after}%`}></i>
+								</div>
+								<div class="ld-name">{b.label}</div>
+								<div class="ld-sub">{b.sub}</div>
+							</div>
+						);
+					})}
+					<span class="ld-flow ld-flow-1" aria-hidden="true"></span>
+					<span class="ld-flow ld-flow-2" aria-hidden="true"></span>
+					<span class="ld-flow ld-flow-3" aria-hidden="true"></span>
+				</div>
+
+				<div class="ld-side">
+					<div class="ld-legend">
+						<span class="ld-ref-key" aria-hidden="true"></span>
+						학습 전 높이 (참조 모델, 고정)
+					</div>
+					{mode !== 'round3' && (
+						<div class="ld-loss">
+							<div class="ld-loss-h">{COPY.loss}</div>
+							<div class="ld-loss-bar"><i></i></div>
+							<div class="ld-loss-v">두 보상의 차이가 벌어지면서 줄어든다</div>
+						</div>
+					)}
+					{COPY.stats.length > 0 && (
+						<dl class="ld-stats">
+							{COPY.stats.map((s) => (
+								<div class="ld-stat">
+									<dt>{s.k}</dt>
+									<dd>{s.v}</dd>
+								</div>
+							))}
+						</dl>
+					)}
+				</div>
+			</div>
+
+			<ol class="ax-steps">
+				{COPY.steps.map((s) => (
+					<li data-at={s.at}>{s.text}</li>
+				))}
+			</ol>
+		</div>
+	</div>
+
+	<p class="ax-note">
+		막대 높이는 확률이 이동하는 방향을 보여 주는 도식이며 측정값이 아니다. 세 막대의 합은 항상 같다.{mode !== 'concept' && ' 측정한 값은 오른쪽에 적은 수치이다.'}
+	</p>
+</div>
+
+<style>
+	.ld-stage {
+		display: grid;
+		grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+		gap: 1.1rem;
+		align-items: start;
+	}
+	@media (max-width: 560px) {
+		.ld-stage { grid-template-columns: minmax(0, 1fr); }
+	}
+	.ld-bars {
+		position: relative;
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.6rem;
+	}
+	.ld-track {
+		position: relative;
+		height: 180px;
+		border-radius: 8px;
+		background: color-mix(in srgb, var(--text-muted) 8%, transparent);
+		border: 1px solid var(--glass-border);
+		overflow: hidden;
+	}
+	.ld-fill {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: var(--after);
+		border-radius: 6px 6px 0 0;
+		transition: height 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	.ld-col-chosen .ld-fill { background: color-mix(in srgb, var(--color-primary) 75%, transparent); }
+	.ld-col-rejected .ld-fill { background: color-mix(in srgb, var(--ts-danger) 70%, transparent); }
+	.ld-col-other .ld-fill { background: color-mix(in srgb, var(--color-secondary) 70%, transparent); }
+	.ld-ref {
+		position: absolute;
+		left: -2px;
+		right: -2px;
+		z-index: 2;
+		border-top: 2px dashed var(--text-base);
+		opacity: 0.7;
+	}
+	.ld-name { margin-top: 0.45rem; font-size: 0.78rem; font-weight: 700; color: var(--text-base); line-height: 1.35; }
+	.ld-sub { font-size: 0.7rem; line-height: 1.4; color: var(--text-muted); }
+
+	.ld-flow {
+		position: absolute;
+		top: 90px;
+		left: 16%;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: var(--color-secondary);
+		opacity: 0;
+		pointer-events: none;
+	}
+	.ld-flow-2 { left: 50%; }
+	.ld-flow-3 { left: 33%; top: 120px; }
+
+	.ld-side { display: flex; flex-direction: column; gap: 0.8rem; }
+	.ld-legend { display: flex; align-items: center; gap: 0.5rem; font-size: 0.74rem; color: var(--text-muted); }
+	.ld-ref-key { width: 22px; border-top: 2px dashed var(--text-base); opacity: 0.7; }
+	.ld-loss-h { font: 700 0.76rem/1.35 var(--font-space-grotesk); color: var(--text-base); }
+	.ld-loss-bar {
+		height: 8px;
+		margin: 0.4rem 0 0.3rem;
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--text-muted) 14%, transparent);
+		overflow: hidden;
+	}
+	.ld-loss-bar > i {
+		display: block;
+		height: 100%;
+		width: 38%;
+		border-radius: 999px;
+		background: var(--text-muted);
+		transition: width 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	.ld-loss-v { font-size: 0.72rem; color: var(--text-muted); }
+	.ld-stats { margin: 0; display: flex; flex-direction: column; }
+	.ld-stat {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.4rem 0;
+		border-bottom: 1px dashed var(--glass-border);
+		font-size: 0.76rem;
+	}
+	.ld-stat:last-child { border-bottom: none; }
+	.ld-stat dt { color: var(--text-muted); }
+	.ld-stat dd { margin: 0; font-family: var(--font-space-grotesk); font-weight: 700; color: var(--text-base); text-align: right; white-space: nowrap; }
+	.ld-stats,
+	.ld-loss-v { transition: opacity 0.4s; }
+
+	/* Armed pre-state: bars at their pre-training height, loss full, numbers hidden. */
+	.ld .armed .ld-fill { height: var(--before); }
+	.ld .armed .ld-loss-bar > i { width: 100%; }
+	.ld .armed .ld-loss-v { opacity: 0; }
+	.ld .armed .ld-stat { opacity: 0.25; transition: opacity 0.4s; }
+
+	/* Phase 2: chosen and rejected move; loss starts dropping. */
+	.ld .armed.p2 .ld-col-chosen .ld-fill,
+	.ld .armed.p2 .ld-col-rejected .ld-fill { height: var(--after); }
+	.ld .armed.p2 .ld-loss-bar > i { width: 38%; }
+	.ld .armed.p2 .ld-loss-v { opacity: 1; }
+	.ld .armed.p2 .ld-stat { opacity: 1; }
+
+	/* Phase 3: the mass that left arrives in the third bar. */
+	.ld .armed.p3 .ld-col-other .ld-fill { height: var(--after); }
+	.ld .armed.p3 .ld-flow { animation: ldFlow 1s ease-in-out forwards; }
+	.ld .armed.p3 .ld-flow-2 { animation-delay: 0.15s; }
+	.ld .armed.p3 .ld-flow-3 { animation-delay: 0.3s; }
+	@keyframes ldFlow {
+		0% { opacity: 0; transform: translate(0, 0); }
+		20% { opacity: 1; }
+		100% { opacity: 0; transform: translate(var(--ld-dx, 150px), -10px); }
+	}
+	.ld-flow-1 { --ld-dx: 170px; }
+	.ld-flow-2 { --ld-dx: 90px; }
+	.ld-flow-3 { --ld-dx: 130px; }
+	@media (max-width: 560px) {
+		.ld-flow-1 { --ld-dx: 200px; }
+		.ld-flow-2 { --ld-dx: 110px; }
+		.ld-flow-3 { --ld-dx: 150px; }
+	}
+	.ld-round3 .ld-flow-1,
+	.ld-round3 .ld-flow-3 { left: 50%; }
+	.ld-round3 .ld-flow-1 { --ld-dx: 90px; }
+	.ld-round3 .ld-flow-3 { --ld-dx: 100px; top: 140px; }
+</style>
+
+<script>
+	import './anim-runtime.ts';
+</script>

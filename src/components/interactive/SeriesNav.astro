@@ -1,0 +1,67 @@
+---
+// Table of contents for the small-LLM fine-tuning series. Titles mirror the part names used in each post.
+// Links are base-aware (site is served under /astro).
+interface Props {
+	current: 1 | 2 | 3;
+}
+const { current } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Series v2 (three parts). The v1 four-part posts were moved to drafts/small-llm-finetuning-v1/.
+const PARTS = [
+	{ n: 1, slug: 'small-llm-finetuning-01-concepts', title: '개념 정리' },
+	{ n: 2, slug: 'small-llm-finetuning-02-lora', title: 'LoRA 학습' },
+	{ n: 3, slug: 'small-llm-finetuning-03-dpo', title: 'DPO 세 번' },
+];
+---
+
+<nav class="sn not-prose" aria-label="소형 LLM 파인튜닝 실험 기록 시리즈">
+	<div class="ts-eyebrow">시리즈 · 소형 LLM 파인튜닝 실험 기록</div>
+	<ol class="sn-list">
+		{PARTS.map((p) => (
+			<li class:list={['sn-item', { current: p.n === current }]}>
+				{p.n === current ? (
+					<span class="sn-link" aria-current="page">
+						<span class="sn-n">{p.n}편</span>
+						<span class="sn-t">{p.title}</span>
+					</span>
+				) : (
+					<a class="sn-link" href={`${base}/blog/${p.slug}/`}>
+						<span class="sn-n">{p.n}편</span>
+						<span class="sn-t">{p.title}</span>
+					</a>
+				)}
+			</li>
+		))}
+	</ol>
+</nav>
+
+<style>
+	.sn {
+		margin: 2rem 0;
+		padding: 1rem 1.1rem;
+		border: 1px solid var(--glass-border);
+		border-radius: 14px;
+		background: var(--color-surface-high);
+	}
+	.sn-list { margin: 0.6rem 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
+	.sn-link {
+		display: flex;
+		gap: 0.75rem;
+		align-items: baseline;
+		padding: 0.45rem 0.55rem;
+		border-radius: 8px;
+		text-decoration: none;
+		color: var(--text-muted);
+		transition: background 0.15s, color 0.15s;
+	}
+	a.sn-link:hover { background: var(--color-surface-low); color: var(--text-base); }
+	.sn-n { flex: 0 0 2.4rem; font: 700 0.76rem/1.4 var(--font-space-grotesk); color: var(--color-secondary); }
+	.sn-t { font-size: 0.88rem; line-height: 1.5; }
+	.sn-item.current .sn-link {
+		background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+		color: var(--text-base);
+		font-weight: 700;
+	}
+	.sn-item.current .sn-n { color: var(--color-primary); }
+</style>

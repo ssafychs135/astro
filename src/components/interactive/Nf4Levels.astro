@@ -1,0 +1,128 @@
+---
+// NF4 explainer: where 16 four-bit levels sit on a bell-shaped weight distribution.
+// Top row = uniform split (static reference); bottom row starts uniform, then slides to NF4.
+// NF4 level positions are the 16 NormalFloat4 values defined in the QLoRA paper, drawn on [-1, 1]
+// without numeric labels. The curve is a visual guide for "weights cluster near 0", not measured data.
+const NF4 = [
+	-1, -0.6961928009986877, -0.5250730514526367, -0.39491748809814453, -0.28444138169288635,
+	-0.18477343022823334, -0.09105003625154495, 0, 0.07958029955625534, 0.16093020141124725,
+	0.24611230194568634, 0.33791524171829224, 0.44070982933044434, 0.5626170039176941,
+	0.7229568362236023, 1,
+];
+const UNIFORM = Array.from({ length: 16 }, (_, i) => -1 + (2 * i) / 15);
+
+const X0 = 30;
+const X1 = 330;
+const toX = (v: number) => X0 + ((v + 1) / 2) * (X1 - X0);
+
+// Bell curve for the weight distribution (sigma chosen so the NF4 extremes land in the tails).
+const SIGMA = 0.42;
+const BASE = 118;
+const HEIGHT = 92;
+const curve = Array.from({ length: 121 }, (_, i) => {
+	const v = -1.05 + (2.1 * i) / 120;
+	const y = BASE - HEIGHT * Math.exp(-(v * v) / (2 * SIGMA * SIGMA));
+	return `${i === 0 ? 'M' : 'L'}${toX(v).toFixed(1)} ${y.toFixed(1)}`;
+}).join(' ');
+const curveY = (v: number) => BASE - HEIGHT * Math.exp(-(v * v) / (2 * SIGMA * SIGMA));
+---
+
+<div class="ts-ix not-prose nf" data-anim-group>
+	<div class="ax-head">
+		<div>
+			<div class="ts-eyebrow">⚙ 애니메이션 · NF4 양자화</div>
+			<h4 class="ts-h">4비트 16칸을 어디에 배치하는가</h4>
+		</div>
+		<button class="ax-play" data-anim-play type="button">▶ 다시 재생</button>
+	</div>
+
+	<div class="ts-result">
+		<div class="ax-panel show" data-anim data-key="nf4" data-phases="0,700,1400,2300">
+			<svg class="ax-figure nf-fig" viewBox="0 0 360 236" role="img"
+				aria-label="정규분포 모양의 가중치 분포 아래에 균등 분할 16칸과 NF4 16칸을 비교한 그림. NF4는 0 근처에 칸이 촘촘하고 바깥쪽이 성기다.">
+				<path class="nf-curve-fill" d={`${curve} L${toX(1.05).toFixed(1)} ${BASE} L${toX(-1.05).toFixed(1)} ${BASE} Z`} />
+				<path class="nf-curve" d={curve} />
+				<line class="nf-axis" x1={X0 - 8} y1={BASE} x2={X1 + 8} y2={BASE} />
+				<text class="nf-t-dim" x={toX(0)} y={BASE + 14}>0</text>
+				<text class="nf-t-dim nf-start" x={X0 - 8} y="16">가중치 분포</text>
+
+				<g class="nf-guides">
+					{NF4.map((v) => (
+						<line x1={toX(v)} y1={BASE} x2={toX(v)} y2={curveY(v)} />
+					))}
+				</g>
+
+				<g class="nf-row nf-row-u">
+					<text class="nf-t-label nf-start" x={X0 - 8} y="152">균등 분할 16칸</text>
+					{UNIFORM.map((v) => (
+						<circle cx={toX(v)} cy="166" r="4.2" />
+					))}
+				</g>
+
+				<g class="nf-row nf-row-n">
+					<text class="nf-t-label nf-start" x={X0 - 8} y="198">NF4 16칸</text>
+					{NF4.map((v, i) => (
+						<circle
+							cx={toX(v)}
+							cy="212"
+							r="4.2"
+							style={`--nf-from:${(toX(UNIFORM[i]) - toX(v)).toFixed(2)}px`}
+						/>
+					))}
+				</g>
+			</svg>
+
+			<ol class="ax-steps">
+				<li data-at="1">신경망 가중치는 대부분 0 근처에 몰려 있고, 극단값은 드물다.</li>
+				<li data-at="2">4비트로는 16가지 값만 표현할 수 있다. 구간을 균등하게 나누면 값이 드문 바깥쪽에도 칸이 같은 간격으로 놓인다.</li>
+				<li data-at="4">NF4는 값이 몰려 있는 0 근처에 칸을 촘촘하게 두고 바깥쪽은 성기게 두어서, 같은 4비트로 정보를 더 많이 담는다.</li>
+			</ol>
+		</div>
+	</div>
+
+	<p class="ax-note">
+		점은 QLoRA 논문이 정의한 NF4 값이고, 곡선은 분포의 모양을 나타낸 도식이다.
+	</p>
+</div>
+
+<style>
+	.nf svg text {
+		fill: var(--text-base);
+		font-family: var(--font-space-grotesk), system-ui, sans-serif;
+		text-anchor: middle;
+	}
+	/* Must out-rank `.nf svg text` (Astro scopes every compound selector), or labels fall back to middle. */
+	.nf svg text.nf-start { text-anchor: start; }
+	.nf .nf-t-dim { font-size: 11px; fill: var(--text-muted); }
+	.nf .nf-t-label { font-size: 12px; font-weight: 700; }
+	.nf .nf-curve { fill: none; stroke: var(--text-muted); stroke-width: 1.6; }
+	.nf .nf-curve-fill { fill: color-mix(in srgb, var(--text-muted) 10%, transparent); stroke: none; }
+	.nf .nf-axis { stroke: var(--glass-border); stroke-width: 1.2; }
+	.nf .nf-guides line { stroke: color-mix(in srgb, var(--color-primary) 55%, transparent); stroke-width: 1; }
+	.nf .nf-row-u circle { fill: var(--text-muted); }
+	.nf .nf-row-n circle { fill: var(--color-primary); }
+	.nf .nf-row-n .nf-t-label { fill: var(--color-primary); }
+
+	.nf .nf-curve,
+	.nf .nf-curve-fill,
+	.nf .nf-row,
+	.nf .nf-guides { transition: opacity 0.5s; }
+	.nf .nf-row-n circle { transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+
+	.nf .armed .nf-curve,
+	.nf .armed .nf-curve-fill,
+	.nf .armed .nf-row,
+	.nf .armed .nf-guides { opacity: 0; }
+	.nf .armed .nf-row-n circle { transform: translateX(var(--nf-from)); }
+
+	.nf .armed.p1 .nf-curve,
+	.nf .armed.p1 .nf-curve-fill { opacity: 1; }
+	.nf .armed.p2 .nf-row-u { opacity: 1; }
+	.nf .armed.p3 .nf-row-n { opacity: 1; }
+	.nf .armed.p4 .nf-row-n circle { transform: none; }
+	.nf .armed.p4 .nf-guides { opacity: 1; }
+</style>
+
+<script>
+	import './anim-runtime.ts';
+</script>

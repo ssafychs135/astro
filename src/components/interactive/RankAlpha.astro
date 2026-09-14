@@ -1,0 +1,223 @@
+---
+// rank / alpha explainer: the adapter output is scaled by alpha / rank, not by alpha alone.
+// Choices are limited to the ranges in concepts_llm_finetuning.md (rank 8~64, alpha = 2 x rank as the usual setting).
+// On first view it steps through three presets once (r32/a64 -> r64/a64 -> r64/a128); reduced motion shows the last.
+const RANKS = [8, 16, 32, 64];
+const ALPHAS = [16, 32, 64, 128];
+const PRESETS = [
+	{ key: 'start', label: '시작 설정', r: 32, a: 64 },
+	{ key: 'rank-only', label: 'rank만 올림', r: 64, a: 64 },
+	{ key: 'both', label: 'alpha도 함께 올림', r: 64, a: 128 },
+];
+// Scale bar uses a log2 axis from 0.25 (16/64) to 16 (128/8) so that 1 and 2 are visibly apart.
+const MIN = Math.log2(16 / 64);
+const MAX = Math.log2(128 / 8);
+const pct = (s: number) => ((Math.log2(s) - MIN) / (MAX - MIN)) * 100;
+const DEF = { r: 32, a: 64 };
+---
+
+<div class="ts-ix not-prose ra" data-ra data-min={MIN} data-max={MAX}>
+	<div class="ax-head">
+		<div>
+			<div class="ts-eyebrow">⚙ 인터랙티브 · LoRA 배율</div>
+			<h4 class="ts-h">우회로에 곱해지는 실제 배율은 alpha ÷ rank이다</h4>
+		</div>
+	</div>
+
+	<div class="ra-controls">
+		<div class="ra-row">
+			<span class="ra-label">rank</span>
+			<div class="ts-tabs" data-ra-row="r">
+				{RANKS.map((r) => (
+					<button type="button" class:list={[{ on: r === DEF.r }]} data-ra-r={r}>{r}</button>
+				))}
+			</div>
+		</div>
+		<div class="ra-row">
+			<span class="ra-label">alpha</span>
+			<div class="ts-tabs" data-ra-row="a">
+				{ALPHAS.map((a) => (
+					<button type="button" class:list={[{ on: a === DEF.a }]} data-ra-a={a}>{a}</button>
+				))}
+			</div>
+		</div>
+	</div>
+
+	<div class="ts-result">
+		<div class="ra-formula">
+			h = Wx + <span class="ra-scale-sym">(α/r)</span>·BAx
+		</div>
+		<div class="ra-readout">
+			<span class="ra-eq" data-ra-eq>{DEF.a} ÷ {DEF.r} =</span>
+			<span class="ra-val" data-ra-val>{DEF.a / DEF.r}</span>
+		</div>
+		<div class="ra-bar"><i data-ra-bar style={`width:${pct(DEF.a / DEF.r)}%`}></i></div>
+		<p class="ra-comment" data-ra-comment>alpha가 rank의 2배이다.</p>
+
+		<div class="ra-presets">
+			{PRESETS.map((p) => (
+				<button type="button" class="ra-preset" data-ra-preset={p.key} data-r={p.r} data-a={p.a}>
+					<span class="ra-preset-h">{p.label}</span>
+					<span class="ra-preset-v">rank {p.r} · alpha {p.a} → {p.a / p.r}</span>
+				</button>
+			))}
+		</div>
+	</div>
+</div>
+
+<style>
+	.ra-controls { display: flex; flex-direction: column; gap: 0.55rem; }
+	.ra-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+	.ra-label {
+		flex: 0 0 3.2rem;
+		font: 700 0.78rem/1 var(--font-space-grotesk);
+		color: var(--text-muted);
+	}
+	.ra .ts-tabs button { min-width: 2.8rem; font-family: var(--font-space-grotesk); }
+	.ra-formula {
+		font: 600 0.9rem/1.4 var(--font-space-grotesk);
+		color: var(--text-muted);
+	}
+	.ra-scale-sym { color: var(--color-secondary); font-weight: 800; }
+	.ra-readout { display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.4rem; flex-wrap: wrap; }
+	.ra-eq { font: 700 1.05rem/1 var(--font-space-grotesk); color: var(--text-base); }
+	.ra-val {
+		font: 800 2.2rem/1 var(--font-space-grotesk);
+		color: var(--color-primary);
+	}
+	.ra-bar {
+		height: 10px;
+		margin: 0.8rem 0 0.6rem;
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--text-muted) 14%, transparent);
+		overflow: hidden;
+	}
+	.ra-bar > i {
+		display: block;
+		height: 100%;
+		border-radius: 999px;
+		background: linear-gradient(90deg, var(--color-secondary), var(--color-primary));
+		transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	.ra-comment { margin: 0; font-size: 0.8rem; line-height: 1.6; color: var(--text-base); }
+	.ra-presets {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+		gap: 0.5rem;
+		margin-top: 0.9rem;
+	}
+	.ra-preset {
+		text-align: left;
+		border: 1px solid var(--glass-border);
+		background: var(--color-surface-high);
+		border-radius: 10px;
+		padding: 0.55rem 0.7rem;
+		cursor: pointer;
+		font-family: inherit;
+		color: var(--text-base);
+		transition: border-color 0.2s, background 0.2s;
+	}
+	.ra-preset.on {
+		border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+		background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface-high));
+	}
+	.ra-preset-h { display: block; font-size: 0.78rem; font-weight: 700; }
+	.ra-preset-v { display: block; margin-top: 0.2rem; font: 600 0.74rem/1.3 var(--font-space-grotesk); color: var(--text-muted); }
+	@media (prefers-reduced-motion: reduce) {
+		.ra-bar > i { transition: none; }
+	}
+</style>
+
+<script>
+	type Ra = HTMLElement & { __demo?: number[] };
+
+	function fmt(n: number) {
+		return Number.isInteger(n) ? String(n) : String(Number(n.toFixed(2)));
+	}
+
+	function comment(r: number, a: number) {
+		if (a === 2 * r) return 'alpha가 rank의 2배이다.';
+		if (a < 2 * r) return 'rank에 비해 alpha가 작아서, 우회로의 출력에 곱해지는 배율이 낮아진다.';
+		return 'rank에 비해 alpha가 커서, 우회로의 출력에 곱해지는 배율이 높아진다.';
+	}
+
+	function set(root: Ra, r: number, a: number) {
+		root.querySelectorAll<HTMLButtonElement>('[data-ra-r]').forEach((b) => b.classList.toggle('on', Number(b.dataset.raR) === r));
+		root.querySelectorAll<HTMLButtonElement>('[data-ra-a]').forEach((b) => b.classList.toggle('on', Number(b.dataset.raA) === a));
+		root.querySelectorAll<HTMLButtonElement>('[data-ra-preset]').forEach((b) =>
+			b.classList.toggle('on', Number(b.dataset.r) === r && Number(b.dataset.a) === a),
+		);
+		const s = a / r;
+		const min = Number(root.dataset.min);
+		const max = Number(root.dataset.max);
+		const eq = root.querySelector<HTMLElement>('[data-ra-eq]');
+		const val = root.querySelector<HTMLElement>('[data-ra-val]');
+		const bar = root.querySelector<HTMLElement>('[data-ra-bar]');
+		const note = root.querySelector<HTMLElement>('[data-ra-comment]');
+		if (eq) eq.textContent = `${a} ÷ ${r} =`;
+		if (val) val.textContent = fmt(s);
+		if (bar) bar.style.width = `${Math.max(((Math.log2(s) - min) / (max - min)) * 100, 2)}%`;
+		if (note) note.textContent = comment(r, a);
+	}
+
+	function current(root: Ra) {
+		const r = Number(root.querySelector<HTMLElement>('[data-ra-r].on')?.dataset.raR ?? 32);
+		const a = Number(root.querySelector<HTMLElement>('[data-ra-a].on')?.dataset.raA ?? 64);
+		return { r, a };
+	}
+
+	function stopDemo(root: Ra) {
+		(root.__demo ?? []).forEach((t) => window.clearTimeout(t));
+		root.__demo = [];
+	}
+
+	function onClick(ev: MouseEvent) {
+		const t = ev.target as HTMLElement;
+		const btn = t.closest<HTMLButtonElement>('[data-ra-r], [data-ra-a], [data-ra-preset]');
+		const root = btn?.closest<Ra>('[data-ra]');
+		if (!btn || !root) return;
+		stopDemo(root);
+		root.dataset.touched = '1';
+		if (btn.dataset.raPreset) {
+			set(root, Number(btn.dataset.r), Number(btn.dataset.a));
+			return;
+		}
+		const { r, a } = current(root);
+		set(root, btn.dataset.raR ? Number(btn.dataset.raR) : r, btn.dataset.raA ? Number(btn.dataset.raA) : a);
+	}
+
+	function init() {
+		const roots = document.querySelectorAll<Ra>('[data-ra]');
+		const steps: [number, number][] = [
+			[32, 64],
+			[64, 64],
+			[64, 128],
+		];
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			roots.forEach((root) => set(root, 64, 128));
+			return;
+		}
+		roots.forEach((root) => set(root, 32, 64));
+		const io = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((e) => {
+					if (!e.isIntersecting) return;
+					io.unobserve(e.target);
+					const root = e.target as Ra;
+					if (root.dataset.touched) return;
+					stopDemo(root);
+					root.__demo = steps.map(([r, a], i) => window.setTimeout(() => set(root, r, a), 400 + i * 1600));
+				});
+			},
+			{ threshold: 0.5 },
+		);
+		roots.forEach((root) => io.observe(root));
+	}
+
+	const w = window as unknown as Record<string, boolean>;
+	if (!w.__raBound) {
+		w.__raBound = true;
+		document.addEventListener('click', onClick);
+		document.addEventListener('astro:page-load', init);
+	}
+</script>
