@@ -4,12 +4,15 @@ import type { HTMLAttributes } from 'astro/types';
 type Props = HTMLAttributes<'a'>;
 
 const { href, class: className, ...props } = Astro.props;
-const pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
-const subpath = pathname.match(/[^\/]+/g);
-const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
+// Compare the first path segment after the base path ("/astro/blog/x/" -> "blog").
+// Header is persisted across view transitions, so Header.astro re-runs the same check on every navigation.
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const section = (path: string) => path.replace(base, '').split('/').filter(Boolean)[0] ?? '';
+const target = section(String(href ?? ''));
+const isActive = target !== '' && section(Astro.url.pathname) === target;
 ---
 
-<a href={href} class:list={[className, { active: isActive }]} {...props}>
+<a href={href} data-nav-section={target} class:list={[className, { active: isActive }]} {...props}>
 	<slot />
 </a>
 <style>

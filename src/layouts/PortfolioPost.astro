@@ -8,24 +8,24 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'portfolio'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage, stack, githubUrl, demoUrl, role } = Astro.props;
+const { title, description, pubDate, heroImage, stack, githubUrl, demoUrl, role, period } = Astro.props;
 ---
 
 <html lang="ko">
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead title={title} description={description} image={heroImage} type="article" publishedTime={pubDate} />
 	</head>
 
 	<body class="bg-bg-base text-text-base antialiased">
 		<Header />
-		<main class="max-w-7xl mx-auto px-6 py-24">
+		<main class="max-w-7xl mx-auto px-6 py-24" transition:animate="fade">
 			<article>
 				<header class="mb-16">
 					<div class="tech-label mb-8">
 						<span class="text-secondary">> Project</span>
 						<span class="opacity-30">Project_Record</span>
 					</div>
-					<h1 class="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-12 leading-[0.95]">
+					<h1 class="text-4xl md:text-6xl font-black tracking-tighter pb-10 leading-[1.15]">
 						{title}
 					</h1>
 					
@@ -35,13 +35,24 @@ const { title, description, pubDate, updatedDate, heroImage, stack, githubUrl, d
 
 					<div class="telemetry-bar">
 						<div class="telemetry-item">
-							<span class="tech-label opacity-50 !text-xs">Timestamp</span>
-							<span class="font-bold text-lg"><FormattedDate date={pubDate} /></span>
+							{period ? (
+								<>
+									<span class="tech-label opacity-50 !text-xs">Period</span>
+									<span class="font-bold text-lg tech-font">{period}</span>
+								</>
+							) : (
+								<>
+									<span class="tech-label opacity-50 !text-xs">Timestamp</span>
+									<span class="font-bold text-lg"><FormattedDate date={pubDate} /></span>
+								</>
+							)}
 						</div>
-						<div class="telemetry-item">
-							<span class="tech-label opacity-50 !text-xs">Primary_Role</span>
-							<span class="font-bold uppercase tech-font text-sm tracking-widest">{role || 'Architect'}</span>
-						</div>
+						{role && (
+							<div class="telemetry-item">
+								<span class="tech-label opacity-50 !text-xs">Primary_Role</span>
+								<span class="font-bold tech-font text-sm tracking-widest">{role}</span>
+							</div>
+						)}
 						<div class="telemetry-item">
 							<span class="tech-label opacity-50 !text-xs">Tech_Stack</span>
 							<div class="flex flex-wrap gap-2">
@@ -53,12 +64,12 @@ const { title, description, pubDate, updatedDate, heroImage, stack, githubUrl, d
 					<div class="flex gap-6 mt-12">
 						{githubUrl && (
 							<a href={githubUrl} class="px-8 py-3 bg-primary text-bg-base font-black tech-font rounded-sm hover:bg-secondary transition-colors">
-								Initialize_Source
+								GitHub →
 							</a>
 						)}
 						{demoUrl && (
 							<a href={demoUrl} class="px-8 py-3 border border-surface-high font-black tech-font rounded-sm hover:border-primary transition-colors">
-								Deploy_Live
+								Demo →
 							</a>
 						)}
 					</div>

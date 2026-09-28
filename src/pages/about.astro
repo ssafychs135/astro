@@ -1,86 +1,204 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { SITE_DESCRIPTION } from '../consts';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const project = (id: string) => `${base}/portfolio/${id}/`;
+
+// 역량: 설명 문장과 근거 프로젝트. 사실은 작성재료 원장과 각 포트폴리오 페이지를 따른다.
+const specialties = [
+	{
+		name: '로컬 모델 서빙 · 파이프라인',
+		proof: 'llama.cpp로 Gemma 4 26B와 KURE-v1 임베딩 모델을 서빙하고, 음성 인식은 CTranslate2 기반 faster-whisper로 실행했습니다. 화면·소리 판정 모델을 더한 모델 다섯이 외부 API 없이 16GB GPU 한 장을 나눠 씁니다. 언어 모델 서버와 임베딩 서버를 함께 올릴 수 있는 문맥 길이는 메모리 사용량을 더해 계산했고, 실제 추론을 보내 확인했습니다.',
+		links: [{ label: '라이브방송 챕터 생성기', href: project('chzzk-chapter-decisions') }],
+	},
+	{
+		name: 'LLM 출력 설계',
+		proof: 'JSON 스키마 제약 디코딩으로 경계 판정과 제목 후보를 받고, 필수 칸의 순서가 생성 순서를 정한다는 점을 확인해 스키마를 고쳤습니다. RAG 챗봇에서는 LLM이 출력하는 검색 조건을 51개 모델명의 열거형으로 제한해, 같은 질문을 3회 반복해도 같은 아이폰 모델의 문서를 검색하게 했습니다.',
+		links: [
+			{ label: '라이브방송 챕터 생성기', href: project('chzzk-chapter-decisions') },
+			{ label: 'iPhone RAG 챗봇', href: project('iphone-rag-chatbot') },
+		],
+	},
+	{
+		name: 'RAG · 검색',
+		proof: 'LangChain·LangGraph로 RAG 챗봇을 만들고 ChromaDB에 사양 문서를 저장해 검색했습니다. 검색이 iPhone 17 사양 문서를 찾지 못한 원인은 크롤링한 제품명에 섞인 줄바꿈 없는 공백(NBSP)이었습니다. 텍스트가 들어오는 경계에 NFKC 정규화를 적용해 이 문제를 고쳤습니다. 와인 추천 서비스에서는 pgvector에 임베딩을 적재했습니다.',
+		links: [
+			{ label: 'iPhone RAG 챗봇', href: project('iphone-rag-chatbot') },
+			{ label: '주(酒)파수', href: project('jupasu') },
+		],
+	},
+	{
+		name: '파인튜닝 · 평가',
+		proof: 'PEFT와 TRL로 소형 LLM에 QLoRA SFT와 DPO를 적용했습니다. 두 모델의 출력을 섞고 어느 모델의 출력인지 가린 채 판정하는 평가 체계를 세우고, 그 판정으로 시도마다 결과를 확정했습니다.',
+		links: [{ label: '소형 LLM 파인튜닝', href: project('small-llm-finetuning') }],
+	},
+	{
+		name: '컴퓨터 비전 · 온디바이스',
+		proof: 'MediaPipe 얼굴 특징점과 ONNX Runtime Web으로 실행한 머리 자세 추정 모델로 태블릿 촬영 로직을 만들고, ArUco 마커로 픽셀 거리를 실제 길이(mm)로 환산해 OH·PD를 측정했습니다. 웹 AR 피팅은 Three.js로 구현했습니다. 와인 추천 서비스에서는 PaddleOCR을 브라우저 Web Worker에서 실행해 라벨을 읽었습니다.',
+		links: [
+			{ label: 'RETINA FIT', href: project('retina-fit') },
+			{ label: '주(酒)파수', href: project('jupasu') },
+		],
+	},
+	{
+		name: '웹 서비스',
+		proof: 'FastAPI와 Django로 모델 기능을 API로 제공하고, React·Svelte·Vue로 화면을 만들었습니다. 와인 추천 서비스 프로젝트가 끝난 뒤 개인 사본에서는 Spring Boot JPA projection으로 읽기 경로를 나눠 읽기 경로 캐시를 18.66MB에서 1.36MB로 줄였습니다.',
+		links: [
+			{ label: '주(酒)파수', href: project('jupasu') },
+			{ label: 'iPhone RAG 챗봇', href: project('iphone-rag-chatbot') },
+		],
+	},
+];
+
+const education = [
+	{ org: 'SSAFY 14기', detail: '삼성 청년 SW·AI 아카데미', period: '2025.07 ~ 2026.06', state: '수료' },
+	{ org: '중앙정보처리학원', detail: '자바 기반 풀스택 개발자 취업과정', period: '2022.09 ~ 2023.04', state: '수료' },
+	{ org: '경기대학교', detail: '경제학과 학사', period: '2015.03 ~ 2023.02', state: '졸업' },
+];
+
+const awards = [
+	{ title: 'SSAFY 자율 프로젝트 우수상', detail: 'RETINA FIT', date: '2026.06', href: project('retina-fit') },
+	{ title: 'SSAFY 특화 프로젝트 우수상', detail: '주(酒)파수', date: '2026.04', href: project('jupasu') },
+	{ title: 'SSAFY 공통 프로젝트 우수상', detail: 'BlueFox', date: '2026.02' },
+	{ title: 'JLPT N3', detail: '일본어', date: '2017.08' },
+];
+
+const stack = [
+	{ group: '모델 실행 · 학습', items: ['llama.cpp', 'faster-whisper', 'PyTorch', 'Transformers', 'PEFT', 'TRL', 'LM Studio'] },
+	{ group: 'LLM · 검색', items: ['LangChain', 'LangGraph', 'ChromaDB', 'pgvector'] },
+	{ group: '비전', items: ['MediaPipe', 'ONNX Runtime Web', 'OpenCV.js', 'PaddleOCR', 'Three.js'] },
+	{ group: '서버', items: ['Python', 'FastAPI', 'Django'] },
+	{ group: '화면', items: ['React', 'Next.js', 'Svelte 5', 'Vue 3', 'TypeScript'] },
+];
 ---
 
-<MainLayout title={`Identity | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
-	<header class="mb-24">
-		<div class="tech-label mb-6">> System_User // Identity_Verification</div>
-		<h1 class="text-6xl md:text-8xl font-black tracking-tighter uppercase mb-8">
-			Who is<br/><span class="text-primary italic">Developer?</span>
-		</h1>
+<MainLayout title="Identity" description={SITE_DESCRIPTION}>
+	<header class="mb-20">
+		<div class="tech-label mb-6">> System_User // Identity</div>
+		<h1 class="text-6xl md:text-8xl font-black tracking-tighter pb-6">최형선</h1>
+		<div class="tech-font text-sm font-bold tracking-[0.3em] text-primary uppercase">AI-Native Developer</div>
 	</header>
 
-	<section class="grid grid-cols-1 lg:grid-cols-12 gap-16">
-		<div class="lg:col-span-7">
-			<div class="prose-obsidian">
-				<p class="text-2xl text-white font-bold mb-8 leading-tight">
-					AI를 기본 도구로, 시도와 검증의 주기를 단축하며 배워가는 <br/>
-					<span class="text-primary">AI 네이티브 개발자</span>입니다.
-				</p>
-				<p class="mb-6">
-					생성·언어 모델을 실제 제품에 적용하는 프로젝트를 진행했습니다. 모델을 가져다 쓰는 데 그치지 않고, 데이터 흐름부터 사용자 경험까지 전체 구조를 고민하며 <strong class="text-white">모델의 한계를 엔지니어링으로 보완</strong>하는 데 강점이 있습니다.
-				</p>
-				<p class="mb-12">
-					세 개의 팀 프로젝트에서 <strong class="text-white">RAG 파이프라인</strong>(LangChain·LangGraph), <strong class="text-white">온디바이스 OCR·AI 적용</strong>(PaddleOCR·임베딩 검색), <strong class="text-white">AR·컴퓨터 비전</strong>(MediaPipe·Three.js)을 직접 구현했습니다. 코드는 AI와 함께 빠르게 작성하되, 결과를 이해하고 검증해 활용하는 것을 중요하게 생각합니다.
-				</p>
-
-				<h3 class="text-xl font-bold text-white mb-6 uppercase tech-font opacity-60">Core_Specialties</h3>
-				<ul class="space-y-4 list-none p-0 [&_li::before]:hidden">
-					<li class="flex items-start gap-4">
-						<span class="text-primary mt-1 text-lg font-bold">></span>
-						<div>
-							<strong class="text-white">RAG 파이프라인 설계</strong>
-							<p class="text-sm opacity-70">LangChain·LangGraph 다단계 그래프로 검색·검증을 분리한 RAG 챗봇 구축 (iPhone 리뷰 & RAG 챗봇)</p>
-						</div>
-					</li>
-					<li class="flex items-start gap-4">
-						<span class="text-primary mt-1 text-lg font-bold">></span>
-						<div>
-							<strong class="text-white">온디바이스 OCR · AI 적용</strong>
-							<p class="text-sm opacity-70">PaddleOCR(ONNX)를 브라우저 워커에서 구동하고 LLM 정제·임베딩 검색으로 추천 파이프라인 구성 (Jupasu)</p>
-						</div>
-					</li>
-					<li class="flex items-start gap-4">
-						<span class="text-primary mt-1 text-lg font-bold">></span>
-						<div>
-							<strong class="text-white">AR · 컴퓨터 비전 / 생성형 3D</strong>
-							<p class="text-sm opacity-70">MediaPipe·ArUco 광학 측정, Three.js AR, ComfyUI·Trellis2 생성형 3D 파이프라인 (RETINA FIT)</p>
-						</div>
-					</li>
-					<li class="flex items-start gap-4">
-						<span class="text-primary mt-1 text-lg font-bold">></span>
-						<div>
-							<strong class="text-white">AI-Native Workflow</strong>
-							<p class="text-sm opacity-70">AI를 지렛대로 빠르게 시도·검증하고, 결과를 이해·검증해 활용</p>
-						</div>
-					</li>
-				</ul>
-
-				<p class="mt-10 text-sm opacity-70 leading-relaxed">
-					<span class="tech-font text-primary">> Working Style:</span> AI를 지렛대 삼아 더 많이 시도하고, 빠르게 만들어보며 검증합니다. 결과만 보지 않고 왜 그렇게 동작하는지 끝까지 파고들어, 배운 것을 기록으로 남깁니다.
-				</p>
-			</div>
+	<!-- 소개 -->
+	<section class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-24">
+		<div class="lg:col-span-7 space-y-6">
+			<p class="text-2xl font-bold leading-snug">
+				언어·음성 모델을 서비스와 파이프라인에 적용하고, 설정은 <span class="text-primary">측정한 값을 근거로</span> 고릅니다.
+			</p>
+			<p class="text-text-muted leading-relaxed">
+				SSAFY 14기에서 팀 프로젝트 세 개에 참여했습니다. 와인 라벨을 인식해 추천하는 서비스에서는 LLM을, AR 안경 피팅 도구에서는 촬영 로직과 얼굴 추적용 AI 로직을, GitHub PR 성능 분석 도구에서는 프론트엔드를 맡았습니다. 세 프로젝트 모두 우수상을 받았습니다.
+			</p>
+			<p class="text-text-muted leading-relaxed">
+				개인 프로젝트로는 아이폰 사양·리뷰 RAG 챗봇과 라이브방송 다시보기 챕터 생성 파이프라인을 만들고, 커뮤니티 게시판 말투로 제목을 생성하도록 소형 LLM을 파인튜닝했습니다.
+			</p>
+			<p class="text-text-muted leading-relaxed">
+				코드는 AI 에이전트와 함께 작성하고, 결과는 직접 재거나 읽어서 확인합니다. 결정을 내린 과정은 블로그에 기록합니다.
+			</p>
 		</div>
-		
-		<div class="lg:col-span-5">
-			<div class="sticky top-24 space-y-8">
-				<div class="p-8 bg-surface-low rounded-sm border border-primary/20">
-					<div class="tech-label text-[10px] mb-6 opacity-40">Tech_Stack</div>
-						<div class="flex flex-wrap gap-2">
-							{['RAG', 'LangChain', 'LangGraph', 'PaddleOCR', 'pgvector', 'ChromaDB', 'MediaPipe', 'Three.js', 'ComfyUI', 'FastAPI', 'Django', 'Spring Boot'].map((s) => (
-								<span class="tag-obsidian">{s}</span>
-							))}
-						</div>
-					</div>
 
-				<div class="p-8 bg-surface-low rounded-sm border border-surface-highest/30">
-					<div class="tech-label text-[10px] mb-4 opacity-40">Current_Focus</div>
-					<p class="text-sm leading-relaxed italic opacity-80">
-						"RAG 검색 품질(임베딩·정규화·청킹)과 온디바이스 AI 적용을 공부하며 기록 중"
-					</p>
+		<div class="lg:col-span-5 space-y-6">
+			<div class="p-8 bg-surface-low rounded-sm border border-primary/20">
+				<h2 class="tech-label text-[10px] pb-5 opacity-60">Recent_Work</h2>
+				<p class="text-sm text-text-muted leading-relaxed m-0">
+					2026년 7~9월에는 챕터 생성 파이프라인을 만들고 소형 LLM 파인튜닝 실험을 진행했습니다. 두 작업에서 내린 결정은 블로그 연재로 정리했습니다.
+				</p>
+				<div class="flex flex-col gap-2 mt-5">
+					<a href={`${base}/blog/chzzk-series-0-overview/`} class="tech-font text-xs font-bold text-primary no-underline hover:underline">라이브방송 챕터 생성기 연재 →</a>
+					<a href={`${base}/blog/small-llm-finetuning-01-concepts/`} class="tech-font text-xs font-bold text-primary no-underline hover:underline">소형 LLM 파인튜닝 연재 →</a>
 				</div>
 			</div>
+			<div class="p-8 bg-surface-low rounded-sm border border-surface-highest/30">
+				<h2 class="tech-label text-[10px] pb-5 opacity-60">Connect</h2>
+				<ul class="list-none p-0 m-0 space-y-3 text-sm">
+					<li class="flex justify-between gap-4">
+						<span class="tech-font text-xs text-text-muted">GITHUB</span>
+						<a href="https://github.com/ssafychs135" class="tech-font text-xs font-bold hover:text-primary transition-colors">github.com/ssafychs135</a>
+					</li>
+					<li class="flex justify-between gap-4">
+						<span class="tech-font text-xs text-text-muted">EMAIL</span>
+						<a href="mailto:ssafychs135@gmail.com" class="tech-font text-xs font-bold hover:text-primary transition-colors">ssafychs135@gmail.com</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+
+	<!-- 역량과 근거 -->
+	<section class="mb-24">
+		<div class="flex items-baseline justify-between gap-4 border-b border-surface-highest/20 pb-6 mb-10">
+			<h2 class="tech-label text-base font-bold m-0">> Core_Specialties</h2>
+			<span class="tech-font text-[10px] opacity-50 tracking-widest">// 근거 프로젝트로 연결</span>
+		</div>
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
+			{specialties.map((s) => (
+				<div class="space-y-3">
+					<h3 class="text-lg font-black tracking-tight pb-3">{s.name}</h3>
+					<p class="text-sm text-text-muted leading-relaxed">{s.proof}</p>
+					<div class="flex flex-wrap gap-x-4 gap-y-1">
+						{s.links.map((l) => (
+							<a href={l.href} class="tech-font text-[11px] font-bold text-secondary tracking-widest no-underline hover:text-primary transition-colors">#{l.label}</a>
+						))}
+					</div>
+				</div>
+			))}
+		</div>
+	</section>
+
+	<!-- 학력과 수상 -->
+	<section class="grid grid-cols-1 md:grid-cols-2 gap-16 mb-24">
+		<div>
+			<h2 class="tech-label text-base font-bold pb-8">> Education</h2>
+			<ul class="list-none p-0 m-0 space-y-6">
+				{education.map((e) => (
+					<li class="flex justify-between items-baseline gap-4 border-b border-white/5 pb-5">
+						<div>
+							<div class="font-black text-base">{e.org}</div>
+							<div class="text-sm text-text-muted mt-1">{e.detail}</div>
+						</div>
+						<div class="text-right shrink-0">
+							<div class="tech-font text-xs text-secondary font-bold tracking-widest">{e.state}</div>
+							<div class="tech-font text-[11px] text-text-muted mt-1">{e.period}</div>
+						</div>
+					</li>
+				))}
+			</ul>
+		</div>
+		<div>
+			<h2 class="tech-label text-base font-bold pb-8">> Awards & Certs</h2>
+			<ul class="list-none p-0 m-0 space-y-6">
+				{awards.map((a) => (
+					<li class="flex justify-between items-baseline gap-4 border-b border-white/5 pb-5">
+						<div class="flex items-baseline gap-4">
+							<span class="text-primary tech-font text-sm shrink-0" aria-hidden="true">▰</span>
+							<div>
+								<div class="font-black text-base">{a.title}</div>
+								{a.href ? (
+									<a href={a.href} class="text-sm text-text-muted mt-1 inline-block hover:text-primary transition-colors">{a.detail} →</a>
+								) : (
+									<div class="text-sm text-text-muted mt-1">{a.detail}</div>
+								)}
+							</div>
+						</div>
+						<span class="tech-font text-[11px] text-text-muted shrink-0">{a.date}</span>
+					</li>
+				))}
+			</ul>
+		</div>
+	</section>
+
+	<!-- 기술 -->
+	<section>
+		<h2 class="tech-label text-base font-bold pb-8">> Tech_Stack</h2>
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			{stack.map((g) => (
+				<div class="p-6 bg-surface-low rounded-sm border border-surface-highest/30">
+					<h3 class="tech-font text-[11px] font-bold tracking-widest text-text-muted pb-4">{g.group}</h3>
+					<div class="flex flex-wrap gap-2">
+						{g.items.map((s) => <span class="tag-obsidian">{s}</span>)}
+					</div>
+				</div>
+			))}
 		</div>
 	</section>
 </MainLayout>

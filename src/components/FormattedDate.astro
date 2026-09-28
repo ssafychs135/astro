@@ -4,14 +4,9 @@ interface Props {
 }
 
 const { date } = Astro.props;
+// Frontmatter dates are parsed as UTC midnight, so read the UTC parts to get the same day on any build machine.
+const pad = (n: number) => String(n).padStart(2, '0');
+const label = `${date.getUTCFullYear()}.${pad(date.getUTCMonth() + 1)}.${pad(date.getUTCDate())}`;
 ---
 
-<time datetime={date.toISOString()}>
-	{
-		date.toLocaleDateString('en-us', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		})
-	}
-</time>
+<time datetime={date.toISOString()}>{label}</time>

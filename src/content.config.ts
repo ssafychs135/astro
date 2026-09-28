@@ -14,6 +14,8 @@ const portfolio = defineCollection({
 			githubUrl: z.string().url().optional(),
 			demoUrl: z.string().url().optional(),
 			role: z.string().optional(),
+			// Working period shown on cards and the post header, e.g. "2026.07 ~ 2026.09". pubDate is the date it was published here.
+			period: z.string().optional(),
 		}),
 });
 

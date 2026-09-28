@@ -1,20 +1,44 @@
 ---
 import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { seriesOf } from '../../utils/series';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
 	return posts.map((post) => ({
 		params: { slug: post.id },
-		props: post,
+		props: { post, posts },
 	}));
 }
-type Props = CollectionEntry<'blog'>;
+type Props = { post: CollectionEntry<'blog'>; posts: CollectionEntry<'blog'>[] };
 
-const post = Astro.props;
+const { post, posts } = Astro.props;
 const { Content } = await render(post);
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const info = seriesOf(post);
+const parts = info
+	? posts.filter((p) => seriesOf(p)?.name === info.name).sort((a, b) => seriesOf(a)!.part - seriesOf(b)!.part)
+	: [];
+const link = (p?: CollectionEntry<'blog'>) => {
+	const s = p && seriesOf(p);
+	return p && s ? { href: `${base}/blog/${p.id}/`, part: s.part, subtitle: s.subtitle } : undefined;
+};
+const index = parts.findIndex((p) => p.id === post.id);
+// Posts that embed their own series table of contents (SeriesNav) skip the layout's previous/next links.
+const hasOwnNav = post.body?.includes('<SeriesNav') ?? false;
+const series = info && parts.length > 1
+	? {
+		name: info.name,
+		part: info.part,
+		first: seriesOf(parts[0])!.part,
+		last: seriesOf(parts[parts.length - 1])!.part,
+		prev: hasOwnNav ? undefined : link(parts[index - 1]),
+		next: hasOwnNav ? undefined : link(parts[index + 1]),
+	}
+	: undefined;
 ---
 
-<BlogPost {...post.data}>
+<BlogPost {...post.data} series={series}>
 	<Content />
 </BlogPost>

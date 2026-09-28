@@ -1,64 +1,113 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro';
-import { getCollection } from 'astro:content';
+import { type CollectionEntry, getCollection } from 'astro:content';
 import FormattedDate from '../../components/FormattedDate.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
+import { SITE_DESCRIPTION } from '../../consts';
 import { byPubDateDesc } from '../../utils/sortPosts';
+import { groupBySeries, seriesOf } from '../../utils/series';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const posts = (await getCollection('blog')).sort(byPubDateDesc);
+const entries = groupBySeries(posts);
 
-// Unique tags across all posts (for the filter bar)
-const allTags = [...new Set(posts.flatMap((p) => p.data.tags ?? []))].sort();
+// Filter bar: series first, then tags shared by two or more posts (a one-post tag filters to a single row).
+const tagCounts = new Map<string, number>();
+for (const p of posts) for (const t of p.data.tags ?? []) tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
+const filterTags = [...tagCounts.entries()]
+	.filter(([, n]) => n >= 2)
+	.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+const seriesNames = entries.flatMap((e) => (e.kind === 'series' ? [e.name] : []));
+
+type Post = CollectionEntry<'blog'>;
+const rowData = (post: Post) => ({
+	href: `${base}/blog/${post.id}/`,
+	tags: (post.data.tags ?? []).join('|'),
+	series: seriesOf(post)?.name ?? '',
+});
+const latestDate = (group: Post[]) => group.reduce((d, p) => (p.data.pubDate > d ? p.data.pubDate : d), group[0].data.pubDate);
 ---
 
-<MainLayout title={`Research | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<MainLayout title="Research" description={SITE_DESCRIPTION}>
 	<header class="mb-16">
 		<div class="tech-label mb-6">> System_Insights // Research_&_Learning</div>
-		<h1 class="text-6xl md:text-8xl font-black tracking-tighter uppercase mb-8">
-			Tech<br/><span class="text-primary italic">Research</span>
+		<h1 class="text-6xl md:text-8xl font-black tracking-tighter uppercase pb-8">
+			Tech<br/><span class="text-primary">Research</span>
 		</h1>
 		<p class="text-xl text-text-muted max-w-2xl leading-relaxed">
-			RAG와 AI 개발 도구·에이전틱 코딩을 공부하며 정리한 학습 기록입니다.
-			새로 배운 개념과 한계를 돌파한 과정을 함께 남깁니다.
+			새 모델과 기법을 공부하며 정리한 글, 모델을 직접 실행해 측정한 실험 기록, 프로젝트를 만들며 내린 결정을 모았습니다.
 		</p>
 	</header>
 
-	{allTags.length > 0 && (
-		<div id="tag-filter" class="flex flex-wrap gap-3 mb-10">
-			<button class="tag-pill active" data-filter="*">All</button>
-			{allTags.map((tag) => (
-				<button class="tag-pill" data-filter={tag}>#{tag}</button>
-			))}
-		</div>
-	)}
+	<div id="tag-filter" class="flex flex-wrap gap-3 mb-10">
+		<button class="tag-pill active" data-filter="*">All <span class="tag-count">{posts.length}</span></button>
+		{seriesNames.map((name) => (
+			<button class="tag-pill series" data-filter={`series:${name}`}>연재 · {name}</button>
+		))}
+		{filterTags.map(([tag, n]) => (
+			<button class="tag-pill" data-filter={`tag:${tag}`}>#{tag} <span class="tag-count">{n}</span></button>
+		))}
+	</div>
 
 	<div class="bg-black/50 backdrop-blur-md rounded-sm border border-surface-highest/30 overflow-hidden">
-		<div class="grid grid-cols-12 gap-4 px-8 py-4 border-b border-surface-highest/30 bg-surface-low/50 tech-font text-[10px] opacity-40">
+		<div class="hidden md:grid grid-cols-12 gap-4 px-8 py-4 border-b border-surface-highest/30 bg-surface-low/50 tech-font text-[10px] opacity-60">
 			<div class="col-span-2">TIMESTAMP</div>
-			<div class="col-span-7">INSIGHT_TITLE</div>
+			<div class="md:col-span-7">INSIGHT_TITLE</div>
 			<div class="col-span-3 text-right">TAGS</div>
 		</div>
-		{posts.map((post) => (
-			<a
-				href={`${base}/blog/${post.id}/`}
-				data-tags={(post.data.tags ?? []).join('|')}
-				class="post-row grid grid-cols-12 gap-4 px-8 py-6 border-b border-white/5 hover:bg-primary/5 transition-colors group no-underline"
-			>
-				<div class="col-span-2 tech-font text-xs text-text-muted mt-1">
-					<FormattedDate date={post.data.pubDate} />
+		{entries.map((entry) => entry.kind === 'post' ? (
+			<a href={rowData(entry.post).href} data-tags={rowData(entry.post).tags} data-series="" class="post-row grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 px-5 md:px-8 py-6 border-b border-white/5 hover:bg-primary/5 transition-colors group no-underline">
+				<div class="md:col-span-2 tech-font text-xs text-text-muted mt-1">
+					<FormattedDate date={entry.post.data.pubDate} />
 				</div>
-				<div class="col-span-7">
-					<div class="font-bold text-lg group-hover:text-primary transition-colors">{post.data.title}</div>
-					<p class="text-sm text-text-muted mt-2 line-clamp-1 opacity-60 font-sans">{post.data.description}</p>
+				<div class="md:col-span-7">
+					<div class="font-bold text-lg group-hover:text-primary transition-colors">{entry.post.data.title}</div>
+					<p class="text-sm text-text-muted mt-2 mb-0 line-clamp-1 font-sans">{entry.post.data.description}</p>
 				</div>
-				<div class="col-span-3 text-right flex flex-wrap justify-end gap-2 mt-1 self-start">
-					{(post.data.tags ?? []).slice(0, 3).map((tag) => (
-						<span class="text-xs tech-font text-secondary opacity-60">#{tag}</span>
+				<div class="md:col-span-3 md:text-right flex flex-wrap md:justify-end gap-2 mt-1 self-start">
+					{(entry.post.data.tags ?? []).slice(0, 3).map((tag) => (
+						<span class="text-xs tech-font text-secondary">#{tag}</span>
 					))}
 				</div>
 			</a>
+		) : (
+			<div class="series-group border-b border-white/5" data-series={entry.name}>
+				<div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 px-5 md:px-8 pt-6 pb-3">
+					<div class="md:col-span-2 tech-font text-xs text-text-muted mt-1">
+						<FormattedDate date={latestDate(entry.posts)} />
+					</div>
+					<div class="md:col-span-7">
+						<div class="tech-label !text-[10px] !text-secondary mb-2">Series // {entry.posts.length}편</div>
+						<div class="font-black text-xl">{entry.name}</div>
+					</div>
+					<div class="hidden md:block md:col-span-3 text-right tech-font text-[11px] text-text-muted mt-1">읽는 순서</div>
+				</div>
+				<ol class="list-none m-0 pl-0 pb-3">
+					{entry.posts.map((post) => {
+						const s = seriesOf(post)!;
+						const d = rowData(post);
+						return (
+							<li>
+								<a href={d.href} data-tags={d.tags} data-series={d.series} class="post-row grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 px-5 md:px-8 py-3 hover:bg-primary/5 transition-colors group no-underline">
+									<div class="hidden md:block md:col-span-2"></div>
+									<div class="md:col-span-7 flex items-baseline gap-4 min-w-0">
+										<span class="tech-font text-xs font-bold text-secondary w-10 shrink-0">{s.part}편</span>
+										<div class="min-w-0">
+											<div class="font-bold group-hover:text-primary transition-colors">{s.subtitle}</div>
+											<p class="text-sm text-text-muted mt-1 mb-0 line-clamp-1 font-sans">{post.data.description}</p>
+										</div>
+									</div>
+									<div class="md:col-span-3 md:text-right flex flex-wrap md:justify-end gap-2 self-start mt-0.5">
+										{(post.data.tags ?? []).slice(0, 3).map((tag) => (
+											<span class="text-xs tech-font text-secondary">#{tag}</span>
+										))}
+									</div>
+								</a>
+							</li>
+						);
+					})}
+				</ol>
+			</div>
 		))}
 	</div>
 </MainLayout>
@@ -69,7 +118,6 @@ const allTags = [...new Set(posts.flatMap((p) => p.data.tags ?? []))].sort();
 		font-size: 0.72rem;
 		font-weight: 700;
 		letter-spacing: 0.08em;
-		text-transform: uppercase;
 		padding: 0.4rem 0.85rem;
 		border-radius: 9999px;
 		border: 1px solid var(--glass-border);
@@ -79,7 +127,9 @@ const allTags = [...new Set(posts.flatMap((p) => p.data.tags ?? []))].sort();
 		transition: 0.15s;
 	}
 	.tag-pill:hover { border-color: var(--color-primary); color: var(--text-base); }
+	.tag-pill.series { border-color: color-mix(in srgb, var(--color-secondary) 45%, transparent); }
 	.tag-pill.active { background-color: var(--color-primary); color: var(--color-bg-base); border-color: var(--color-primary); }
+	.tag-count { margin-left: 0.25rem; opacity: 0.6; }
 </style>
 
 <script>
@@ -87,13 +137,25 @@ const allTags = [...new Set(posts.flatMap((p) => p.data.tags ?? []))].sort();
 		const bar = document.getElementById('tag-filter');
 		if (!bar) return;
 		const rows = [...document.querySelectorAll<HTMLElement>('.post-row')];
+		const groups = [...document.querySelectorAll<HTMLElement>('.series-group')];
+		const matches = (row: HTMLElement, f: string) => {
+			if (f === '*') return true;
+			if (f.startsWith('series:')) return row.dataset.series === f.slice(7);
+			const tags = (row.dataset.tags ?? '').split('|').filter(Boolean);
+			return tags.includes(f.slice(4));
+		};
 		bar.querySelectorAll<HTMLElement>('[data-filter]').forEach((btn) => {
 			btn.addEventListener('click', () => {
 				const f = btn.dataset.filter ?? '*';
 				bar.querySelectorAll('[data-filter]').forEach((b) => b.classList.toggle('active', b === btn));
 				rows.forEach((r) => {
-					const tags = (r.dataset.tags ?? '').split('|').filter(Boolean);
-					r.style.display = f === '*' || tags.includes(f) ? '' : 'none';
+					const item = r.closest('li') ?? r;
+					item.style.display = matches(r, f) ? '' : 'none';
+				});
+				// A series block stays visible while any of its parts is shown.
+				groups.forEach((g) => {
+					const shown = [...g.querySelectorAll<HTMLElement>('.post-row')].some((r) => (r.closest('li') ?? r).style.display !== 'none');
+					g.style.display = shown ? '' : 'none';
 				});
 			});
 		});

@@ -3,196 +3,150 @@ import MainLayout from '../layouts/MainLayout.astro';
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import { byPubDateDesc } from '../utils/sortPosts';
+import { groupBySeries } from '../utils/series';
 import FormattedDate from '../components/FormattedDate.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { SITE_DESCRIPTION } from '../consts';
 import profileImg from '../assets/profile.png';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-// 1. 포트폴리오 컬렉션 로드 (메인은 요약만 — 본문은 상세 페이지에서)
+// 1. 포트폴리오: 메인에는 요약만 두고 본문은 상세 페이지에서 본다.
 const projects = (await getCollection('portfolio')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
-// 2. 최신 연구 로그 요약 (하단 트랙용)
-const latestLogs = (await getCollection('blog'))
-	.sort(byPubDateDesc)
-	.slice(0, 3);
-
-// 3. 스킬 — 숙련도 레벨(1~5), 프로젝트 근거 태그와 함께
-const LEVEL_MAX = 5;
-const skills = [
-	{ name: '생성형 AI 활용능력', level: 4, proof: 'AI 에이전트로 코드를 빠르게 작성·검증하며 시도 주기를 단축하고, 생성·언어 모델을 실제 제품에 적용했다. ComfyUI·Trellis2로 4방향 이미지→3D 안경 생성 파이프라인을 구성하고, matting 전처리로 생성 편향을 보완했다.', tags: ['RETINA FIT', '개발 워크플로'] },
-	{ name: 'LLM · RAG 파이프라인', level: 3, proof: 'LangChain·LangGraph로 RAG 파이프라인을 직접 설계하고 ChromaDB·pgvector 임베딩 검색을 통합했다. 라우팅·재순위·검증 단계를 분리하고, 출력을 열거형으로 제약해 검색 결정성을 0→100%로 확보했다.', tags: ['iPhone RAG', 'Jupasu'] },
-	{ name: 'Python · Java 백엔드', level: 2, proof: 'FastAPI·Django로 AI 기능을 API로 구현하고, Spring Boot/JPA에서는 임베딩을 제외한 projection 조회로 읽기 경로를 분리해 기동 캐시를 18.66MB→1.36MB로 줄였다.', tags: ['Jupasu', 'iPhone RAG'] }
-];
-
-// 4. 학력
-const education = [
-	{ org: 'SSAFY 14기', detail: '삼성청년 SW·AI 아카데미', state: '재학 중' },
-	{ org: '중앙정보처리학원', detail: 'Java 풀스택 과정', state: '이수' },
-	{ org: '경기대학교 경제학과', detail: '학사', state: '졸업' }
-];
-
-// 5. 수상 · 자격
-const awards = [
-	{ title: 'SSAFY 자율 프로젝트 우수상', detail: 'RETINA FIT' },
-	{ title: 'SSAFY 특화 프로젝트 우수상', detail: 'Jupasu' },
-	{ title: 'SSAFY 공통 프로젝트 우수상', detail: 'BlueFox' },
-	{ title: 'JLPT N3', detail: '일본어 자격' }
-];
+// 2. 최근 글: 연재는 한 줄로 묶어 첫 편으로 연결한다.
+const recent = groupBySeries((await getCollection('blog')).sort(byPubDateDesc))
+	.slice(0, 3)
+	.map((entry) => {
+		if (entry.kind === 'series') {
+			const first = entry.posts[0];
+			const latest = entry.posts.reduce((d, p) => (p.data.pubDate > d ? p.data.pubDate : d), first.data.pubDate);
+			return {
+				href: `${base}/blog/${first.id}/`,
+				date: latest,
+				title: entry.name,
+				summary: first.data.description,
+				label: `연재 · ${entry.posts.length}편`,
+			};
+		}
+		const { post } = entry;
+		return {
+			href: `${base}/blog/${post.id}/`,
+			date: post.data.pubDate,
+			title: post.data.title,
+			summary: post.data.description,
+			label: post.data.tags?.[0] ?? 'Note',
+		};
+	});
 ---
 
-<MainLayout title={`Portfolio | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<MainLayout description={SITE_DESCRIPTION}>
 	<div class="hero-grid grid grid-cols-1 lg:grid-cols-12 gap-12 relative">
 		<!-- Main Narrative Area (Left/Center) -->
 		<div class="col-span-12 lg:col-span-9 min-w-0 space-y-32">
-			
-			<!-- SECTION 01: IDENTITY & RESUME -->
-			<section id="identity" class="min-h-[60vh] flex flex-col justify-center">
-				<div class="flex flex-col md:flex-row gap-16 items-start md:items-center mb-24">
+
+			<!-- SECTION 01: INTRO -->
+			<section id="intro" class="min-h-[60vh] flex flex-col justify-center">
+				<div class="flex flex-col md:flex-row gap-12 items-start md:items-center">
 					<!-- Profile Image -->
 					<div class="relative group shrink-0">
 						<div class="absolute -inset-1 bg-gradient-to-tr from-primary to-secondary rounded-sm blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-						<div class="relative w-48 h-48 md:w-64 md:h-64 bg-surface-low rounded-sm overflow-hidden border border-white/5">
-							<Image src={profileImg} alt="최형선 프로필" width={600} class="w-full h-full object-cover object-top" />
+						<div class="relative w-40 h-40 md:w-52 md:h-52 bg-surface-low rounded-sm overflow-hidden border border-white/5">
+							<Image src={profileImg} alt="최형선 프로필" width={600} loading="eager" fetchpriority="high" class="w-full h-full object-cover object-top" />
 						</div>
 					</div>
-					
-					<div class="space-y-8 w-full min-w-0">
+
+					<div class="space-y-7 w-full min-w-0">
 						<div class="tech-label text-lg font-bold">
-							<div class="pulse-dot scale-125"></div>
+							<div class="pulse-dot scale-150"></div>
 							AI-Native Developer
 						</div>
-						<h1 class="text-4xl md:text-7xl font-black tracking-tight leading-[1.15]">
-							AI가 일하는 방식을<br/><span class="text-primary">바꾼다고 믿습니다</span>
+						<h1 class="text-4xl md:text-5xl xl:text-6xl font-black tracking-tight leading-[1.2] pb-7">
+							언어·음성 모델을 적용하고<br/><span class="text-primary">측정으로 설정을 고릅니다</span>
 						</h1>
-						<p class="text-2xl md:text-3xl text-text-muted leading-relaxed max-w-3xl">
-							AI로 시도와 검증의 주기를 단축하고, 그 과정에서 배운 것을 쌓아갑니다. <span class="text-white font-bold underline decoration-primary decoration-4 underline-offset-8">AI 네이티브 개발자 최형선</span>입니다.
+						<p class="text-lg md:text-xl text-text-muted leading-relaxed max-w-3xl">
+							팀 프로젝트에서는 와인 추천 서비스의 LLM과 AR 안경 피팅의 촬영·얼굴 추적 로직을 맡았습니다. 개인 프로젝트로는 RAG 챗봇과 챕터 생성 파이프라인을 만들고, 소형 LLM 파인튜닝을 진행했습니다.
 						</p>
-					</div>
-				</div>
-
-				<!-- Resume: Skills / Education / Awards (도시에 기준) -->
-				<div class="py-20 border-y border-surface-highest/20 space-y-20">
-					<!-- Core Skills (bar = 적용 프로젝트 수) -->
-					<div class="space-y-10">
-						<div class="flex items-baseline justify-between gap-4">
-							<span class="tech-label text-base opacity-50 font-bold">> Core_Skills</span>
-							<span class="tech-font text-[10px] opacity-30 font-black tracking-widest">// 막대 = 숙련도 LV / {LEVEL_MAX}</span>
-						</div>
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
-							{skills.map((s) => (
-								<div class="space-y-3">
-									<div class="flex justify-between items-baseline gap-4">
-										<span class="font-black text-base tracking-tight">{s.name}</span>
-										<span class="tech-font text-[11px] text-primary font-black tracking-widest shrink-0">LV {s.level}/{LEVEL_MAX}</span>
-									</div>
-									<div class="flex gap-1.5">
-										{Array.from({ length: LEVEL_MAX }).map((_, i) => (
-											<div class={`h-2.5 flex-1 rounded-sm transition-all duration-500 ${i < s.level ? 'bg-primary shadow-[0_0_10px_var(--primary)]' : 'bg-surface-highest opacity-20'}`}></div>
-										))}
-									</div>
-									<div class="space-y-2">
-										<p class="text-xs text-text-muted leading-relaxed m-0">{s.proof}</p>
-										<div class="tech-font text-[10px] text-secondary opacity-70 tracking-widest">{s.tags.map(t => `#${t}`).join(' ')}</div>
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
-
-					<!-- Education & Awards -->
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-16">
-						<div class="space-y-8">
-							<span class="tech-label text-base opacity-50 font-bold">> Education</span>
-							<ul class="list-none p-0 space-y-6 m-0">
-								{education.map((e) => (
-									<li class="flex justify-between items-baseline gap-4 border-b border-white/5 pb-5">
-										<div>
-											<div class="font-black text-base">{e.org}</div>
-											<div class="text-sm text-text-muted mt-1">{e.detail}</div>
-										</div>
-										<span class="tech-font text-xs text-secondary font-bold tracking-widest whitespace-nowrap">{e.state}</span>
-									</li>
-								))}
-							</ul>
-						</div>
-						<div class="space-y-8">
-							<span class="tech-label text-base opacity-50 font-bold">> Awards & Certs</span>
-							<ul class="list-none p-0 space-y-6 m-0">
-								{awards.map((a) => (
-									<li class="flex items-baseline gap-4 border-b border-white/5 pb-5">
-										<span class="text-primary tech-font text-sm shrink-0 mt-0.5">▰</span>
-										<div>
-											<div class="font-black text-base">{a.title}</div>
-											<div class="text-sm text-text-muted mt-1">{a.detail}</div>
-										</div>
-									</li>
-								))}
-							</ul>
+						<p class="text-xl md:text-2xl text-text-muted">
+							<span class="text-text-base font-bold underline decoration-primary decoration-4 underline-offset-8">AI 네이티브 개발자 최형선</span>입니다.
+						</p>
+						<div class="tech-font text-xs font-bold tracking-widest text-secondary">SSAFY 14기 수료 · SSAFY 프로젝트 우수상 3회</div>
+						<div class="flex flex-wrap gap-4 pt-2">
+							<a href="#work" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-bg-base font-black tech-font text-sm rounded-sm no-underline hover:bg-secondary transition-colors">
+								프로젝트 보기 <span aria-hidden="true">→</span>
+							</a>
+							<a href={`${base}/about/`} class="inline-flex items-center gap-2 px-6 py-3 border border-surface-highest font-black tech-font text-sm rounded-sm no-underline hover:border-primary hover:text-primary transition-colors">
+								이력과 역량 보기 <span aria-hidden="true">→</span>
+							</a>
 						</div>
 					</div>
 				</div>
 			</section>
 
 			<!-- SECTION 02: SELECTED WORK (SUMMARY → detail page) -->
-			<section id="work" class="space-y-16">
+			<section id="work" class="space-y-14">
 				<div class="border-b border-surface-highest/20 pb-8">
 					<span class="tech-label text-secondary text-xl mb-4 font-bold">> Track_A // Projects</span>
-					<h2 class="text-6xl md:text-8xl font-black uppercase tracking-tighter">Selected Work</h2>
+					<h2 class="text-5xl md:text-7xl font-black uppercase tracking-tighter">Selected Work</h2>
 				</div>
 
 				<div class="space-y-12">
-					{projects.map((project) => {
+					{projects.map((project, i) => {
 						const href = `${base}/portfolio/${project.id}/`;
 						return (
-							<article class="project-summary group border-l-[6px] border-primary pl-8 md:pl-10 py-2">
-								<div class="flex items-center justify-between mb-5">
-									<div class="tech-label text-sm opacity-50 font-black">Record_0{projects.indexOf(project) + 1}</div>
-									<div class="tech-font text-sm font-bold text-secondary tracking-widest"><FormattedDate date={project.data.pubDate} /></div>
+							<article class="project-summary group border-l-4 border-primary pl-8 py-1">
+								<div class="flex items-center justify-between gap-4 mb-3">
+									<div class="tech-label text-xs opacity-50 font-black">Record_{String(i + 1).padStart(2, '0')}</div>
+									{project.data.period && (
+										<div class="tech-font text-xs font-bold text-secondary tracking-widest">{project.data.period}</div>
+									)}
 								</div>
-								<h3 class="text-3xl md:text-5xl font-black tracking-tight leading-tight">
+								<h3 class="text-2xl md:text-3xl font-black tracking-tight leading-tight m-0">
 									<a href={href} class="no-underline hover:text-primary transition-colors">{project.data.title}</a>
 								</h3>
 								{project.data.role && (
-									<div class="tech-font text-sm text-text-muted mt-4 font-bold tracking-widest uppercase opacity-70">{project.data.role}</div>
+									<div class="tech-font text-xs text-text-muted mt-3 font-bold tracking-widest">{project.data.role}</div>
 								)}
-								<p class="text-lg md:text-xl text-text-muted leading-relaxed max-w-4xl mt-6">
+								<p class="text-base md:text-lg text-text-muted leading-relaxed max-w-4xl mt-4 mb-0">
 									{project.data.description}
 								</p>
-								<div class="flex flex-wrap gap-3 mt-8">
-									{project.data.stack?.slice(0, 8).map(s => <span class="px-4 py-2 bg-surface-highest text-xs font-bold tech-font text-secondary rounded-sm tracking-widest">{s}</span>)}
+								<div class="flex flex-wrap gap-2 mt-5">
+									{project.data.stack.slice(0, 8).map((s) => <span class="px-3 py-1.5 bg-surface-highest text-[11px] font-bold tech-font text-secondary rounded-sm tracking-widest">{s}</span>)}
 								</div>
-								<a href={href} class="inline-flex items-center gap-2 tech-font text-sm text-primary font-black mt-10 no-underline group-hover:gap-4 transition-all">
+								<a href={href} class="inline-flex items-center gap-2 tech-font text-sm text-primary font-black mt-6 no-underline group-hover:gap-4 transition-all">
 									상세 보기 <span aria-hidden="true">→</span>
 								</a>
 							</article>
 						);
 					})}
 				</div>
+				<a href={`${base}/portfolio/`} class="inline-flex items-center gap-2 tech-font text-sm font-black opacity-60 hover:opacity-100 hover:text-primary transition-all no-underline">
+					전체 프로젝트 목록 <span aria-hidden="true">→</span>
+				</a>
 			</section>
 
 			<!-- SECTION 03: LATEST RESEARCH -->
-			<section id="logs" class="py-32">
-				<div class="flex justify-between items-end mb-20 border-b border-white/5 pb-10">
+			<section id="logs" class="pb-16">
+				<div class="flex justify-between items-end gap-6 mb-14 border-b border-white/5 pb-10">
 					<div>
 						<span class="tech-label text-primary text-xl mb-4 font-black">> Track_B // Learning_Loop</span>
-						<h2 class="text-6xl font-bold uppercase tracking-tighter">Recent Exploration</h2>
+						<h2 class="text-5xl md:text-6xl font-bold uppercase tracking-tighter">Recent Research</h2>
 					</div>
-					<a href={`${base}/blog`} class="tech-font text-sm opacity-50 hover:opacity-100 transition-opacity font-black">Access_Full_Archive_</a>
+					<a href={`${base}/blog/`} class="tech-font text-sm opacity-60 hover:opacity-100 hover:text-primary transition-all font-black no-underline whitespace-nowrap">전체 글 보기 <span aria-hidden="true">→</span></a>
 				</div>
 				<div class="bg-black/50 backdrop-blur-md rounded-sm border border-surface-highest/30 overflow-hidden">
-					{latestLogs.map((log) => (
-						<a href={`${base}/${log.collection}/${log.id}/`} class="grid grid-cols-12 gap-6 px-10 py-10 border-b border-white/5 hover:bg-primary/5 transition-colors group no-underline">
-							<div class="col-span-2 tech-font text-sm text-text-muted mt-1 font-bold">
-								<FormattedDate date={log.data.pubDate} />
+					{recent.map((r) => (
+						<a href={r.href} class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-6 px-5 md:px-10 py-6 md:py-8 border-b border-white/5 hover:bg-primary/5 transition-colors group no-underline">
+							<div class="md:col-span-2 tech-font text-sm text-text-muted mt-1 font-bold">
+								<FormattedDate date={r.date} />
 							</div>
-							<div class="col-span-8 font-bold text-2xl group-hover:text-primary transition-colors tracking-tight">
-								{log.data.title}
+							<div class="md:col-span-8 min-w-0">
+								<div class="font-bold text-xl md:text-2xl group-hover:text-primary transition-colors tracking-tight">{r.title}</div>
+								<p class="text-sm text-text-muted mt-2 mb-0 line-clamp-1">{r.summary}</p>
 							</div>
-							<div class="col-span-2 text-right tech-font text-xs text-secondary opacity-60 mt-1 uppercase font-black tracking-widest">
-								[{log.collection}]
+							<div class="md:col-span-2 md:text-right tech-font text-xs text-secondary mt-1 font-black tracking-widest">
+								{r.label}
 							</div>
 						</a>
 					))}
@@ -217,35 +171,14 @@ const awards = [
 					</div>
 				</div>
 
-				<nav class="p-12 border-l-2 border-white/10 space-y-8">
+				<nav class="p-12 border-l-2 border-white/10 space-y-8" aria-label="페이지 안 이동">
 					<div class="tech-label text-xs mb-8 opacity-30 font-black">Navigation_Index</div>
-					<a href="#identity" class="block text-sm tech-font font-black opacity-50 hover:opacity-100 hover:text-primary transition-all transform hover:translate-x-3 tracking-widest">01_Identity_Resume</a>
-					<a href="#work" class="block text-sm tech-font font-black opacity-50 hover:opacity-100 hover:text-primary transition-all transform hover:translate-x-3 tracking-widest">02_Project_Showcase</a>
-					<a href="#logs" class="block text-sm tech-font font-black opacity-50 hover:opacity-100 hover:text-primary transition-all transform hover:translate-x-3 tracking-widest">03_Research_Logs</a>
+					<a href="#intro" class="block text-sm tech-font font-black opacity-50 hover:opacity-100 hover:text-primary transition-all transform hover:translate-x-3 tracking-widest">01_Intro</a>
+					<a href="#work" class="block text-sm tech-font font-black opacity-50 hover:opacity-100 hover:text-primary transition-all transform hover:translate-x-3 tracking-widest">02_Selected_Work</a>
+					<a href="#logs" class="block text-sm tech-font font-black opacity-50 hover:opacity-100 hover:text-primary transition-all transform hover:translate-x-3 tracking-widest">03_Recent_Research</a>
+					<a href={`${base}/about/`} class="block text-sm tech-font font-black opacity-50 hover:opacity-100 hover:text-primary transition-all transform hover:translate-x-3 tracking-widest">04_Identity →</a>
 				</nav>
 			</div>
 		</aside>
 	</div>
 </MainLayout>
-
-<style>
-	.pulse-dot {
-		width: 12px;
-		height: 12px;
-		background-color: var(--primary);
-		border-radius: 50%;
-		position: relative;
-	}
-	.pulse-dot::after {
-		content: "";
-		position: absolute;
-		inset: 0;
-		border-radius: 50%;
-		background-color: var(--primary);
-		animation: pulse 2s infinite;
-	}
-	@keyframes pulse {
-		0% { transform: scale(1); opacity: 0.8; }
-		100% { transform: scale(3); opacity: 0; }
-	}
-</style>

@@ -15,9 +15,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 		<!-- Desktop Navigation -->
 		<div class="hidden md:flex items-center gap-10">
-			<HeaderLink href={`${base}/portfolio`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">01_Portfolio</HeaderLink>
-			<HeaderLink href={`${base}/blog`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">02_Research</HeaderLink>
-			<HeaderLink href={`${base}/about`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">03_Identity</HeaderLink>
+			<HeaderLink href={`${base}/portfolio/`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">01_Portfolio</HeaderLink>
+			<HeaderLink href={`${base}/blog/`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">02_Research</HeaderLink>
+			<HeaderLink href={`${base}/about/`} class="tech-font text-xs tracking-[0.2em] opacity-70 hover:opacity-100 hover:text-primary font-bold">03_Identity</HeaderLink>
 		</div>
 
 		<div class="flex items-center gap-4 md:gap-6">
@@ -51,15 +51,15 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 		<div class="tech-label opacity-30 text-[10px]">> SYSTEM_ACCESS_AUTHORIZED</div>
 		
 		<nav class="flex flex-col gap-6">
-			<a href={`${base}/portfolio`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-100 group-[.open]:opacity-100 group-[.open]:translate-x-0">
+			<a href={`${base}/portfolio/`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-100 group-[.open]:opacity-100 group-[.open]:translate-x-0">
 				<span class="tech-font text-primary text-sm mb-1 group-hover/link:translate-x-1 transition-transform">01_</span>
 				<span class="tech-font text-4xl font-black tracking-tight group-hover/link:text-primary transition-colors">PORTFOLIO</span>
 			</a>
-			<a href={`${base}/blog`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-200 group-[.open]:opacity-100 group-[.open]:translate-x-0">
+			<a href={`${base}/blog/`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-200 group-[.open]:opacity-100 group-[.open]:translate-x-0">
 				<span class="tech-font text-primary text-sm mb-1 group-hover/link:translate-x-1 transition-transform">02_</span>
 				<span class="tech-font text-4xl font-black tracking-tight group-hover/link:text-primary transition-colors">RESEARCH</span>
 			</a>
-			<a href={`${base}/about`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-300 group-[.open]:opacity-100 group-[.open]:translate-x-0">
+			<a href={`${base}/about/`} class="group/link flex items-end gap-4 no-underline opacity-0 -translate-x-5 transition-all duration-500 delay-300 group-[.open]:opacity-100 group-[.open]:translate-x-0">
 				<span class="tech-font text-primary text-sm mb-1 group-hover/link:translate-x-1 transition-transform">03_</span>
 				<span class="tech-font text-4xl font-black tracking-tight group-hover/link:text-primary transition-colors">IDENTITY</span>
 			</a>
@@ -118,6 +118,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 		});
 	}
 
+	function markActiveNav() {
+		const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+		const current = location.pathname.replace(base, '').split('/').filter(Boolean)[0] ?? '';
+		document.querySelectorAll<HTMLElement>('[data-nav-section]').forEach((a) => {
+			a.classList.toggle('active', a.dataset.navSection !== '' && a.dataset.navSection === current);
+		});
+	}
+
 	function setupTheme() {
 		const btn = document.getElementById('theme-toggle');
 		if (!btn || btn.dataset.bound) return;
@@ -149,6 +157,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 	init();
 	document.addEventListener('astro:after-swap', init);
+	// astro:page-load fires on the first load and after every navigation, once the new URL is in place.
+	document.addEventListener('astro:page-load', markActiveNav);
 </script>
 
 <style>

@@ -2,7 +2,7 @@
 import MainLayout from '../../layouts/MainLayout.astro';
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
+import { SITE_DESCRIPTION } from '../../consts';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -11,38 +11,65 @@ const projects = (await getCollection('portfolio')).sort(
 );
 ---
 
-<MainLayout title={`Selected Work | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<MainLayout title="Selected Work" description={SITE_DESCRIPTION}>
 	<header class="mb-24">
 		<div class="tech-label mb-6">> System_Output // Projects</div>
-		<h1 class="text-6xl md:text-8xl font-black tracking-tighter uppercase mb-8">
-			Selected<br/><span class="text-primary italic">Work</span>
+		<h1 class="text-6xl md:text-8xl font-black tracking-tighter uppercase pb-8">
+			Selected<br/><span class="text-primary">Work</span>
 		</h1>
 		<p class="text-xl text-text-muted max-w-3xl leading-relaxed">
-			직접 만들어본 프로젝트들입니다. 
-			각 프로젝트에서 무엇을 맡았고, 무엇을 배웠는지 기록했습니다.
+			팀 프로젝트와 개인 프로젝트에서 맡은 범위, 내린 결정, 측정한 결과를 정리했습니다.
 		</p>
 	</header>
 
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-		{projects.map((project) => (
-			<a href={`${base}/portfolio/${project.id}/`} class="group block bg-surface-low rounded-sm overflow-hidden hover:bg-surface-high transition-all duration-500">
-				<div class="aspect-video bg-surface-highest/50 relative overflow-hidden">
-					{project.data.heroImage && <Image src={project.data.heroImage} alt={project.data.title} width={800} height={450} class="w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-80 transition-all duration-700" />}
-					<div class="absolute inset-0 bg-gradient-to-t from-surface-low to-transparent"></div>
+		{projects.map((project, i) => (
+			<a href={`${base}/portfolio/${project.id}/`} class="group flex flex-col bg-surface-low rounded-sm overflow-hidden hover:bg-surface-high transition-all duration-500 no-underline">
+				<div class="aspect-video relative overflow-hidden border-b border-surface-highest/30">
+					{project.data.heroImage ? (
+						<>
+							<Image src={project.data.heroImage} alt="" width={800} height={450} class="w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700" />
+							<div class="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-surface-low/80 to-transparent"></div>
+						</>
+					) : (
+						<div class="card-fallback w-full h-full flex flex-col justify-end p-8">
+							<div class="tech-font text-6xl font-black text-primary/30 leading-none">{String(i + 1).padStart(2, '0')}</div>
+							<div class="flex flex-wrap gap-2 mt-4">
+								{project.data.stack.slice(0, 4).map((s) => <span class="tech-font text-[11px] font-bold tracking-widest text-text-muted">{s}</span>)}
+							</div>
+						</div>
+					)}
 				</div>
-				<div class="p-8">
-					<div class="tech-label text-[10px] mb-4 text-secondary">Project // 0{projects.indexOf(project) + 1}</div>
-					<h3 class="text-3xl font-bold mb-4 group-hover:text-primary transition-colors">
+				<div class="p-8 flex flex-col flex-1">
+					<div class="flex items-center justify-between gap-4 mb-4">
+						<div class="tech-label text-[10px] text-secondary">Project // {String(i + 1).padStart(2, '0')}</div>
+						{project.data.period && <div class="tech-font text-[11px] font-bold text-text-muted tracking-widest">{project.data.period}</div>}
+					</div>
+					<h2 class="text-3xl font-bold pb-3 group-hover:text-primary transition-colors">
 						{project.data.title}
-					</h3>
+					</h2>
+					{project.data.role && (
+						<div class="tech-font text-xs font-bold text-text-muted tracking-widest mb-4">{project.data.role}</div>
+					)}
 					<p class="text-text-muted text-sm leading-relaxed line-clamp-3 mb-8">
 						{project.data.description}
 					</p>
-					<div class="flex flex-wrap gap-2">
-						{project.data.stack?.map(s => <span class="px-2 py-1 bg-surface-highest text-[10px] font-bold tech-font rounded-sm">{s}</span>)}
+					<div class="flex flex-wrap gap-2 mt-auto">
+						{project.data.stack.map((s) => <span class="px-2 py-1 bg-surface-highest text-[10px] font-bold tech-font rounded-sm">{s}</span>)}
 					</div>
 				</div>
 			</a>
 		))}
 	</div>
 </MainLayout>
+
+<style>
+	/* Card without a hero image: a faint grid in place of the picture so the row keeps its rhythm. */
+	.card-fallback {
+		background-color: color-mix(in srgb, var(--color-surface-highest) 50%, transparent);
+		background-image:
+			linear-gradient(color-mix(in srgb, var(--color-primary) 8%, transparent) 1px, transparent 1px),
+			linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 8%, transparent) 1px, transparent 1px);
+		background-size: 32px 32px;
+	}
+</style>

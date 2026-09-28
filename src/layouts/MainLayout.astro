@@ -2,20 +2,22 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { SITE_DESCRIPTION } from '../consts';
 
 interface Props {
+	// Page name only (e.g. "Research"); BaseHead adds the author. Omit it on the home page.
 	title?: string;
 	description?: string;
+	noindex?: boolean;
 }
 
-const { title = SITE_TITLE, description = SITE_DESCRIPTION } = Astro.props;
+const { title, description = SITE_DESCRIPTION, noindex } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="ko">
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead title={title} description={description} noindex={noindex} />
 	</head>
 	<body class="bg-bg-base text-text-base antialiased flex flex-col min-h-screen">
 		<Header />

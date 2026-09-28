@@ -6,14 +6,26 @@ import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+interface SeriesLink {
+	href: string;
+	part: number;
+	subtitle: string;
+}
 
-const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.props;
+type Props = CollectionEntry<'blog'>['data'] & {
+	// Set by the route when the post belongs to a series (see utils/series.ts).
+	series?: { name: string; part: number; first: number; last: number; prev?: SeriesLink; next?: SeriesLink };
+};
+
+const { title, description, pubDate, updatedDate, heroImage, tags, category, series } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+// Some posts still carry the starter template's placeholder hero; don't send it out as the share image.
+const shareImage = heroImage && !heroImage.src.includes('blog-placeholder') ? heroImage : undefined;
 ---
 
 <html lang="ko">
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead title={title} description={description} image={shareImage} type="article" publishedTime={pubDate} />
 	</head>
 
 	<body class="bg-bg-base text-text-base antialiased">
@@ -22,13 +34,13 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 			<article>
 				<header class="mb-16">
 					<div class="tech-label mb-8">
-						<span class="text-primary">> Research_Insights // Meta_Data</span>
-						<span class="opacity-30">Classification: Strategic_Analysis</span>
+						<span class="text-primary">> Research_Note</span>
+						{series ? <span class="opacity-50">Series // {series.name}</span> : category && <span class="opacity-50">{category}</span>}
 					</div>
-					<h1 class="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-12 leading-[0.95]">
+					<h1 class="text-4xl md:text-6xl font-black tracking-tighter pb-10 leading-[1.15]">
 						{title}
 					</h1>
-					
+
 					<p class="text-xl md:text-2xl text-text-muted leading-relaxed max-w-3xl mb-12">
 						{description}
 					</p>
@@ -38,10 +50,12 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 							<span class="tech-label opacity-40 !text-[10px]">Timestamp</span>
 							<span class="font-bold"><FormattedDate date={pubDate} /></span>
 						</div>
-						<div class="telemetry-item">
-							<span class="tech-label opacity-40 !text-[10px]">Document_Status</span>
-							<span class="font-bold uppercase tech-font text-xs tracking-widest text-primary">Research_Note</span>
-						</div>
+						{series && (
+							<div class="telemetry-item">
+								<span class="tech-label opacity-40 !text-[10px]">Series</span>
+								<span class="font-bold">{series.part}편 <span class="text-text-muted font-normal">/ {series.first}~{series.last}편</span></span>
+							</div>
+						)}
 						{updatedDate && (
 							<div class="telemetry-item">
 								<span class="tech-label opacity-40 !text-[10px]">Last_Update</span>
@@ -66,11 +80,31 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 						</div>
 					</div>
 				)}
-				
+
 				<div class="prose-obsidian max-w-none">
 					<slot />
 				</div>
 			</article>
+
+			<nav class="mt-24 pt-10 border-t border-surface-highest/30" aria-label="글 이동">
+				{series && (series.prev || series.next) && (
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+						{series.prev ? (
+							<a href={series.prev.href} class="block p-6 bg-surface-low border border-surface-highest/30 rounded-sm no-underline hover:border-primary transition-colors group">
+								<div class="tech-font text-[11px] font-bold tracking-widest text-text-muted mb-2">← 이전 편 · {series.prev.part}편</div>
+								<div class="font-bold group-hover:text-primary transition-colors">{series.prev.subtitle}</div>
+							</a>
+						) : <div class="hidden md:block"></div>}
+						{series.next && (
+							<a href={series.next.href} class="block p-6 bg-surface-low border border-surface-highest/30 rounded-sm no-underline hover:border-primary transition-colors group md:text-right">
+								<div class="tech-font text-[11px] font-bold tracking-widest text-text-muted mb-2">다음 편 · {series.next.part}편 →</div>
+								<div class="font-bold group-hover:text-primary transition-colors">{series.next.subtitle}</div>
+							</a>
+						)}
+					</div>
+				)}
+				<a href={`${base}/blog/`} class="tech-font text-sm font-black opacity-60 hover:opacity-100 hover:text-primary transition-all no-underline">← 전체 글 목록</a>
+			</nav>
 		</main>
 		<Footer />
 	</body>
