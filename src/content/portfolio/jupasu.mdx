@@ -16,9 +16,6 @@ import Toggle from '../../components/troubleshooting/Toggle.astro';
 import Flow from '../../components/troubleshooting/Flow.astro';
 import Verdict from '../../components/troubleshooting/Verdict.astro';
 import Kv from '../../components/troubleshooting/Kv.astro';
-import Shot from '../../components/troubleshooting/Shot.astro';
-import ocrBefore from '../../assets/portfolio/ts/jupasu-ocr-before.png';
-import ocrAfter from '../../assets/portfolio/ts/jupasu-ocr-after.png';
 
 <Metrics
   items={[
@@ -34,6 +31,8 @@ import ocrAfter from '../../assets/portfolio/ts/jupasu-ocr-after.png';
 와인 라벨과 메뉴판을 스캔해 정보를 제공하고 취향 기반으로 추천하는 서비스입니다.
 
 팀 프로젝트에서 **LLM·RAG·OCR AI 파이프라인을 설계하고 구현**하는 역할을 담당했습니다.
+
+프로젝트가 끝난 뒤(2026.06)에는 개인 사본에서 LLM을 로컬 Gemma로 바꿔 LM Studio에서 실행했고, 아래 트러블슈팅 세 건은 이 개인 사본에서 진행한 작업입니다.
 
 </Section>
 
@@ -72,97 +71,25 @@ import ocrAfter from '../../assets/portfolio/ts/jupasu-ocr-after.png';
 
 <Section n="04" label="Defects">
 
-온디바이스 OCR(PaddleOCR)로 라벨을 읽고 LLM으로 정제하는 파이프라인에서, 작은 모델·실행 환경·읽기 경로가 일으킨 현실 문제 네 건을 해결했습니다. 각 항목은 토글과 선택으로 직접 비교할 수 있습니다.
+프로젝트 종료 후 개인 사본(2026.06)에서 해결한 세 건입니다. 읽기 경로의 문제 한 건과, LLM을 로컬 Gemma로 바꾼 뒤 드러난 LLM 정제 단계의 문제 두 건입니다.
 
   <Grid
-    cols={2}
+    cols={3}
     items={[
-      { icon: '🔠', n: 'DEFECT 01', title: '인식률 저하', sub: '학습과 추론의 전처리가 달라 신뢰도가 0.5대' },
-      { icon: '🌀', n: 'DEFECT 02', title: 'LLM 환각', sub: '입력에 없는 와인을 생성하는 충실성 문제' },
-      { icon: '🧱', n: 'DEFECT 03', title: '구조화 출력', sub: '실행 환경 옵션 OFF로 빈 응답 → json_schema' },
-      { icon: '🐢', n: 'DEFECT 04', title: '느린 기동', sub: '읽기마다 임베딩 전체 로드 → DTO projection' },
+      { icon: '🐢', n: 'DEFECT 01', title: '느린 기동', sub: '읽기마다 임베딩 전체 로드 → 임베딩 제외 projection' },
+      { icon: '🌀', n: 'DEFECT 02', title: 'LLM 환각', sub: '입력에 없는 와인 이름을 덧붙이는 충실성 문제' },
+      { icon: '🧱', n: 'DEFECT 03', title: '구조화 출력', sub: '기본 방식의 빈 결과 → json_schema' },
     ]}
   />
 
-  <Defect pnum="DEFECT 01" category="Recognition" title="학습한 적 없는 입력을 받은 모델">
-    <div slot="summary">
-      검출은 글자 박스를 잘 잡지만 인식 신뢰도가 0.5대로 들쭉날쭉하고 글자도 틀렸습니다. 모델이 혼동한 것이 아니라 <b>학습 때 본 적 없는 입력 분포</b>를 받은 것이 원인입니다.
-    </div>
-    <ul slot="tech">
-      <li>모델은 너비 320 고정과 <code>(x/255-0.5)/0.5</code> 정규화로 학습되었다.</li>
-      <li>추론 워커는 가변 너비와 ImageNet 정규화(검출용)를 인식 단계에 그대로 재사용했다.</li>
-      <li><b>해결</b>: <code>createRecTensor</code>로 학습과 동일한 전처리를 재현했다(너비 320 제로 패딩).</li>
-      <li>단서는 README가 아니라 <code>inference.yml</code> 모델 메타데이터에 있었다.</li>
-    </ul>
-
-    <Toggle heading="같은 이미지, 다른 전처리" labelOff="추론과 학습 불일치" labelOn="학습과 동일">
-      <div slot="off">
-        <Verdict type="fail">신뢰도 0.5대, 글자 오인식</Verdict>
-        <Shot src={ocrBefore} alt="추론 전처리 불일치로 깨진 OCR 인식 결과" tag="Before" caption="실제 인식 · BROYTHEKS·DIENID 등 오인식 (신뢰도 0.5대)" />
-      </div>
-      <div slot="on">
-        <Verdict type="ok">신뢰도 0.88로 향상, 글자 교정</Verdict>
-        <Shot src={ocrAfter} alt="학습과 동일한 전처리로 교정된 OCR 인식 결과" tag="After" caption="실제 인식 · BROTHERS·ESTATE WINES 교정 (신뢰도 0.88)" />
-      </div>
-    </Toggle>
-  </Defect>
-
-  <Defect pnum="DEFECT 02" category="LLM Fidelity" title="입력에 없는 와인을 만들어내다">
-    <div slot="summary">
-      OCR이 추출한 텍스트를 LLM 정제 단계에 넣으면 <b>입력에 없던</b> 와인을 반환했습니다. 작은 모델에서는 안내 문구 설계가 곧 입력 충실성을 좌우했습니다.
-    </div>
-    <ul slot="tech">
-      <li>원인 1: "추론하라" 지시가 자유로운 생성을 허용했다.</li>
-      <li>원인 2: 치우친 예시를 모델이 그대로 복사했다.</li>
-      <li>실패: 너무 강한 금지 명령은 모든 필드를 빈 값으로 만들었다.</li>
-      <li><b>해결</b>: 지시 강도를 중간 수준으로 조정하고, 여러 나라 와인으로 예시를 다양화했다.</li>
-    </ul>
-
-    <Toggle heading={'입력: "메를로 2018"'} labelOff="자유 생성 허용" labelOn="충실성 강제와 다양화">
-      <div slot="off">
-        <Verdict type="fail">입력에 없는 와인 생성(환각)</Verdict>
-        <Kv k="입력" v="메를로 2018" type="fail" />
-        <Kv k="출력" v="까베르네" type="fail" />
-      </div>
-      <div slot="on">
-        <Verdict type="ok">입력 유지, 오타만 교정</Verdict>
-        <Kv k="입력" v="메를로 2018" type="ok" />
-        <Kv k="출력" v="메를로 2018 (오타만 교정)" type="ok" />
-      </div>
-    </Toggle>
-  </Defect>
-
-  <Defect pnum="DEFECT 03" category="Structured Output" title="구조화 출력이 빈 응답으로 돌아오다">
-    <div slot="summary">
-      형식을 지정해 답을 요청하면 빈 결과만 돌아왔습니다. 모델의 기능 표기만 믿고 넘어갔는데, 실제로는 <b>실행 환경(LM Studio)에서 구조화 출력 옵션이 꺼져 있어</b> 형식 강제가 무시된 것이 원인이었습니다.
-    </div>
-    <ul slot="tech">
-      <li>옵션이 꺼진 상태라 <code>with_structured_output</code> 호출이 빈 객체만 반환했다.</li>
-      <li>오류 없이 조용히 비는 침묵 실패라, <code>Pydantic</code> 경고 로그를 관찰해 발견했다.</li>
-      <li><b>해결</b>: LM Studio의 구조화 출력 옵션을 확인하고 <code>json_schema</code> 방식으로 전환했다.</li>
-      <li><code>with_structured_output(WineInfo, method="json_schema")</code>로 스키마를 강제하고, 원하는 구조를 안내 문구로도 제시했다.</li>
-    </ul>
-
-    <Toggle heading="구조화 출력 요청 결과" labelOff="환경 옵션 OFF" labelOn="환경 점검 + json_schema">
-      <div slot="off">
-        <Verdict type="fail">형식 강제가 무시되어 빈 응답</Verdict>
-        <div class="ts-io"><span class="ts-bad">{'{ }'}</span> — 모든 필드 빈 값</div>
-      </div>
-      <div slot="on">
-        <Verdict type="ok">필요한 항목을 모두 채움</Verdict>
-        <div class="ts-io"><span class="ts-good">{'{ name, region, vintage, grape }'}</span></div>
-      </div>
-    </Toggle>
-  </Defect>
-
-  <Defect pnum="DEFECT 04" category="Read Path" title="읽기마다 임베딩 벡터를 통째로 로드하다">
+  <Defect pnum="DEFECT 01" category="Read Path · 종료 후 개인 사본(2026.06)" title="읽기마다 임베딩 벡터를 통째로 로드하다">
     <div slot="summary">
       서버를 띄울 때와 첫 조회가 느리고, 임베딩 벡터가 메모리에 통째로 상주했습니다. 와인을 읽을 때 <b>추천 계산에 쓰지 않는 임베딩 벡터까지 항상 함께 불러온 것</b>이 원인입니다.
     </div>
     <ul slot="tech">
       <li>엔티티에 임베딩이 묶여 있어 목록과 검색에도 전부 로드됐다.</li>
       <li>수천 건의 고차원 벡터를 매번 파싱하고, 캐시에도 임베딩 포함 엔티티가 그대로 적재됐다.</li>
-      <li><b>해결</b>: 스코어링용 조회를 임베딩을 뺀 경량 뷰로 분리했다 — <code>List&lt;WineScoreView&gt; findAllScoreViews()</code>.</li>
+      <li><b>해결</b>: 스코어링용 조회를 임베딩을 뺀 경량 뷰로 분리했다: <code>List&lt;WineScoreView&gt; findAllScoreViews()</code>.</li>
       <li>추천 계산은 인터페이스로 받아 엔티티와 뷰를 함께 처리하고, 벡터는 유사도 검색이 필요할 때만 로드했다.</li>
     </ul>
 
@@ -180,26 +107,70 @@ import ocrAfter from '../../assets/portfolio/ts/jupasu-ocr-after.png';
     </Toggle>
   </Defect>
 
-OCR은 **PaddleOCR를 브라우저 워커에서 온디바이스로** 구동했습니다.
+  <Defect pnum="DEFECT 02" category="LLM Fidelity · 종료 후 개인 사본(2026.06)" title="입력에 없는 와인 이름을 덧붙이다">
+    <div slot="summary">
+      OCR 결과를 정리하는 LLM 정제 단계가 <b>입력에 없던</b> 와인 이름을 덧붙였습니다. 개인 사본에서 LLM을 로컬 Gemma로 바꾼 뒤 드러난 문제입니다.
+    </div>
+    <ul slot="tech">
+      <li>원인 1: 지시문이 "정확한 와이너리, 와인 이름, 빈티지를 추론하세요"로 자유 생성을 허용했다.</li>
+      <li>원인 2: 예시가 보르도 쪽으로 치우쳐 있었다.</li>
+      <li>실패: 너무 강한 부정 명령은 모든 필드를 빈 문자열로 만들었다.</li>
+      <li><b>해결</b>: 추론 지시를 입력에서 추출하는 지시로 바꾸고(빈티지는 입력에 보이는 4자리 연도만), 예시를 독일·프랑스·이탈리아 와인과 빈티지가 없는 경우로 다양화했다.</li>
+    </ul>
+
+    <Toggle heading={'같은 라벨 입력의 실제 출력 한 건: "JAKOB SCHNEIDER Niederhäuser…"'} labelOff="추론 지시·치우친 예시" labelOn="추출 지시·다양한 예시">
+      <div slot="off">
+        <Verdict type="fail">입력에 없는 와인을 출력</Verdict>
+        <Kv k="와인" v="Chateau Lafite Rothschild" type="fail" />
+        <Kv k="산지" v="Pauillac" type="fail" />
+        <Kv k="빈티지" v="2015" type="fail" />
+      </div>
+      <div slot="on">
+        <Verdict type="ok">입력에 있는 이름만 출력</Verdict>
+        <Kv k="와인" v="Jakob Schneider · Niederhäuser Felsensteyer" type="ok" />
+        <Kv k="빈티지" v="(빈칸)" type="ok" />
+      </div>
+    </Toggle>
+  </Defect>
+
+  <Defect pnum="DEFECT 03" category="Structured Output · 종료 후 개인 사본(2026.06)" title="구조화 출력이 빈 응답으로 돌아오다">
+    <div slot="summary">
+      구조화 출력으로 와인 정보를 요청하면 빈 결과가 돌아왔습니다. <b>기본 구조화 출력 방식(function calling)이 빈 결과를 자주 돌려줬고</b>, 실행 환경(LM Studio)은 JSON 모드를 지원하지 않았습니다.
+    </div>
+    <ul slot="tech">
+      <li>LM Studio는 JSON 모드 요청에 <code>response_format.type must be json_schema or text</code> 오류를 돌려줬다.</li>
+      <li>두 단어가 공백 없이 이어진 OCR 결과(붙은 단어)를 작은 모델이 풀지 못해 빈 응답을 만드는 경우도 있었다.</li>
+      <li><b>해결</b>: <code>with_structured_output(WineInfo, method="json_schema")</code>로 형식을 명시했다.</li>
+      <li><b>해결</b>: LLM을 호출하기 전에 붙은 단어를 나누는 전처리를 넣었다.</li>
+    </ul>
+
+    <Toggle heading="구조화 출력 요청 결과" labelOff="기본 방식(function calling)" labelOn="json_schema + 붙은 단어 분리">
+      <div slot="off">
+        <Verdict type="fail">빈 결과가 자주 돌아옴</Verdict>
+        <div class="ts-io"><span class="ts-bad">{'{ }'}</span> 모든 필드 빈 값</div>
+      </div>
+      <div slot="on">
+        <Verdict type="ok">필요한 항목을 모두 채움</Verdict>
+        <div class="ts-io"><span class="ts-good">{'{ name, region, vintage, grape }'}</span></div>
+      </div>
+    </Toggle>
+  </Defect>
 
 </Section>
 
 <Section n="05" label="Result">
   <Metrics
     items={[
-      { big: '0.55→0.88', cap: 'OCR 인식 신뢰도 (라벨 1종)' },
-      { big: '18.66MB→1.36MB', cap: '읽기 경로 캐시 (임베딩 제외 · 적재 약 20배)' },
-      { big: 'json_schema', cap: '구조화 출력 안정화' },
-      { big: '4건 해결', cap: 'OCR·LLM·읽기 경로' },
+      { big: '18.66MB→1.36MB', cap: '읽기 경로 캐시 · 종료 후 개인 사본' },
+      { big: '185ms→9ms', cap: '캐시 적재 시간(약) · 종료 후 개인 사본' },
+      { big: 'json_schema', cap: '구조화 출력 빈 응답 해결 · 종료 후 개인 사본' },
     ]}
   />
   <Grid
     cols={2}
     items={[
-      { title: '학습과 추론은 같아야 한다', sub: '모델이 학습한 입력 분포(크기, 정규화)로 넣어야 정상 동작한다. 단서는 메타데이터에 있다.' },
       { title: '작은 모델의 프롬프트는 균형이다', sub: '너무 강하면 빈 응답, 너무 약하면 환각이 발생한다.' },
-      { title: '기능 지원은 모델 표기만이 아니다', sub: '실행 환경 설정까지 확인해야 형식 강제가 동작한다.' },
-      { title: '침묵 실패를 잡는 습관', sub: 'Pydantic 경고와 바이트 단위 비교가 디버깅의 핵심이었다.' },
+      { title: '형식은 실행 환경이 받는 방식으로 지정한다', sub: '기본 방식이 빈 결과를 내고 실행 환경이 JSON 모드를 받지 않아, json_schema로 형식을 직접 지정했다.' },
       { title: '읽기 경로엔 필요한 컬럼만', sub: '무거운 임베딩 벡터는 유사도 검색이 필요할 때만 불러온다. 읽기 모델과 도메인을 분리한다.' },
     ]}
   />
