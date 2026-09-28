@@ -1,0 +1,169 @@
+---
+// Series part 6: constrained decoding writes fields in the schema's required order.
+//
+// Two panels, same two fields, opposite order. Left: the reason field (free text) comes first; the
+// model writes it, the response completes, and the topics array is left empty ("빈 결과", 70
+// generated tokens). Right: the topics array comes first; it fills, then the reason. A cursor walks
+// the schema in order so the reader sees generation follow the schema, not the instructions.
+// Field names are generalized (reason / topics); the real schema is not reproduced. The three
+// topic chips only show that the array fills; their number is not a measurement.
+// Source: CHZZK docs/blog/handoff/03-포트폴리오-재료.md 「칸의 순서가 곧 생성 순서」.
+import '../chzzk/cz.css';
+import './cb.css';
+
+const PANELS = [
+	{
+		key: 'a',
+		label: '이유 칸이 앞',
+		order: [{ name: 'reason', kind: '자유 문자열' }, { name: 'topics', kind: '배열' }],
+		badge: { tone: 'bad', text: '빈 결과 · 생성 토큰 70' },
+	},
+	{
+		key: 'b',
+		label: '배열 칸이 앞',
+		order: [{ name: 'topics', kind: '배열' }, { name: 'reason', kind: '자유 문자열' }],
+		badge: { tone: 'ok', text: '두 칸 모두 채워짐' },
+	},
+];
+---
+
+<figure class="cz cb-fig not-prose fo" data-cb-field-order>
+	<div class="cb-head">
+		<p class="cb-title">스키마의 칸 순서와 생성</p>
+		<button class="cz-replay" data-cz-replay>▶ 다시 보기</button>
+	</div>
+	<div class="fo-panels" role="img"
+		aria-label="이유 칸을 배열 칸보다 앞에 두면 모델이 이유 칸을 채우고 응답을 끝내 배열 칸이 비고, 생성 토큰 70에서 멈춘다. 배열 칸을 앞에 두면 배열이 먼저 채워지고 이유 칸이 뒤따라, 두 칸이 모두 채워진다.">
+		{PANELS.map((p) => (
+			<div class="fo-panel" data-panel={p.key}>
+				<p class="fo-label">{p.label}</p>
+				<ol class="fo-schema">
+					{p.order.map((f, i) => (
+						<li class="fo-field" data-field={f.name}>
+							<span class="fo-no">{i + 1}</span>
+							<code>{f.name}</code>
+							<span class="fo-kind">{f.kind}</span>
+						</li>
+					))}
+				</ol>
+				<div class="fo-out">
+					{p.order.map((f) => {
+						const empty = p.key === 'a' && f.name === 'topics';
+						return (
+							<div class:list={['fo-slot', { empty }]} data-slot={f.name}>
+								<code class="fo-key">{f.name}</code>
+								{f.name === 'reason'
+									? <span class="fo-lines">{(p.key === 'a' ? [88] : [88, 64]).map((w) => <i data-line data-w={w} style={`width:${w}%`}></i>)}</span>
+									: empty
+										? <span class="fo-none">비어 있음</span>
+										: <span class="fo-chips">{[0, 1, 2].map(() => <b data-chip></b>)}</span>}
+							</div>
+						);
+					})}
+					{p.key === 'a' && <span class="fo-end" data-end>응답 끝</span>}
+				</div>
+				<p class:list={['fo-badge', p.badge.tone]} data-badge>
+					{p.key === 'a' ? <>빈 결과 · 생성 토큰 <span data-tok>70</span></> : p.badge.text}
+				</p>
+			</div>
+		))}
+	</div>
+</figure>
+
+<style>
+	.fo-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+	.fo-panel { display: flex; flex-direction: column; gap: 0.7rem; padding: 1rem; border: 1px solid var(--cz-line); border-radius: 12px; background: var(--color-surface-low); }
+	.cb-fig .fo-label { margin: 0; font-size: 0.82rem; font-weight: 800; color: var(--cz-text); }
+	.cb-fig .fo-schema { display: flex; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+	.cb-fig .fo-field { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.6rem; border: 1px solid var(--cz-line); border-radius: 8px; font-size: 0.74rem; color: var(--cz-muted); transition: border-color 0.2s, color 0.2s; }
+	.cb-fig .fo-field.is-now { border-color: var(--cz-accent); color: var(--cz-text); }
+	.fo-no { display: inline-grid; place-items: center; width: 1.1rem; height: 1.1rem; border-radius: 50%; background: var(--cz-line); font: 700 0.66rem/1 var(--font-space-grotesk); color: var(--cz-text); }
+	.fo-field code, .fo-key { font-family: var(--font-mono); font-size: 0.78rem; color: var(--cz-text); background: none; padding: 0; }
+	.fo-kind { font-size: 0.68rem; }
+	.fo-out { position: relative; display: flex; flex-direction: column; gap: 0.45rem; }
+	.fo-slot { display: grid; grid-template-columns: 4.2rem 1fr; align-items: center; gap: 0.6rem; min-height: 2.6rem; padding: 0.45rem 0.7rem; border: 1px solid var(--cz-line); border-radius: 9px; background: var(--color-surface-high); }
+	.fo-slot.empty { border-style: dashed; background: transparent; }
+	/* Room for the 「응답 끝」 mark, so it never sits on the reason text. */
+	.fo-panel[data-panel='a'] .fo-slot[data-slot='reason'] { padding-right: 5.2rem; }
+	.fo-lines { display: flex; flex-direction: column; gap: 5px; }
+	.fo-lines i { display: block; height: 6px; border-radius: 99px; background: var(--cz-muted); opacity: 0.6; }
+	.fo-chips { display: flex; gap: 6px; }
+	.fo-chips b { width: 30px; height: 16px; border-radius: 5px; background: var(--cz-ok-bg); border: 1px solid var(--cz-ok); }
+	.fo-none { font-size: 0.74rem; color: var(--cz-bad); }
+	.fo-end { position: absolute; right: 0.6rem; top: 0.55rem; padding: 0.15rem 0.45rem; border-radius: 6px; background: var(--cz-bad-bg); font-size: 0.68rem; font-weight: 700; color: var(--cz-bad); }
+	.cb-fig .fo-badge { align-self: flex-start; margin: 0; padding: 0.3rem 0.65rem; border-radius: 999px; font-size: 0.76rem; font-weight: 700; }
+	.fo-badge.bad { color: var(--cz-bad); background: var(--cz-bad-bg); }
+	.fo-badge.ok { color: var(--cz-ok); background: var(--cz-ok-bg); }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from '../chzzk/cz-runtime';
+
+	mount('[data-cb-field-order]', (root) => {
+		const panels = [...root.querySelectorAll<HTMLElement>('[data-panel]')];
+		const all = <T extends Element>(sel: string) => [...root.querySelectorAll<T>(sel)];
+		const lines = all<HTMLElement>('[data-line]');
+		const chips = all<HTMLElement>('[data-chip]');
+		const fades = all<HTMLElement>('[data-badge], [data-end], .fo-none');
+		const fields = all<HTMLElement>('[data-field]');
+		const tok = root.querySelector<HTMLElement>('[data-tok]')!;
+		let tl: Timeline | null = null;
+
+		const arm = () => {
+			tl?.pause();
+			lines.forEach((l) => (l.style.width = '0%'));
+			chips.forEach((c) => { c.style.opacity = '0'; });
+			fades.forEach((f) => { f.style.opacity = '0'; });
+			fields.forEach((f) => f.classList.remove('is-now'));
+			tok.textContent = '0';
+		};
+		const finish = () => {
+			tl?.pause();
+			lines.forEach((l) => (l.style.width = `${l.dataset.w}%`));
+			[...chips, ...fades].forEach((e) => { e.style.opacity = '1'; e.style.transform = 'none'; });
+			fields.forEach((f) => f.classList.remove('is-now'));
+			tok.textContent = '70';
+		};
+		// One panel: walk the schema in order; each field lights and its slot fills.
+		const walk = (T: Timeline, panel: HTMLElement, at: number) => {
+			const fs = [...panel.querySelectorAll<HTMLElement>('[data-field]')];
+			let t = at;
+			const isA = panel.dataset.panel === 'a';
+			fs.forEach((f, i) => {
+				const slot = panel.querySelector<HTMLElement>(`[data-slot="${f.dataset.field}"]`)!;
+				T.call(() => { fs.forEach((x) => x.classList.remove('is-now')); f.classList.add('is-now'); }, t);
+				if (isA && i === 1) {
+					// The schema already completed: the array is never written.
+					T.add(slot.querySelector<HTMLElement>('.fo-none')!, { opacity: [0, 1], duration: 300 }, t + 150);
+					t += 500;
+					return;
+				}
+				const ls = [...slot.querySelectorAll<HTMLElement>('[data-line]')];
+				const cs = [...slot.querySelectorAll<HTMLElement>('[data-chip]')];
+				ls.forEach((l, j) => T.add(l, { width: ['0%', `${l.dataset.w}%`], duration: 420, ease: 'linear' }, t + 120 + j * 420));
+				cs.forEach((c, j) => T.add(c, { opacity: [0, 1], scale: [0.6, 1], duration: 260, ease: 'outBack' }, t + 120 + j * 240));
+				if (isA && i === 0) {
+					const o = { v: 0 };
+					T.add(o, { v: 70, duration: 120 + ls.length * 420, ease: 'linear', onUpdate: () => (tok.textContent = String(Math.round(o.v))) }, t);
+					T.add(panel.querySelector<HTMLElement>('[data-end]')!, { opacity: [0, 1], scale: [1.3, 1], duration: 300, ease: 'outBack' }, t + 120 + ls.length * 420);
+					t += 120 + ls.length * 420 + 450;
+				} else {
+					t += 120 + Math.max(ls.length * 420, cs.length * 240) + 250;
+				}
+			});
+			T.call(() => fs.forEach((x) => x.classList.remove('is-now')), t);
+			T.add(panel.querySelector<HTMLElement>('[data-badge]')!, { opacity: [0, 1], translateY: [6, 0], duration: 360 }, t + 50);
+			return t + 400;
+		};
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outQuad' } });
+			const next = walk(T, panels[0], 200);
+			walk(T, panels[1], next + 600);
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

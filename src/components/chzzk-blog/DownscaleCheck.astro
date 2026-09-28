@@ -1,0 +1,89 @@
+---
+// Series part 1: separating resolution from everything else.
+//
+// Three rows, all at model input 224: frames fetched at 144p, fetched at 480p, and fetched at 480p
+// then shrunk to 144p. The frame sketches are to scale with each other (256×144 and 852×480 at the
+// same factor), so the size difference is the real one. The third row lands back near the first,
+// which is what pins the drop on the resolution itself.
+// Source: CHZZK docs/blog/handoff/04-블로그-연재-재료.md 「1편」 (screen-mode-classifier.md L390-394).
+import '../chzzk/cz.css';
+import './cb.css';
+
+const S = 0.1;
+const F144 = { w: 256 * S, h: 144 * S };
+const F480 = { w: 852 * S, h: 480 * S };
+const ROWS = [
+	{ label: '144p로 받음', acc: 97.5, ok: true, frames: [F144] },
+	{ label: '480p로 받음', acc: 82.6, ok: false, frames: [F480] },
+	{ label: '480p로 받아 144p로 줄임', acc: 96.4, ok: true, frames: [F480, F144] },
+];
+---
+
+<figure class="cz cb-fig not-prose dc" data-cb-downscale>
+	<div class="cb-head">
+		<p class="cb-title">해상도만 되돌렸을 때 · 모델 입력 224</p>
+		<button class="cz-replay" data-cz-replay>▶ 다시 보기</button>
+	</div>
+	<div class="dc-rows" role="img"
+		aria-label="모델 입력 224에서 144p로 받은 낱장은 저스트채팅을 97.5% 남기고, 480p로 받은 낱장은 82.6%를 남긴다. 480p로 받아 144p로 줄이면 96.4%로 돌아온다.">
+		{ROWS.map((r) => (
+			<div class="dc-row" data-row>
+				<div class="dc-frames">
+					{r.frames.map((f, i) => (
+						<>
+							{i > 0 && <span class="dc-arrow">→</span>}
+							<span class:list={['dc-frame', { small: f === F144 }]} style={`width:${f.w}px;height:${f.h}px`}></span>
+						</>
+					))}
+				</div>
+				<p class="dc-label">{r.label}</p>
+				<div class="dc-bar"><span class:list={['dc-fill', r.ok ? 'ok' : 'bad']} data-w={r.acc} style={`width:${r.acc}%`}></span></div>
+				<b class:list={['dc-val', r.ok ? 'ok' : 'bad']} data-late>{r.acc}%</b>
+			</div>
+		))}
+	</div>
+</figure>
+
+<style>
+	.dc-rows { display: flex; flex-direction: column; gap: 0.8rem; }
+	.dc-row { display: grid; grid-template-columns: 11rem 12.5rem 1fr 4rem; align-items: center; gap: 1rem; }
+	.dc-frames { display: flex; align-items: center; gap: 0.45rem; }
+	.dc-frame { display: inline-block; border: 1.5px solid var(--cz-muted); border-radius: 3px; background: repeating-linear-gradient(45deg, var(--cz-line) 0 4px, transparent 4px 8px); }
+	.dc-frame.small { border-color: var(--cz-ok); }
+	.dc-arrow { font-size: 0.85rem; color: var(--cz-muted); }
+	.cb-fig .dc-label { margin: 0; font-size: 0.84rem; font-weight: 600; color: var(--cz-text); }
+	.dc-bar { position: relative; height: 22px; border-radius: 6px; background: var(--cz-line); }
+	.dc-fill { position: absolute; inset: 0 auto 0 0; border-radius: 6px; }
+	.dc-fill.ok { background: var(--cz-ok); }
+	.dc-fill.bad { background: color-mix(in srgb, var(--cz-bad) 70%, transparent); }
+	.dc-val { text-align: right; font: 800 0.95rem/1 var(--font-space-grotesk); }
+	.dc-val.ok { color: var(--cz-ok); }
+	.dc-val.bad { color: var(--cz-bad); }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from '../chzzk/cz-runtime';
+
+	mount('[data-cb-downscale]', (root) => {
+		const rows = [...root.querySelectorAll<HTMLElement>('[data-row]')];
+		let tl: Timeline | null = null;
+		const parts = (r: HTMLElement) => ({ fill: r.querySelector<HTMLElement>('.dc-fill')!, val: r.querySelector<HTMLElement>('[data-late]')! });
+		const arm = () => { tl?.pause(); rows.forEach((r) => { const p = parts(r); p.fill.style.width = '0%'; p.val.style.opacity = '0'; r.style.opacity = '0.35'; }); };
+		const finish = () => { tl?.pause(); rows.forEach((r) => { const p = parts(r); p.fill.style.width = `${p.fill.dataset.w}%`; p.val.style.opacity = '1'; r.style.opacity = '1'; }); };
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outCubic' } });
+			rows.forEach((r, i) => {
+				const p = parts(r);
+				const at = 200 + i * 900;
+				T.add(r, { opacity: [0.35, 1], duration: 250 }, at);
+				T.add(p.fill, { width: ['0%', `${p.fill.dataset.w}%`], duration: 700 }, at + 150);
+				T.add(p.val, { opacity: [0, 1], duration: 300 }, at + 700);
+			});
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

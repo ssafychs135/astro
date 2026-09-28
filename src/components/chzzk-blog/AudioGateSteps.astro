@@ -1,0 +1,92 @@
+---
+// Series part 3: the audio gate's judgment order, one kind of sound per row.
+//
+// Rows are cases of the rule, not a broadcast's make-up: a song with accompaniment, speech, a wordless stretch,
+// and an a-cappella song. Each row lights the checks it passes through in order and ends at its
+// outcome. Below, the one row the order actually changes: an a-cappella song reads 0.82 on the
+// speech probability, so checking speech first would send it to transcription as speech; checking
+// song first (with the song threshold lowered from 0.05 to 0.03) removes it. Accompanied songs are
+// not compared under the swapped order because their speech probability is not in the materials.
+// Source: CHZZK docs/blog/handoff/04-블로그-연재-재료.md 「3편」 (stt.md L766-790, audio_clean.py).
+import '../chzzk/cz.css';
+import './cb.css';
+
+type Cell = 'yes' | 'no' | 'skip';
+const ROWS: { k: string; sub?: string; c1: Cell; c2: Cell; out: string; drop: boolean }[] = [
+	{ k: '노래', c1: 'yes', c2: 'skip', out: '노래 · 걷어냄', drop: true },
+	{ k: '말', c1: 'no', c2: 'yes', out: '말 · 전사로', drop: false },
+	{ k: '말 없는 자리', c1: 'no', c2: 'no', out: '말 없는 자리 · 걷어냄', drop: true },
+	{ k: '무반주 노래', sub: '말 확률 0.82', c1: 'yes', c2: 'skip', out: '노래 · 걷어냄', drop: true },
+];
+const MARK: Record<Cell, string> = { yes: '예', no: '아니오', skip: '—' };
+---
+
+<figure class="cz cb-fig not-prose ag3" data-cb-audio-gate>
+	<div class="cb-head">
+		<p class="cb-title">AST 판정 순서 · 노래를 먼저 본다</p>
+		<button class="cz-replay" data-cz-replay>▶ 다시 보기</button>
+	</div>
+	<div class="ag3-table" role="img"
+		aria-label="판정은 노래 확률이 0.03 이상인지를 먼저 보고, 아니면 말 확률이 0.15 이상인지를 본다. 노래는 첫 판정에서 걷어낸다. 말은 둘째 판정을 통과해 전사로 간다. 말 없는 자리는 두 판정을 모두 넘지 못해 걷어낸다. 무반주 노래는 말 확률이 0.82지만 첫 판정에서 노래로 걷어낸다. 말을 먼저 봤다면 무반주 노래는 말로 정해져 전사로 가고 가사가 남는다.">
+		<span class="ag3-h">입력</span><span class="ag3-h">① 노래 확률 ≥ 0.03</span><span class="ag3-h">② 말 확률 ≥ 0.15</span><span class="ag3-h">결과</span>
+		{ROWS.map((r) => (
+			<>
+				<span class="ag3-k" data-cell>{r.k}{r.sub && <em>{r.sub}</em>}</span>
+				<span class:list={['ag3-c', r.c1]} data-cell>{MARK[r.c1]}</span>
+				<span class:list={['ag3-c', r.c2]} data-cell>{MARK[r.c2]}</span>
+				<span class:list={['ag3-out', { drop: r.drop }]} data-cell>{r.out}</span>
+			</>
+		))}
+	</div>
+	<div class="ag3-swap" data-swap>
+		<p class="ag3-swap-h">판정 순서를 바꾸면 · 무반주 노래</p>
+		<div class="ag3-swap-row"><span class="ag3-tag">노래를 먼저</span><span>① 노래 확률 ≥ 0.03 → 예</span><b class="ok">노래로 걷어냄</b></div>
+		<div class="ag3-swap-row"><span class="ag3-tag">말을 먼저</span><span>① 말 확률 0.82 ≥ 0.15 → 예</span><b class="bad">말로 정해져 가사가 전사됨</b></div>
+	</div>
+</figure>
+
+<style>
+	.ag3-table { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1.1fr; gap: 0.45rem 0.6rem; align-items: center; }
+	.ag3-h { font-size: 0.72rem; font-weight: 700; color: var(--cz-muted); padding-bottom: 0.2rem; }
+	.ag3-k { font-size: 0.86rem; font-weight: 800; color: var(--cz-text); }
+	.ag3-k em { display: block; font-style: normal; font-size: 0.7rem; font-weight: 500; color: var(--cz-muted); }
+	.ag3-c { display: inline-flex; justify-content: center; padding: 0.35rem 0; border-radius: 7px; font-size: 0.78rem; font-weight: 700; }
+	.ag3-c.yes { background: var(--cz-ok-bg); color: var(--cz-ok); border: 1px solid var(--cz-ok); }
+	.ag3-c.no { background: transparent; color: var(--cz-muted); border: 1px solid var(--cz-line); }
+	.ag3-c.skip { color: var(--cz-muted); opacity: 0.6; }
+	.ag3-out { padding: 0.35rem 0.6rem; border-radius: 7px; font-size: 0.8rem; font-weight: 700; color: var(--cz-ok); background: var(--cz-ok-bg); }
+	.ag3-out.drop { color: var(--cz-muted); background: transparent; border: 1px dashed var(--cz-line); }
+	.ag3-swap { margin-top: 1rem; padding: 0.8rem 0.9rem; border: 1px solid var(--cz-line); border-radius: 10px; background: var(--color-surface-low); display: flex; flex-direction: column; gap: 0.45rem; }
+	.cb-fig .ag3-swap-h { margin: 0 0 0.15rem; font-size: 0.76rem; font-weight: 700; color: var(--cz-text); }
+	.ag3-swap-row { display: grid; grid-template-columns: 6rem 1fr auto; align-items: center; gap: 0.7rem; font-size: 0.8rem; color: var(--cz-muted); }
+	.ag3-tag { padding: 0.2rem 0.5rem; border-radius: 999px; border: 1px solid var(--cz-line); text-align: center; font-size: 0.72rem; color: var(--cz-text); }
+	.ag3-swap-row b { font-size: 0.8rem; }
+	.ag3-swap-row b.ok { color: var(--cz-ok); }
+	.ag3-swap-row b.bad { color: var(--cz-bad); }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from '../chzzk/cz-runtime';
+
+	mount('[data-cb-audio-gate]', (root) => {
+		const cells = [...root.querySelectorAll<HTMLElement>('[data-cell]')];
+		const swap = root.querySelector<HTMLElement>('[data-swap]')!;
+		let tl: Timeline | null = null;
+		const arm = () => { tl?.pause(); cells.forEach((c) => { c.style.opacity = '0'; }); swap.style.opacity = '0'; };
+		const finish = () => { tl?.pause(); cells.forEach((c) => { c.style.opacity = '1'; c.style.transform = 'none'; }); swap.style.opacity = '1'; swap.style.transform = 'none'; };
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outQuad' } });
+			// Row by row, left to right: the input, check ①, check ②, then where it ends up.
+			for (let r = 0; r < cells.length / 4; r++) {
+				const row = cells.slice(r * 4, r * 4 + 4);
+				row.forEach((c, j) => T.add(c, { opacity: [0, 1], translateX: [-6, 0], duration: 260 }, 200 + r * 800 + j * 170));
+			}
+			T.add(swap, { opacity: [0, 1], translateY: [8, 0], duration: 420 }, 200 + (cells.length / 4) * 800 + 200);
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

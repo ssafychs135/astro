@@ -1,0 +1,16 @@
+/* CHZZK 블로그 연재 그림의 공통 모양. 본문(.prose-obsidian)의 p·li·h4 규칙이 not-prose를 거르지
+   않으므로, 안쪽 요소 규칙은 .cb-fig를 앞에 붙여 (0,1,1)보다 높인다. */
+.cb-fig {
+	margin: 2.2rem 0;
+	padding: 1.25rem 1.35rem;
+	border: 1px solid var(--glass-border);
+	border-radius: 16px;
+	background-color: var(--color-surface-high);
+}
+.cb-fig .cb-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.9rem; }
+.cb-fig .cb-title { margin: 0; font-size: 0.92rem; font-weight: 700; color: var(--color-text-base); }
+.cb-fig .cb-cap { margin: 0.8rem 0 0; font-size: 0.8rem; line-height: 1.6; color: var(--color-text-muted); }
+.cb-fig svg { display: block; width: 100%; height: auto; overflow: visible; }
+.cb-fig svg text { font-family: var(--font-pretendard); }
+.cz.cb-fig li::before { content: none; }
+.cz.cb-fig li { margin: 0; padding: 0; }

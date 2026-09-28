@@ -1,0 +1,110 @@
+---
+// Series part 0: the seven pipeline stages with each post pinned under the stage it covers.
+//
+// Stages run left to right; under a stage hang the posts about it, as real links. Screen judgment
+// holds parts 1 and 2, audio cleaning part 3, transcription part 4, and the boundary and title stages
+// (one column pair) parts 5 and 6 plus part 7 on sharing the GPU. Collection and joining have no post.
+// Not role="img": the cards are links a reader can follow.
+// Sources: stage and model names as in the portfolio's CzSystem; titles and slugs from the posts.
+import '../chzzk/cz.css';
+import './cb.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const STAGES = [
+	{ name: '수집', models: [] },
+	{ name: '화면 판정', models: ['SigLIP2', '선형 분류기'] },
+	{ name: '오디오 정리', models: ['AST'] },
+	{ name: '전사', models: ['faster-whisper'] },
+	{ name: '잇기', models: [] },
+	{ name: '챕터 경계', models: ['Gemma 4 26B', 'KURE-v1'] },
+	{ name: '제목', models: ['Gemma 4 26B', 'KURE-v1'] },
+];
+type Post = { n: number; slug: string; title: string; tag?: string };
+// Each group sits under a column span (1-based, inclusive).
+const GROUPS: { from: number; to: number; posts: Post[] }[] = [
+	{ from: 2, to: 2, posts: [
+		{ n: 1, slug: 'chzzk-series-1-resolution', title: '화면 판정 해상도' },
+		{ n: 2, slug: 'chzzk-series-2-auto-label', title: '묶음 라벨링' },
+	] },
+	{ from: 3, to: 3, posts: [{ n: 3, slug: 'chzzk-series-3-audio-gate', title: 'AST 오디오 정리' }] },
+	{ from: 4, to: 4, posts: [{ n: 4, slug: 'chzzk-series-4-no-answer-key', title: '정답지 없는 전사 설정' }] },
+	{ from: 6, to: 7, posts: [
+		{ n: 5, slug: 'chzzk-series-5-model-boundary', title: 'LLM과 코드의 분담' },
+		{ n: 6, slug: 'chzzk-series-6-field-order', title: 'JSON 스키마 칸 순서' },
+		{ n: 7, slug: 'chzzk-series-7-two-models', title: '16GB VRAM에 모델 둘', tag: 'GPU' },
+	] },
+];
+---
+
+<figure class="cz cb-fig not-prose sm" data-cb-series-map>
+	<div class="cb-head">
+		<p class="cb-title">파이프라인 일곱 단계와 연재</p>
+		<button class="cz-replay" data-cz-replay>▶ 다시 보기</button>
+	</div>
+	<div class="sm-grid">
+		<ol class="sm-stages" aria-label="파이프라인 단계">
+			{STAGES.map((s, i) => (
+				<li class="sm-stage" data-stage style={`grid-column:${i + 1}`}>
+					<b>{s.name}</b>
+					{s.models.map((m) => <span>{m}</span>)}
+				</li>
+			))}
+		</ol>
+		<div class="sm-posts">
+			{GROUPS.map((g) => (
+				<div class="sm-group" data-group data-from={g.from} style={`grid-column:${g.from} / ${g.to + 1}`}>
+					<i class="sm-stem" aria-hidden="true"></i>
+					{g.posts.map((p) => (
+						<a class="sm-card" href={`${base}/blog/${p.slug}/`} data-card>
+							<span class="sm-n">{p.n}편{p.tag && <em>{p.tag}</em>}</span>
+							<span class="sm-t">{p.title}</span>
+						</a>
+					))}
+				</div>
+			))}
+		</div>
+	</div>
+</figure>
+
+<style>
+	.sm-grid { display: flex; flex-direction: column; gap: 0; }
+	.sm-stages, .sm-posts { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0 0.6rem; }
+	.cz.cb-fig .sm-stages { list-style: none; margin: 0; padding: 0; }
+	.cz.cb-fig .sm-stage { position: relative; display: flex; flex-direction: column; gap: 0.1rem; min-height: 3.6rem; padding: 0.55rem 0.6rem; border: 1px solid var(--cz-line); border-radius: 9px; background: var(--color-surface-low); }
+	.sm-stage:not(:last-child)::after { content: ''; position: absolute; top: 50%; right: -0.6rem; width: 0.6rem; border-top: 1px solid var(--cz-muted); }
+	.sm-stage b { font-size: 0.82rem; font-weight: 800; color: var(--cz-text); }
+	.sm-stage span { font-size: 0.66rem; line-height: 1.3; color: var(--cz-muted); white-space: nowrap; }
+	.sm-group { position: relative; display: flex; flex-direction: column; gap: 0.4rem; padding-top: 1.1rem; }
+	.sm-stem { position: absolute; top: 0; left: 50%; height: 1.1rem; border-left: 1px dashed var(--cz-muted); }
+	.sm-card { display: flex; flex-direction: column; gap: 0.2rem; padding: 0.5rem 0.6rem; border: 1px solid color-mix(in srgb, var(--cz-accent) 45%, transparent); border-radius: 9px; background: color-mix(in srgb, var(--cz-accent) 7%, transparent); text-decoration: none; transition: border-color 0.2s, background 0.2s; }
+	.sm-card:hover, .sm-card:focus-visible { border-color: var(--cz-accent); background: color-mix(in srgb, var(--cz-accent) 14%, transparent); }
+	.sm-n { display: flex; align-items: center; gap: 0.35rem; font: 700 0.66rem/1 var(--font-space-grotesk); color: var(--cz-accent); }
+	.sm-n em { font-style: normal; padding: 0.1rem 0.3rem; border-radius: 4px; border: 1px solid var(--cz-accent-2); color: var(--cz-accent-2); }
+	.sm-t { font-size: 0.8rem; font-weight: 700; line-height: 1.35; color: var(--cz-text); }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from '../chzzk/cz-runtime';
+
+	mount('[data-cb-series-map]', (root) => {
+		const stages = [...root.querySelectorAll<HTMLElement>('[data-stage]')];
+		const groups = [...root.querySelectorAll<HTMLElement>('[data-group]')];
+		let tl: Timeline | null = null;
+		const arm = () => { tl?.pause(); stages.forEach((s) => { s.style.opacity = '0.25'; }); groups.forEach((g) => { g.style.opacity = '0'; }); };
+		const finish = () => { tl?.pause(); stages.forEach((s) => { s.style.opacity = '1'; }); groups.forEach((g) => { g.style.opacity = '1'; g.style.transform = 'none'; }); };
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outQuad' } });
+			// Stages light left to right; a stage's posts drop in right after it.
+			stages.forEach((s, i) => {
+				const at = 150 + i * 320;
+				T.add(s, { opacity: [0.25, 1], duration: 280 }, at);
+				groups.filter((g) => Number(g.dataset.from) === i + 1).forEach((g) => T.add(g, { opacity: [0, 1], translateY: [-8, 0], duration: 380 }, at + 200));
+			});
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

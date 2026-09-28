@@ -1,0 +1,145 @@
+---
+// Series part 5: which steps the language model does and which the code does.
+//
+// Two lanes (code, model) under two stages (chapter boundary, title). One dot runs behind the boxes
+// from step to step, so the reader sees work pass from code to the model and back. Boundary: code
+// builds candidates from 2-minute pieces with KURE-v1, the model answers whether neighbours carry on
+// (a reason field plus a yes/no field), code fixes the boundaries. Title: the model gives candidate names and start times
+// (its share estimate is dropped), code re-measures shares over 30-second pieces with KURE-v1 and
+// picks the names with no model call.
+// Source: CHZZK docs/blog/handoff/04-블로그-연재-재료.md 「5편 · 전제 확인」 (neighbor_prompts.py,
+// title_pick.py, candidate_embed.py).
+import '../chzzk/cz.css';
+import './cb.css';
+
+const BW = 124, BH = 82, GAP = 20, SW = 3 * BW + 2 * GAP;
+const S1 = 70, S2 = S1 + SW + 26, W = S2 + SW + 4, H = 304;
+const LANE = { code: 100, model: 236 } as const;
+type Lane = keyof typeof LANE;
+type Box = { lane: Lane; x: number; t: string; lines: string[]; note?: string };
+const at = (s: number, i: number) => s + i * (BW + GAP);
+const BOXES: Box[] = [
+	{ lane: 'code', x: at(S1, 0), t: '후보 만들기', lines: ['2분 조각으로', 'KURE-v1 임베딩'] },
+	{ lane: 'model', x: at(S1, 1), t: '이어지는가', lines: ['예·아니오', '+ 이유'], note: '원문 둘, 짧으면 셋' },
+	{ lane: 'code', x: at(S1, 2), t: '경계 확정', lines: ['판정을 모아서'] },
+	{ lane: 'model', x: at(S2, 0), t: '이름 뽑기', lines: ['후보 이름', '시작 시각'], note: '비중 추정은 버림' },
+	{ lane: 'code', x: at(S2, 1), t: '비중 다시 재기', lines: ['30초 조각마다', 'KURE-v1 임베딩'] },
+	{ lane: 'code', x: at(S2, 2), t: '제목 고르기', lines: ['1등 50% 이상: 하나', '아니면 10% 이상', '최대 5개'] },
+];
+const cx = (b: Box) => b.x + BW / 2;
+const cy = (b: Box) => LANE[b.lane];
+// Links run inside a stage only: 0→1, 1→2, 3→4, 4→5.
+const LINKS = [[0, 1], [1, 2], [3, 4], [4, 5]].map(([a, b]) => {
+	const A = BOXES[a], B = BOXES[b];
+	const sx = A.x + BW, sy = cy(A), ex = B.x, ey = cy(B), mx = (sx + ex) / 2;
+	const d = sy === ey ? `M${sx},${sy} H${ex - 4}` : `M${sx},${sy} H${mx} V${ey} H${ex - 4}`;
+	// The dot's route: centre of A → elbow → centre of B (it passes under the boxes).
+	const route = sy === ey ? [[cx(A), sy], [cx(B), ey]] : [[cx(A), sy], [mx, sy], [mx, ey], [cx(B), ey]];
+	return { a, b, d, route };
+});
+---
+
+<figure class="cz cb-fig not-prose wd" data-cb-who-decides>
+	<div class="cb-head">
+		<p class="cb-title">코드와 모델이 맡는 일 · 챕터 경계와 제목</p>
+		<button class="cz-replay" data-cz-replay>▶ 다시 보기</button>
+	</div>
+	<svg viewBox={`0 0 ${W} ${H}`} role="img" data-routes={JSON.stringify(LINKS.map((l) => l.route))}
+		aria-label="챕터 경계 단계: 코드가 전사문을 2분 조각으로 자르고 KURE-v1 임베딩으로 후보를 만든다. 모델은 이웃한 후보 둘, 짧은 후보가 끼면 셋의 원문을 읽고 이어지는지를 이유와 예·아니오로 답한다. 코드가 판정을 모아 경계를 확정한다. 제목 단계: 모델이 챕터 전사문을 읽고 후보 이름과 시작 시각을 돌려준다. 모델이 돌려준 비중 추정은 버린다. 코드가 30초 조각마다 KURE-v1 임베딩으로 비중을 다시 재고, 1등 이름의 비중이 50% 이상이면 그 이름 하나를, 아니면 10% 이상인 이름을 최대 5개 고른다.">
+		<defs>
+			<marker id="wd-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+				<path d="M0,0 L8,4 L0,8 z" class="wd-arrowhead" />
+			</marker>
+		</defs>
+		<g data-frame>
+			<rect x="0" y={LANE.code - 50} width={W} height="100" rx="12" class="wd-lane code" />
+			<rect x="0" y={LANE.model - 50} width={W} height="100" rx="12" class="wd-lane model" />
+			<text x="14" y={LANE.code + 4} class="wd-lane-t code">코드</text>
+			<text x="14" y={LANE.model - 4} class="wd-lane-t model">모델</text>
+			<text x="14" y={LANE.model + 13} class="wd-lane-sub">26B</text>
+			<text x={S1} y="28" class="wd-stage">챕터 경계</text>
+			<text x={S2} y="28" class="wd-stage">제목</text>
+			<line x1={S2 - 14} x2={S2 - 14} y1="14" y2={H - 6} class="wd-divider" />
+		</g>
+		{LINKS.map((l) => <path d={l.d} class="wd-link" marker-end="url(#wd-arrow)" data-link />)}
+		<circle r="7" class="wd-dot" cx={cx(BOXES[0])} cy={cy(BOXES[0])} style="opacity:0" data-dot />
+		{BOXES.map((b) => (
+			<g class:list={['wd-box', b.lane]} data-box>
+				<rect x={b.x} y={cy(b) - BH / 2} width={BW} height={BH} rx="9" />
+				<text x={cx(b)} y={cy(b) - BH / 2 + 22} class="wd-box-t">{b.t}</text>
+				{b.lines.map((ln, i) => <text x={cx(b)} y={cy(b) - BH / 2 + 41 + i * 15} class="wd-box-l">{ln}</text>)}
+				{b.note && <text x={cx(b)} y={cy(b) + BH / 2 + 17} class="wd-note">{b.note}</text>}
+			</g>
+		))}
+	</svg>
+</figure>
+
+<style>
+	.wd text { font-family: var(--font-pretendard); }
+	.wd-lane { stroke: none; }
+	.wd-lane.code { fill: color-mix(in srgb, var(--cz-accent) 6%, transparent); }
+	.wd-lane.model { fill: color-mix(in srgb, var(--cz-accent-2) 7%, transparent); }
+	.wd-lane-t { font-size: 14px; font-weight: 800; }
+	.wd-lane-t.code { fill: var(--cz-accent); }
+	.wd-lane-t.model { fill: var(--cz-accent-2); }
+	.wd-lane-sub { font: 600 11.5px var(--font-space-grotesk); fill: var(--cz-muted); }
+	.wd-stage { font-size: 14px; font-weight: 800; fill: var(--cz-text); }
+	.wd-divider { stroke: var(--cz-line); stroke-dasharray: 3 4; }
+	.wd-link { fill: none; stroke: var(--cz-muted); stroke-width: 1.4; }
+	.wd-arrowhead { fill: var(--cz-muted); }
+	.wd-dot { fill: var(--cz-text); }
+	.wd-box rect { fill: var(--color-surface-low); stroke-width: 1.5; }
+	.wd-box.code rect { stroke: var(--cz-accent); }
+	.wd-box.model rect { stroke: var(--cz-accent-2); }
+	.wd-box-t { font-size: 14px; font-weight: 800; fill: var(--cz-text); text-anchor: middle; }
+	.wd-box-l { font-size: 12.5px; fill: var(--cz-muted); text-anchor: middle; }
+	.wd-note { font-size: 12px; fill: var(--cz-accent-2); text-anchor: middle; }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from '../chzzk/cz-runtime';
+
+	mount('[data-cb-who-decides]', (root) => {
+		const svgEl = root.querySelector<SVGSVGElement>('svg')!;
+		const routes: number[][][] = JSON.parse(svgEl.dataset.routes ?? '[]');
+		const frame = root.querySelector<SVGGElement>('[data-frame]')!;
+		const boxes = [...root.querySelectorAll<SVGGElement>('[data-box]')];
+		const links = [...root.querySelectorAll<SVGPathElement>('[data-link]')];
+		const dot = root.querySelector<SVGCircleElement>('[data-dot]')!;
+		// Which link starts at which box: the stages are 0→1→2 and 3→4→5.
+		const FROM = [0, 1, 3, 4];
+		let tl: Timeline | null = null;
+		const arm = () => { tl?.pause(); frame.style.opacity = '0'; boxes.forEach((b) => { b.style.opacity = '0.2'; }); links.forEach((l) => { l.style.opacity = '0'; }); dot.style.opacity = '0'; };
+		const finish = () => { tl?.pause(); frame.style.opacity = '1'; boxes.forEach((b) => { b.style.opacity = '1'; }); links.forEach((l) => { l.style.opacity = '1'; }); dot.style.opacity = '0'; };
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'inOutSine' } });
+			T.add(frame, { opacity: [0, 1], duration: 400, ease: 'outQuad' }, 0);
+			let t = 500;
+			routes.forEach((route, i) => {
+				const start = FROM[i];
+				// A stage starts: the dot appears on its first box.
+				if (i === 0 || i === 2) {
+					T.set(dot, { cx: route[0][0], cy: route[0][1] }, t);
+					T.add(dot, { opacity: [0, 1], duration: 200 }, t);
+					T.add(boxes[start], { opacity: [0.2, 1], duration: 250 }, t);
+					t += 400;
+				}
+				T.add(links[i], { opacity: [0, 1], duration: 250, ease: 'outQuad' }, t);
+				for (let s = 1; s < route.length; s++) {
+					const seg = route.length === 2 ? 700 : 260;
+					T.add(dot, { cx: [route[s - 1][0], route[s][0]], cy: [route[s - 1][1], route[s][1]], duration: seg, ease: 'linear' }, t);
+					t += seg;
+				}
+				T.add(boxes[start + 1], { opacity: [0.2, 1], duration: 250, ease: 'outQuad' }, t);
+				t += 350;
+				// A stage ends: the dot leaves before the next stage starts.
+				if (i === 1 || i === 3) { T.add(dot, { opacity: [1, 0], duration: 250 }, t); t += 450; }
+			});
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

@@ -1,0 +1,88 @@
+---
+// Series part 1: accuracy and embedding time per condition, in two separately titled columns.
+//
+// The two columns come from different runs and must not read as one: accuracy is the resolution
+// comparison experiment (each condition re-tuned and re-trained, compared at its own best);
+// embedding time is from one broadcast of the cost run (the steady-state one), same machine, 144p vs 480p. So they are not
+// plotted as one point per condition; each column carries its own heading and scale.
+// Accuracy: share of just-chatting kept. Embedding time: relative to 144p at input 224 (a ratio of
+// two measured elapsed times).
+// Source: CHZZK docs/blog/handoff/04-블로그-연재-재료.md 「1편」 (screen-mode-classifier.md
+// L390-394; embedding multiples divided from that one broadcast's elapsed times).
+import '../chzzk/cz.css';
+import './cb.css';
+
+const ROWS = [
+	{ k: '144p', sub: '입력 224', acc: 97.5, cost: 1, ok: true },
+	{ k: '480p', sub: '입력 224', acc: 82.6, cost: 1.4 },
+	{ k: '480p', sub: '입력 384', acc: 87.8, cost: 2.9 },
+	{ k: '480p', sub: '입력 512', acc: 88.0, cost: 4.9 },
+];
+const COST_MAX = 5;
+---
+
+<figure class="cz cb-fig not-prose rc" data-cb-resolution>
+	<div class="cb-head">
+		<p class="cb-title">조건별 저스트채팅을 남긴 비율과 임베딩 시간</p>
+		<button class="cz-replay" data-cz-replay>▶ 다시 보기</button>
+	</div>
+	<div class="rc-grid" role="img"
+		aria-label="저스트채팅을 남긴 비율은 144p 입력 224에서 97.5%, 480p 입력 224에서 82.6%, 384에서 87.8%, 512에서 88.0%다. 방송 하나에서 따로 잰 임베딩 시간은 144p를 1로 두면 480p 입력 224가 1.4배, 384가 2.9배, 512가 4.9배다.">
+		<span></span>
+		<p class="rc-colh">저스트채팅을 남긴 비율<em>해상도 비교 실험</em></p>
+		<p class="rc-colh">임베딩 시간 · 144p = 1<em>방송 하나 · 같은 기계</em></p>
+		{ROWS.map((r) => (
+			<>
+				<p class:list={['rc-k', { ok: r.ok }]}>{r.k}<em>{r.sub}</em></p>
+				<div class="rc-bar">
+					<span class:list={['rc-fill', r.ok ? 'ok' : 'bad']} data-w={r.acc} style={`width:${r.acc}%`}></span>
+					<b data-late>{r.acc.toFixed(1)}%</b>
+				</div>
+				<div class="rc-bar">
+					<span class:list={['rc-fill', 'cost', { ok: r.ok }]} data-w={(r.cost / COST_MAX) * 100} style={`width:${(r.cost / COST_MAX) * 100}%`}></span>
+					<b data-late>{r.cost === 1 ? '1배' : `${r.cost}배`}</b>
+				</div>
+			</>
+		))}
+	</div>
+</figure>
+
+<style>
+	.rc-grid { display: grid; grid-template-columns: 6.5rem 1fr 1fr; gap: 0.7rem 1.4rem; align-items: center; }
+	.cb-fig .rc-colh { margin: 0 0 0.2rem; font-size: 0.8rem; font-weight: 700; color: var(--cz-text); }
+	.cb-fig .rc-colh em, .cb-fig .rc-k em { display: block; font-style: normal; font-size: 0.7rem; font-weight: 500; color: var(--cz-muted); }
+	.cb-fig .rc-k { margin: 0; font: 800 0.92rem/1.2 var(--font-space-grotesk); color: var(--cz-bad); }
+	.cb-fig .rc-k.ok { color: var(--cz-ok); }
+	.rc-bar { position: relative; height: 26px; border-radius: 7px; background: var(--cz-line); }
+	.rc-fill { position: absolute; inset: 0 auto 0 0; border-radius: 7px; }
+	.rc-fill.ok { background: var(--cz-ok); }
+	.rc-fill.bad { background: color-mix(in srgb, var(--cz-bad) 70%, transparent); }
+	.rc-fill.cost { background: color-mix(in srgb, var(--cz-accent-2) 55%, transparent); }
+	.rc-fill.cost.ok { background: var(--cz-ok); }
+	.rc-bar b { position: absolute; right: 0.55rem; top: 50%; transform: translateY(-50%); font: 800 0.8rem/1 var(--font-space-grotesk); color: var(--cz-text); }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from '../chzzk/cz-runtime';
+
+	mount('[data-cb-resolution]', (root) => {
+		const fills = [...root.querySelectorAll<HTMLElement>('.rc-fill')];
+		const late = [...root.querySelectorAll<HTMLElement>('[data-late]')];
+		let tl: Timeline | null = null;
+		const arm = () => { tl?.pause(); fills.forEach((f) => (f.style.width = '0%')); late.forEach((l) => (l.style.opacity = '0')); };
+		const finish = () => { tl?.pause(); fills.forEach((f) => (f.style.width = `${f.dataset.w}%`)); late.forEach((l) => (l.style.opacity = '1')); };
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outCubic' } });
+			// Accuracy column first, row by row; then the separately measured cost column.
+			const acc = fills.filter((_, i) => i % 2 === 0), cost = fills.filter((_, i) => i % 2 === 1);
+			const accL = late.filter((_, i) => i % 2 === 0), costL = late.filter((_, i) => i % 2 === 1);
+			acc.forEach((f, i) => { T.add(f, { width: ['0%', `${f.dataset.w}%`], duration: 800 }, 150 + i * 160); T.add(accL[i], { opacity: [0, 1], duration: 300 }, 750 + i * 160); });
+			cost.forEach((f, i) => { T.add(f, { width: ['0%', `${f.dataset.w}%`], duration: 800 }, 1600 + i * 160); T.add(costL[i], { opacity: [0, 1], duration: 300 }, 2200 + i * 160); });
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

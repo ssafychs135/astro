@@ -1,0 +1,104 @@
+---
+// Series part 2: labelling by cluster instead of by window.
+//
+// One broadcast's windows are grouped into 25 clusters (KMeans 25, the real count per broadcast).
+// A person looks at two representative frames of one cluster as a grid and picks one of three
+// verdicts; the verdict becomes the label of every window in that cluster. No model is called.
+// The clusters are not coloured by verdict: that would state a game/non-game ratio the figure does
+// not have. The highlighted cluster and its verdict show the procedure only.
+// Source: CHZZK docs/blog/handoff/04-블로그-연재-재료.md 「2편 · 묶어서 라벨 붙이기」
+// (screen-mode-classifier.md L3390-3391).
+import '../chzzk/cz.css';
+import './cb.css';
+
+const PICK = 12;
+const STEPS = ['비슷한 창끼리 25묶음', '묶음마다 대표 낱장 둘', '셋 중 하나로 판정', '묶음 안의 모든 창에 같은 라벨'];
+---
+
+<figure class="cz cb-fig not-prose cl" data-cb-cluster>
+	<div class="cb-head">
+		<p class="cb-title">방송 하나를 묶음 단위로 라벨링</p>
+		<button class="cz-replay" data-cz-replay>▶ 다시 보기</button>
+	</div>
+	<ol class="cl-steps">
+		{STEPS.map((s, i) => <li data-step><span>{i + 1}</span>{s}</li>)}
+	</ol>
+	<div class="cl-body" role="img"
+		aria-label="방송 하나의 창을 비슷한 것끼리 25개 묶음으로 나눈다. 묶음 하나를 골라 대표 낱장 둘을 격자로 보고, 게임 · 게임 아님 · 애매 가운데 하나로 판정하면 그 판정이 묶음 안 모든 창의 라벨이 된다. 모델은 부르지 않는다.">
+		<div class="cl-grid">
+			{Array.from({ length: 25 }, (_, i) => (
+				<span class:list={['cl-tile', { pick: i === PICK, 'is-on': i === PICK }]} data-tile></span>
+			))}
+		</div>
+		<span class="cl-arrow" data-part>→</span>
+		<div class="cl-zoom" data-part>
+			<p class="cl-zoom-h">대표 낱장 둘</p>
+			<div class="cl-frames"><span></span><span></span></div>
+		</div>
+		<span class="cl-arrow" data-part>→</span>
+		<div class="cl-verdict" data-part>
+			<span class="on">게임</span><span>게임 아님</span><span>애매</span>
+		</div>
+		<span class="cl-arrow" data-part>→</span>
+		<div class="cl-apply" data-part>
+			<p>묶음의 창 전체</p>
+			<div class="cl-strip"></div>
+			<b>게임</b>
+		</div>
+	</div>
+</figure>
+
+<style>
+	.cb-fig .cl-steps { display: flex; gap: 0.5rem; margin: 0 0 1rem; padding: 0; list-style: none; flex-wrap: wrap; }
+	.cb-fig .cl-steps li { display: flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.6rem; border: 1px solid var(--cz-line); border-radius: 999px; font-size: 0.74rem; color: var(--cz-muted); transition: border-color 0.2s, color 0.2s; }
+	.cb-fig .cl-steps li.is-now { border-color: var(--cz-accent); color: var(--cz-text); }
+	.cl-steps span { display: inline-grid; place-items: center; width: 1.05rem; height: 1.05rem; border-radius: 50%; background: var(--cz-line); font: 700 0.64rem/1 var(--font-space-grotesk); color: var(--cz-text); }
+	.cl-body { display: grid; grid-template-columns: auto auto auto auto auto auto 1fr; align-items: center; gap: 0.8rem; }
+	.cl-grid { display: grid; grid-template-columns: repeat(5, 30px); gap: 5px; }
+	.cl-tile { width: 30px; height: 30px; box-sizing: border-box; border: 1px solid var(--cz-line); border-radius: 6px; background: color-mix(in srgb, var(--cz-muted) 22%, var(--color-surface-low)); transition: border-color 0.2s, box-shadow 0.2s; }
+	.cl-tile.pick.is-on { border-color: var(--cz-accent); box-shadow: 0 0 0 2px var(--cz-accent); }
+	.cl-arrow { font-size: 1rem; color: var(--cz-muted); }
+	.cl-zoom { padding: 0.6rem; border: 1px solid var(--cz-accent); border-radius: 10px; background: var(--color-surface-low); }
+	.cb-fig .cl-zoom-h { margin: 0 0 0.4rem; font-size: 0.7rem; color: var(--cz-muted); }
+	.cl-frames { display: flex; gap: 0.4rem; }
+	.cl-frames span { width: 64px; height: 36px; border-radius: 4px; border: 1px solid var(--cz-muted); background: repeating-linear-gradient(45deg, var(--cz-line) 0 4px, transparent 4px 8px); }
+	.cl-verdict { display: flex; flex-direction: column; gap: 0.3rem; }
+	.cl-verdict span { padding: 0.25rem 0.6rem; border: 1px solid var(--cz-line); border-radius: 7px; font-size: 0.74rem; color: var(--cz-muted); text-align: center; }
+	.cl-verdict span.on { border-color: var(--cz-accent); background: var(--cz-ok-bg); color: var(--cz-text); font-weight: 700; }
+	.cl-apply { padding: 0.6rem 0.7rem; border: 1px solid var(--cz-line); border-radius: 10px; background: var(--color-surface-low); }
+	.cb-fig .cl-apply p { margin: 0 0 0.4rem; font-size: 0.7rem; color: var(--cz-muted); }
+	.cl-strip { width: 7rem; height: 10px; margin-bottom: 0.4rem; border-radius: 99px; background: var(--cz-ok); }
+	.cl-apply b { font-size: 0.78rem; color: var(--cz-ok); }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from '../chzzk/cz-runtime';
+
+	mount('[data-cb-cluster]', (root) => {
+		const steps = [...root.querySelectorAll<HTMLElement>('[data-step]')];
+		const tiles = [...root.querySelectorAll<HTMLElement>('[data-tile]')];
+		const parts = [...root.querySelectorAll<HTMLElement>('[data-part]')];
+		const pick = root.querySelector<HTMLElement>('.cl-tile.pick')!;
+		let tl: Timeline | null = null;
+		const now = (i: number) => steps.forEach((s, j) => s.classList.toggle('is-now', j === i));
+		const arm = () => { tl?.pause(); tiles.forEach((t) => { t.style.opacity = '0'; }); parts.forEach((p) => { p.style.opacity = '0'; }); pick.classList.remove('is-on'); now(-1); };
+		const finish = () => { tl?.pause(); tiles.forEach((t) => { t.style.opacity = '1'; t.style.transform = 'none'; }); parts.forEach((p) => { p.style.opacity = '1'; p.style.transform = 'none'; }); pick.classList.add('is-on'); now(-1); };
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outQuad' } });
+			T.call(() => now(0), 100);
+			tiles.forEach((t, i) => T.add(t, { opacity: [0, 1], scale: [0.6, 1], duration: 260 }, 150 + i * 30));
+			T.call(() => { now(1); pick.classList.add('is-on'); }, 1100);
+			T.add(parts.slice(0, 2), { opacity: [0, 1], translateX: [-8, 0], duration: 380 }, 1200);
+			T.call(() => now(2), 2000);
+			T.add(parts.slice(2, 4), { opacity: [0, 1], translateX: [-8, 0], duration: 380 }, 2050);
+			T.call(() => now(3), 2850);
+			T.add(parts.slice(4), { opacity: [0, 1], translateX: [-8, 0], duration: 380 }, 2900);
+			T.call(() => now(-1), 3700);
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

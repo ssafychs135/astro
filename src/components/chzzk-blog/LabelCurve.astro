@@ -1,0 +1,104 @@
+---
+// Series part 2: what lowers the leftover game is the number of broadcasts, not the label source.
+//
+// Share of game left at the 90.5% just-chatting point, global threshold, 23 held-out broadcasts.
+// Cluster labels (auto) and human labels at the same broadcast counts, 10 to 43. At 43 the
+// human value is the mean of four random draws, so its range (4.2~9.0%) is drawn as a bar labelled on its right; the
+// cluster-label point sits inside it. Cluster labels could go on to all 109 trainable broadcasts
+// (1.5%). The x axis is logarithmic and says so in its title.
+// Source: CHZZK docs/blog/handoff/04-블로그-연재-재료.md 「2편 · 방송 수와 라벨 품질」
+// (screen-mode-classifier.md L3396-3403, L3441).
+import '../chzzk/cz.css';
+import './cb.css';
+
+const W = 640, H = 300, L = 52, R = 70, T = 18, B = 48;
+const X = [10, 20, 30, 43, 109];
+const lx = (v: number) => L + ((Math.log10(v) - 1) / (Math.log10(109) - 1)) * (W - L - R);
+const ly = (v: number) => T + ((13 - v) / 13) * (H - T - B);
+const AUTO = [[10, 10.7], [20, 8.6], [30, 6.6], [43, 5.2], [109, 1.5]];
+const HUMAN = [[10, 12.0], [20, 10.8], [30, 7.8], [43, 6.5]];
+const path = (pts: number[][]) => pts.map(([x, y], i) => `${i ? 'L' : 'M'}${lx(x).toFixed(1)},${ly(y).toFixed(1)}`).join(' ');
+---
+
+<figure class="cz cb-fig not-prose lc" data-cb-label-curve>
+	<div class="cb-head">
+		<p class="cb-title">학습 방송 수와 남은 게임 · 모든 방송에 같은 기준</p>
+		<button class="cz-replay" data-cz-replay>▶ 다시 보기</button>
+	</div>
+	<svg viewBox={`0 0 ${W} ${H}`} role="img"
+		aria-label="학습 방송 수에 따른 남은 게임 비율. 묶음 라벨은 10편 10.7%, 20편 8.6%, 30편 6.6%, 43편 5.2%, 109편 1.5%. 사람 라벨은 10편 12.0%, 20편 10.8%, 30편 7.8%, 43편 6.5%이고, 43편에서는 네 번 뽑은 값이 4.2%에서 9.0% 사이에 있다.">
+		{[0, 3, 6, 9, 12].map((v) => (
+			<g class="lc-grid" data-grid>
+				<line x1={L} x2={W - R} y1={ly(v)} y2={ly(v)} />
+				<text x={L - 8} y={ly(v) + 4} class="lc-tick lc-tick-y">{v}%</text>
+			</g>
+		))}
+		{X.map((v) => <text x={lx(v)} y={H - B + 20} class="lc-tick lc-tick-x" data-grid>{v}</text>)}
+		<text x={(L + W - R) / 2} y={H - 8} class="lc-axis" data-grid>학습 방송 수 (로그 눈금)</text>
+
+		<g data-band>
+			<line x1={lx(43)} x2={lx(43)} y1={ly(9.0)} y2={ly(4.2)} class="lc-band" />
+			<line x1={lx(43) - 7} x2={lx(43) + 7} y1={ly(9.0)} y2={ly(9.0)} class="lc-band" />
+			<line x1={lx(43) - 7} x2={lx(43) + 7} y1={ly(4.2)} y2={ly(4.2)} class="lc-band" />
+			<text x={lx(43) + 14} y={ly(9.0) + 18} class="lc-band-t"><tspan x={lx(43) + 14}>사람 라벨: 43편을 네 번 뽑아 잰 범위</tspan><tspan x={lx(43) + 14} dy="15">4.2~9.0%, 가운데 점은 평균 6.5%</tspan></text>
+		</g>
+
+		<path d={path(HUMAN)} class="lc-line human" data-draw />
+		<path d={path(AUTO)} class="lc-line auto" data-draw />
+		{HUMAN.map(([x, y]) => <circle cx={lx(x)} cy={ly(y)} r="4" class="lc-pt human" data-pt />)}
+		{AUTO.map(([x, y]) => <circle cx={lx(x)} cy={ly(y)} r="4.5" class="lc-pt auto" data-pt />)}
+		<text x={lx(109) + 8} y={ly(1.5) + 4} class="lc-end auto" data-pt>1.5%</text>
+
+		<g class="lc-legend" data-grid>
+			<circle cx={W - R - 150} cy={T + 4} r="4.5" class="lc-pt auto" /><text x={W - R - 140} y={T + 8}>묶음 라벨</text>
+			<circle cx={W - R - 70} cy={T + 4} r="4" class="lc-pt human" /><text x={W - R - 60} y={T + 8}>사람 라벨</text>
+		</g>
+	</svg>
+</figure>
+
+<style>
+	.lc text { font-family: var(--font-pretendard); }
+	.lc-grid line { stroke: var(--cz-line); }
+	.lc-tick { font-size: 11px; fill: var(--cz-muted); font-family: var(--font-space-grotesk); }
+	.lc-tick-y { text-anchor: end; }
+	.lc-tick-x { text-anchor: middle; }
+	.lc-axis { font-size: 11.5px; fill: var(--cz-muted); text-anchor: middle; }
+	.lc-line { fill: none; stroke-width: 2.2; }
+	.lc-line.auto { stroke: var(--cz-ok); }
+	.lc-line.human { stroke: var(--cz-accent-2); stroke-dasharray: 5 4; }
+	.lc-pt.auto { fill: var(--cz-ok); }
+	.lc-pt.human { fill: var(--cz-accent-2); }
+	.lc-band { stroke: var(--cz-accent-2); stroke-width: 2; opacity: 0.8; }
+	.lc-band-t { font-size: 11px; fill: var(--cz-accent-2); text-anchor: start; }
+	.lc-end { font: 800 12px var(--font-space-grotesk); fill: var(--cz-ok); }
+	.lc-legend text { font-size: 11.5px; fill: var(--cz-text); }
+</style>
+
+<script>
+	import { createTimeline, svg, type Timeline } from 'animejs';
+	import { mount } from '../chzzk/cz-runtime';
+
+	mount('[data-cb-label-curve]', (root) => {
+		const grid = [...root.querySelectorAll<SVGElement>('[data-grid]')];
+		const band = root.querySelector<SVGGElement>('[data-band]')!;
+		const pts = [...root.querySelectorAll<SVGElement>('[data-pt]')];
+		const human = root.querySelector<SVGPathElement>('.lc-line.human')!;
+		const auto = svg.createDrawable(root.querySelectorAll('.lc-line.auto'));
+		let tl: Timeline | null = null;
+		// The human line is dashed in CSS, which overrides a drawable's dasharray, so it fades in instead of drawing.
+		const arm = () => { tl?.pause(); [...grid, band, ...pts, human].forEach((e) => { e.style.opacity = '0'; }); auto.forEach((d) => d.setAttribute('draw', '0 0')); };
+		const finish = () => { tl?.pause(); [...grid, band, ...pts, human].forEach((e) => { e.style.opacity = '1'; }); auto.forEach((d) => d.setAttribute('draw', '0 1')); };
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outQuad' } });
+			T.add(grid, { opacity: [0, 1], duration: 400 }, 0);
+			T.add(human, { opacity: [0, 1], duration: 900 }, 400);
+			T.add(auto, { draw: ['0 0', '0 1'], duration: 1800, ease: 'inOutSine' }, 700);
+			T.add(pts, { opacity: [0, 1], duration: 300 }, 2300);
+			T.add(band, { opacity: [0, 1], duration: 500 }, 2700);
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

@@ -1,0 +1,143 @@
+---
+// Series part 4: an effect is read only when it clears the drift of the same condition run twice.
+//
+// Each row is one comparison of wall-clock time. The band is the baseline drift (the same condition
+// run twice); the dot is the effect of changing the setting. Both are sizes of a time difference in
+// percent, so they share one axis; signs are left out because the 60-minute section's effect is given
+// only as about 7%. Top group: best_of 5 → 1 on three broadcasts (the adoption basis). Bottom group:
+// best_of 5 → 1 and 5 → 2 (each against the baseline of 5) on a 60-minute section of broadcast A,
+// where the drift (10.8%) swallows the effect: the one case the materials allow as a counterexample.
+// Its 120-minute run is left out because it is broadcast A's top row measured more coarsely. Beam
+// rows are left out: no time drift was recorded for beam.
+// Source: CHZZK docs/blog/handoff/04-블로그-연재-재료.md 「4편 · 핵심 질문에 대한 답」 (speed-levers.md
+// L500-531).
+import '../chzzk/cz.css';
+import './cb.css';
+
+type Row = { k: string; drift: number; effect: number; about?: boolean };
+const GROUPS: { title: string; rows: Row[] }[] = [
+	{ title: 'best_of 5 → 1', rows: [
+		{ k: '방송 A · 120분', drift: 0.79, effect: 4.5 },
+		{ k: '방송 B · 120분', drift: 1.98, effect: 4.7 },
+		{ k: '방송 C · 95분', drift: 2.96, effect: 5.1 },
+	] },
+	{ title: 'best_of 5 → 1·2', rows: [
+		{ k: '방송 A · 60분 구간', drift: 10.8, effect: 7, about: true },
+	] },
+];
+const MAX = 12;
+const TICKS = [0, 2, 4, 6, 8, 10, 12];
+const pct = (v: number) => (v / MAX) * 100;
+const fmt = (r: Row, v: number) => `${r.about && v === r.effect ? '약 ' : ''}${v}%`;
+---
+
+<figure class="cz cb-fig not-prose db" data-cb-drift>
+	<div class="cb-head">
+		<p class="cb-title">기준선 표류와 설정 효과 · 경과 시간</p>
+		<button class="cz-replay" data-cz-replay>▶ 다시 보기</button>
+	</div>
+	<div class="db-body" role="img"
+		aria-label="같은 조건을 두 번 실행한 시간 차이(기준선 표류)와 설정을 바꾼 시간 차이(효과). best_of를 5에서 1로 줄인 비교는 방송 A 120분에서 표류 0.79%, 효과 4.5%, 방송 B 120분에서 표류 1.98%, 효과 4.7%, 방송 C 95분에서 표류 2.96%, 효과 5.1%로 셋 모두 효과가 표류보다 크다. 같은 방송 A의 60분 구간에서 best_of를 1이나 2로 줄인 비교는 표류 10.8%, 효과 약 7%로 효과가 표류 안에 있다.">
+		<div class="db-row db-axis">
+			<span></span>
+			<div class="db-ticks" data-fade>
+				{TICKS.map((t) => <span style={`left:${pct(t)}%`}>{t}%</span>)}
+			</div>
+			<span class="db-col-h" data-fade>표류</span><span class="db-col-h" data-fade>효과</span><span class="db-col-h" data-fade>판정</span>
+		</div>
+		{GROUPS.map((g) => (
+			<div class="db-group">
+				<p class="db-group-h" data-fade>{g.title}</p>
+				{g.rows.map((r) => {
+					const out = r.effect > r.drift;
+					return (
+						<div class="db-row" data-row>
+							<p class="db-k" data-fade>{r.k}</p>
+							<div class="db-track">
+								{TICKS.map((t) => <i class="db-grid" style={`left:${pct(t)}%`}></i>)}
+								<span class="db-band" data-w={pct(r.drift)} style={`width:${pct(r.drift)}%`}></span>
+								<span class:list={['db-dot', { out }]} data-dot style={`left:${pct(r.effect)}%`}></span>
+							</div>
+							<span class="db-num" data-late>{fmt(r, r.drift)}</span>
+							<span class:list={['db-num', { out }]} data-late>{fmt(r, r.effect)}</span>
+							<span class:list={['db-verdict', { out }]} data-late>{out ? '띠 밖' : '띠 안'}</span>
+						</div>
+					);
+				})}
+			</div>
+		))}
+		<div class="db-legend" data-fade>
+			<span><i class="db-key-band"></i>같은 조건 두 번의 시간 차이 (기준선 표류)</span>
+			<span><i class="db-key-dot"></i>설정을 바꾼 시간 차이 (효과)</span>
+		</div>
+	</div>
+</figure>
+
+<style>
+	.db-body { display: flex; flex-direction: column; gap: 0.9rem; }
+	.db-row { display: grid; grid-template-columns: 9rem 1fr 4rem 4rem 3.6rem; align-items: center; gap: 0.6rem; }
+	.db-axis { padding-bottom: 0.1rem; }
+	.db-ticks { position: relative; height: 1rem; }
+	.db-ticks span { position: absolute; transform: translateX(-50%); font: 500 0.68rem/1 var(--font-space-grotesk); color: var(--cz-muted); }
+	.db-ticks span:first-child { transform: none; }
+	.db-ticks span:last-child { transform: translateX(-100%); }
+	.db-col-h { font-size: 0.7rem; font-weight: 700; color: var(--cz-muted); text-align: right; }
+	.db-group { display: flex; flex-direction: column; gap: 0.4rem; }
+	.cb-fig .db-group-h { margin: 0; font: 800 0.74rem/1.2 var(--font-space-grotesk); color: var(--cz-accent); }
+	.cb-fig .db-k { margin: 0; font-size: 0.8rem; color: var(--cz-text); }
+	.db-track { position: relative; height: 22px; }
+	.db-grid { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px solid var(--cz-line); }
+	.db-band { position: absolute; inset: 2px auto 2px 0; border-radius: 4px; background: color-mix(in srgb, var(--cz-muted) 30%, transparent); border: 1px solid color-mix(in srgb, var(--cz-muted) 60%, transparent); }
+	.db-dot { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; border: 2px solid var(--cz-muted); background: var(--color-surface-low); }
+	.db-dot.out { border-color: var(--cz-ok); background: var(--cz-ok); }
+	.db-num { font: 700 0.78rem/1 var(--font-space-grotesk); color: var(--cz-muted); text-align: right; }
+	.db-num.out { color: var(--cz-ok); }
+	.db-verdict { font-size: 0.74rem; font-weight: 700; color: var(--cz-muted); text-align: right; }
+	.db-verdict.out { color: var(--cz-ok); }
+	.db-legend { display: flex; gap: 1.4rem; font-size: 0.72rem; color: var(--cz-muted); }
+	.db-legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+	.db-key-band { display: inline-block; width: 18px; height: 10px; border-radius: 3px; background: color-mix(in srgb, var(--cz-muted) 30%, transparent); border: 1px solid color-mix(in srgb, var(--cz-muted) 60%, transparent); }
+	.db-key-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--cz-ok); }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from '../chzzk/cz-runtime';
+
+	mount('[data-cb-drift]', (root) => {
+		const fades = [...root.querySelectorAll<HTMLElement>('[data-fade]')];
+		const rows = [...root.querySelectorAll<HTMLElement>('[data-row]')];
+		let tl: Timeline | null = null;
+		const parts = (r: HTMLElement) => ({
+			band: r.querySelector<HTMLElement>('.db-band')!,
+			dot: r.querySelector<HTMLElement>('[data-dot]')!,
+			late: [...r.querySelectorAll<HTMLElement>('[data-late]')],
+		});
+		const arm = () => {
+			tl?.pause();
+			fades.forEach((e) => { e.style.opacity = '0'; });
+			rows.forEach((r) => { const p = parts(r); p.band.style.width = '0%'; p.dot.style.opacity = '0'; p.late.forEach((e) => { e.style.opacity = '0'; }); });
+		};
+		const finish = () => {
+			tl?.pause();
+			fades.forEach((e) => { e.style.opacity = '1'; });
+			rows.forEach((r) => { const p = parts(r); p.band.style.width = `${p.band.dataset.w}%`; p.dot.style.opacity = '1'; p.dot.style.transform = 'none'; p.late.forEach((e) => { e.style.opacity = '1'; }); });
+		};
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outCubic' } });
+			T.add(fades, { opacity: [0, 1], duration: 350 }, 0);
+			// Per row: the drift band grows first, then the effect lands and is read against it.
+			rows.forEach((r, i) => {
+				const p = parts(r);
+				const at = 400 + i * 650;
+				T.add(p.band, { width: ['0%', `${p.band.dataset.w}%`], duration: 600 }, at);
+				T.add(p.dot, { opacity: [0, 1], scale: [1.8, 1], duration: 380 }, at + 520);
+				T.add(p.late, { opacity: [0, 1], duration: 260 }, at + 780);
+			});
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>
