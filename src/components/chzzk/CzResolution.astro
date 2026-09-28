@@ -1,0 +1,141 @@
+---
+// Problem 01 of the CHZZK portfolio: the lower resolution won on both axes.
+//
+// The finding is a comparison that runs against intuition, so the picture is the comparison itself:
+// accuracy up, cost right. 144p sits alone at the top left; every 480p setting sits lower and
+// further right. The dashed line joins the 480p settings (same video, larger model input), which
+// is what shows that feeding the model more of the larger picture did not bring it back.
+// Cost axis: embedding time relative to 144p (1.4× at input 224, 2.9× at 384, 4.9× at 512).
+// Source: 03-포트폴리오-재료.md 「낮은 해상도 채택」; FrameCost data (144p is embedded at input 224).
+import './cz.css';
+
+interface Props { problem: string; process: string; result: string; more?: string }
+const { problem, process, result, more } = Astro.props;
+
+const W = 560, H = 360, L = 58, R = 20, T = 22, B = 52;
+const x = (v: number) => L + (v / 5.4) * (W - L - R);
+const y = (v: number) => T + ((100 - v) / (100 - 80)) * (H - T - B);
+const P = [
+	{ key: '144p', cost: 1, acc: 97.5, ok: true, dx: 12, dy: -10 },
+	{ key: '480p · 입력 224', cost: 1.4, acc: 82.6, ok: false, dx: 12, dy: 18 },
+	{ key: '480p · 입력 384', cost: 2.9, acc: 87.8, ok: false, dx: 12, dy: 22 },
+	{ key: '480p · 입력 512', cost: 4.9, acc: 88.0, ok: false, dx: -6, dy: -16 },
+];
+const hi = P.slice(1);
+---
+
+<article class="cz cz-card res" data-cz-res>
+	<div class="res-fig cz-fig">
+		<div class="cz-fig-h"><span>정확도와 비용</span><button class="cz-replay" data-cz-replay>▶ 다시 보기</button></div>
+		<svg viewBox={`0 0 ${W} ${H}`} role="img"
+			aria-label="가로축은 임베딩 시간(144p를 1로 둔 배수), 세로축은 저스트채팅을 남긴 비율이다. 144p는 1배에 97.5%로 왼쪽 위에 있다. 480p는 입력 224에서 1.4배에 82.6%, 384에서 2.9배에 87.8%, 512에서 4.9배에 88.0%로 모두 더 아래, 더 오른쪽에 있다.">
+			{[80, 85, 90, 95, 100].map((v) => (
+				<g class="res-grid" data-grid>
+					<line x1={L} x2={W - R} y1={y(v)} y2={y(v)} />
+					<text x={L - 10} y={y(v) + 4} class="res-tick res-tick-y">{v}%</text>
+				</g>
+			))}
+			{[1, 2, 3, 4, 5].map((v) => (
+				<text x={x(v)} y={H - B + 20} class="res-tick res-tick-x" data-grid>{v}배</text>
+			))}
+			<text x={(L + W - R) / 2} y={H - 8} class="res-axis" data-grid>임베딩 시간 (144p = 1)</text>
+			<text x={L} y="8" class="res-axis res-axis-y" data-grid>저스트채팅 유지</text>
+
+			<rect class="res-zone" data-zone x={L + 1} y={T} width={x(2.2) - L} height={y(93) - T} rx="10" />
+			<text class="res-zone-t" data-zone x={L + 12} y={y(93) - 28}><tspan x={L + 12}>더 정확하고</tspan><tspan x={L + 12} dy="16">더 가볍다</tspan></text>
+
+			<polyline class="res-line" data-zone points={hi.map((p) => `${x(p.cost)},${y(p.acc)}`).join(' ')} />
+			<line class="res-arrow" data-draw x1={x(1) + 8} y1={y(97.5) + 8} x2={x(1.4) - 4} y2={y(82.6) - 12} marker-end="url(#res-tip)" />
+			<text class="res-arrow-t" data-zone x={x(1.2) + 14} y={y(90)}>해상도를 올리면</text>
+			<defs>
+				<marker id="res-tip" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="res-tipfill" /></marker>
+			</defs>
+
+			{P.map((p) => (
+				<g class:list={['res-pt', { ok: p.ok }]} data-pt>
+					<circle cx={x(p.cost)} cy={y(p.acc)} r={p.ok ? 9 : 7} />
+					<text x={x(p.cost) + p.dx} y={y(p.acc) + p.dy} class:list={['res-pt-t', { mid: p.dx === 0, left: p.dx < 0 }]}>{p.key} · {p.acc.toFixed(1)}%</text>
+				</g>
+			))}
+		</svg>
+	</div>
+
+	<div class="res-text">
+		<div class="cz-eyebrow">Problem 01 · 화면 판정 · SigLIP2</div>
+		<h3 class="cz-title">낮은 해상도 채택</h3>
+		<dl class="cz-pd">
+			<dt>문제</dt><dd>{problem}</dd>
+			<dt>과정</dt><dd>{process}</dd>
+			<dt>결론</dt><dd>{result}</dd>
+		</dl>
+		<div class="res-chips">
+			<span class="cz-chip"><b>8.4~8.5배</b>480p의 영상 용량</span>
+			<span class="cz-chip"><b>6.9~7.6배</b>480p의 낱장 파일</span>
+		</div>
+		{more && <a class="cz-more" href={more}>블로그에서 자세히 →</a>}
+	</div>
+</article>
+
+<style>
+	.res { display: grid; grid-template-columns: 1.15fr 1fr; gap: 2rem; align-items: center; }
+	.res svg { display: block; width: 100%; height: auto; overflow: visible; }
+	.res text { font-family: var(--font-pretendard); }
+	.res-grid line { stroke: var(--cz-line); }
+	.res-tick { font-size: 11px; fill: var(--cz-muted); font-family: var(--font-space-grotesk); }
+	.res-tick-y { text-anchor: end; }
+	.res-tick-x { text-anchor: middle; }
+	.res-axis { font-size: 11.5px; fill: var(--cz-muted); text-anchor: middle; }
+	.res-axis-y { text-anchor: start; }
+	.res-zone { fill: var(--cz-ok-bg); stroke: var(--cz-ok); stroke-opacity: 0.35; stroke-dasharray: 4 4; }
+	.res-zone-t { font-size: 12px; font-weight: 700; fill: var(--cz-ok); }
+	.res-line { fill: none; stroke: var(--cz-bad); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: 0.8; }
+	.res-arrow { stroke: var(--cz-muted); stroke-width: 1.4; }
+	.res-tipfill { fill: var(--cz-muted); }
+	.res-arrow-t { font-size: 11.5px; fill: var(--cz-muted); }
+	.res-pt circle { fill: var(--cz-bad); stroke: var(--color-surface-high); stroke-width: 3; }
+	.res-pt.ok circle { fill: var(--cz-ok); }
+	.res-pt-t { font-size: 12px; font-weight: 700; fill: var(--cz-bad); }
+	.res-pt.ok .res-pt-t { fill: var(--cz-ok); font-size: 13px; }
+	.res-pt-t.mid { text-anchor: middle; }
+	.res-pt-t.left { text-anchor: end; }
+	.res-text { display: flex; flex-direction: column; }
+	.res-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.2rem; }
+</style>
+
+<script>
+	import { createTimeline, svg, type Timeline } from 'animejs';
+	import { mount } from './cz-runtime';
+
+	mount('[data-cz-res]', (root) => {
+		const grid = [...root.querySelectorAll<SVGElement>('[data-grid]')];
+		const zone = [...root.querySelectorAll<SVGElement>('[data-zone]')];
+		const pts = [...root.querySelectorAll<SVGGElement>('[data-pt]')];
+		const draws = svg.createDrawable(root.querySelectorAll('[data-draw]'));
+		let tl: Timeline | null = null;
+		const all = [...grid, ...zone, ...pts];
+
+		const arm = () => {
+			tl?.pause();
+			all.forEach((e) => { e.style.opacity = '0'; });
+			pts.forEach((p) => { p.style.transform = 'translateY(-14px)'; });
+			draws.forEach((d) => d.setAttribute('draw', '0 0'));
+		};
+		const finish = () => {
+			tl?.pause();
+			all.forEach((e) => { e.style.opacity = '1'; e.style.transform = 'none'; });
+			draws.forEach((d) => d.setAttribute('draw', '0 1'));
+		};
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outQuad' } });
+			T.add(grid, { opacity: [0, 1], duration: 500 }, 0);
+			T.add(pts[0], { opacity: [0, 1], translateY: [-14, 0], duration: 620, ease: 'outBack' }, 450);
+			pts.slice(1).forEach((p, i) => T.add(p, { opacity: [0, 1], translateY: [-14, 0], duration: 560, ease: 'outBack' }, 1100 + i * 260));
+			T.add(draws, { draw: ['0 0', '0 1'], duration: 800 }, 1950);
+			T.add(zone, { opacity: [0, 1], duration: 600 }, 2500);
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

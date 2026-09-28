@@ -1,0 +1,182 @@
+---
+// Problem 04 of the CHZZK portfolio: two models on one 16 GB card, drawn to scale.
+//
+// Before (context 40,960): the card held the 26B model alone and the embedding model was swapped
+// in and out, two round trips per broadcast, 75–80 s in total (38–40 s each). Shown as the card's
+// occupant over time, not as a memory map: the 486 MB embedding setting was never measured at
+// 40,960, so the figure must not imply it would or would not have fitted.
+// After (context 20,480): both resident. Full card to scale, then its last 1,611 MB on the same MB
+// scale, so nothing needs a "not to scale" note.
+//   card 16,311 MB  = 15,490 (26B alone at 40,960, measured) + 821 (free, measured)
+//   26B  15,229 MB  = 15,117 (20,480, on the measured line between 16,384 and 24,576) + 112 (first
+//                     inference, measured). Width only; the number is not printed.
+//   embedding 486 MB, free 590 MB (measured, nvidia-smi basis; the 6 MB left over is drawing slack)
+// Sources: CHZZK docs/notes/speed-levers.md L5-80, commit 7e79197; confirmed by the CHZZK session.
+import './cz.css';
+
+interface Props { problem: string; solution: string; condition: string; more?: string }
+const { problem, solution, condition, more } = Astro.props;
+
+const CARD = 16311, LLM = 15229, EMB = 486;
+const W = 640;
+const f = (v: number) => (v / CARD) * W;
+const Z0 = 14700;
+const z = (v: number) => ((v - Z0) / (CARD - Z0)) * W;
+const TICKS = [14800, 15000, 15200, 15400, 15600, 15800, 16000, 16200];
+const G = 2;
+const SWAP = ['26B', '임베딩', '26B', '임베딩', '26B'];
+---
+
+<article class="cz cz-card vr" data-cz-vr>
+	<div class="vr-text">
+		<div class="cz-eyebrow">Problem 04 · 챕터 경계 · 제목 · GPU 16GB</div>
+		<h3 class="cz-title">입력을 조여 모델 둘을 한 장에</h3>
+		<dl class="cz-pd">
+			<dt>문제</dt><dd>{problem}</dd>
+			<dt>해결</dt><dd>{solution}</dd>
+		</dl>
+		<p class="vr-cond">{condition}</p>
+		<span class="cz-chip"><b>75~80초 → 0</b>방송마다 모델 교체에 들던 시간</span>
+		{more && <a class="cz-more" href={more}>블로그에서 자세히 →</a>}
+	</div>
+
+	<div class="cz-fig vr-fig">
+		<div class="cz-fig-h"><span>16GB 한 장에 두 모델</span><button class="cz-replay" data-cz-replay>▶ 다시 보기</button></div>
+
+		<div class="vr-sub">이전 · 문맥 40,960 · 번갈아 올림</div>
+		<div class="vr-swap" role="img" aria-label="이전에는 카드에 26B 모델만 올리고, 임베딩이 필요할 때마다 26B를 내리고 임베딩 모델을 올렸다가 되돌렸다. 방송마다 왕복 두 번, 합계 75초에서 80초가 들었다.">
+			{SWAP.map((m, i) => (
+				<>
+					{i > 0 && <span class="vr-arrow" data-arrow>⇄</span>}
+					<span class:list={['vr-tile', { emb: m === '임베딩' }]} data-tile>{m}</span>
+				</>
+			))}
+			<span class="vr-swap-t" data-swap-t>왕복 두 번 · 합계 75~80초</span>
+		</div>
+
+		<div class="vr-sub">이후 · 문맥 20,480 · 두 서버를 함께 올림</div>
+		<svg viewBox={`0 0 ${W} 176`} role="img" class="vr-mem"
+			aria-label="이후의 GPU 16,311MB를 실제 비율로 그렸다. 16,311MB는 문맥 40,960 실측의 사용량과 여유를 더해 역산한 값이다. 26B 모델이 대부분을 차지하고, 그 옆에 임베딩 모델 486MB가 함께 올라가며 nvidia-smi 여유 590MB가 남는다. 이 여유에는 예약된 465MB가 들어 있다. 아래 칸은 마지막 1,611MB를 같은 눈금으로 확대한 것이다.">
+			<defs>
+				<pattern id="vr-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" class="vr-hatch-l" /></pattern>
+			</defs>
+			<text x="0" y="12" class="vr-lab">GPU 16,311MB (40,960 실측에서 역산) · 실제 비율</text>
+			<g data-full>
+				<rect x="0" y="20" width={f(LLM) - G} height="24" rx="4" class="vr-llm" />
+				<rect x={f(LLM)} y="20" width={f(EMB) - G} height="24" rx="2" class="vr-emb" />
+				<rect x={f(LLM + EMB)} y="20" width={W - f(LLM + EMB)} height="24" rx="2" class="vr-free" />
+				<text x="12" y="36" class="vr-in">Gemma 4 26B</text>
+			</g>
+			<g data-guide>
+				<rect x={f(Z0)} y="17" width={W - f(Z0)} height="30" rx="3" class="vr-win" />
+				<line x1={f(Z0)} y1="47" x2="0" y2="84" class="vr-guide" />
+				<line x1={W} y1="47" x2={W} y2="84" class="vr-guide" />
+			</g>
+			<g data-zoom>
+				<rect x="0" y="84" width={z(LLM) - G} height="44" rx="4" class="vr-llm" />
+				<text x="14" y="111" class="vr-in">… Gemma 4 26B</text>
+			</g>
+			<g data-zoom-emb>
+				<rect x={z(LLM)} y="84" width={z(LLM + EMB) - z(LLM) - G} height="44" rx="4" class="vr-emb" />
+				<text x={z(LLM) + 12} y="102" class="vr-in">임베딩 모델</text>
+				<text x={z(LLM) + 12} y="121" class="vr-in vr-mb">486MB</text>
+			</g>
+			<g data-zoom-free>
+				<rect x={z(LLM + EMB)} y="84" width={W - z(LLM + EMB)} height="44" rx="4" class="vr-free" />
+				<text x={z(LLM + EMB) + 12} y="102" class="vr-in vr-free-t">nvidia-smi 여유</text>
+				<text x={z(LLM + EMB) + 12} y="121" class="vr-in vr-free-t vr-mb">590MB (예약 465 포함)</text>
+			</g>
+			<g data-guide>
+				{TICKS.map((t) => (
+					<>
+						<line x1={z(t)} x2={z(t)} y1="131" y2="137" class="vr-tick" />
+						<text x={z(t)} y="150" class="vr-tick-t">{t.toLocaleString('en-US')}</text>
+					</>
+				))}
+				<text x={W} y="170" class="vr-lab vr-lab-r">마지막 1,611MB 확대 · 같은 MB 눈금</text>
+			</g>
+		</svg>
+	</div>
+</article>
+
+<style>
+	.vr { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: center; }
+	.vr-fig { order: -1; }
+	.vr-cond { margin: 1rem 0 1.1rem; font-size: 0.84rem; line-height: 1.6; color: var(--cz-muted); }
+	.vr-sub { margin: 0.2rem 0 0.55rem; font: 700 0.72rem/1.2 var(--font-pretendard); color: var(--cz-muted); }
+	.vr-swap { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 1.3rem; flex-wrap: wrap; }
+	.vr-tile { display: inline-flex; align-items: center; justify-content: center; min-width: 4.4rem; height: 2.3rem; padding: 0 0.6rem; border-radius: 8px; border: 1px solid var(--cz-accent-2); background: color-mix(in srgb, var(--cz-accent-2) 20%, var(--color-surface-low)); font-size: 0.78rem; font-weight: 700; color: var(--cz-text); transition: box-shadow 0.2s; }
+	.vr-tile.emb { border-color: var(--cz-ok); background: var(--cz-ok-bg); }
+	.vr-tile.is-now { box-shadow: 0 0 0 2px var(--cz-accent); }
+	.vr-arrow { font-size: 0.9rem; color: var(--cz-bad); }
+	.vr-swap-t { margin-left: auto; padding: 0.3rem 0.65rem; border-radius: 999px; background: var(--cz-bad-bg); border: 1px solid var(--cz-bad); font: 700 0.74rem/1 var(--font-pretendard); color: var(--cz-bad); }
+
+	.vr-mem { display: block; width: 100%; height: auto; overflow: visible; }
+	.vr-mem text { font-family: var(--font-pretendard); }
+	.vr-llm { fill: color-mix(in srgb, var(--cz-accent-2) 28%, var(--color-surface-low)); stroke: var(--cz-accent-2); stroke-width: 1; }
+	.vr-emb { fill: var(--cz-ok-bg); stroke: var(--cz-ok); stroke-width: 1.2; }
+	.vr-free { fill: url(#vr-hatch); stroke: var(--cz-ok); stroke-opacity: 0.6; stroke-dasharray: 3 2; }
+	.vr-hatch-l { stroke: var(--cz-ok); stroke-width: 1.6; opacity: 0.55; }
+	.vr-in { font-size: 13.5px; font-weight: 700; fill: var(--cz-text); }
+	.vr-mem .vr-mb { font-family: var(--font-space-grotesk); font-weight: 800; }
+	.vr-free-t { fill: var(--cz-ok); paint-order: stroke; stroke: var(--color-surface-high); stroke-width: 4px; stroke-linejoin: round; }
+	.vr-lab { font-size: 12px; font-weight: 700; fill: var(--cz-muted); }
+	.vr-lab-r { text-anchor: end; font-weight: 500; }
+	.vr-win { fill: none; stroke: var(--cz-accent); stroke-width: 1.4; }
+	.vr-guide { stroke: var(--cz-accent); stroke-opacity: 0.45; stroke-dasharray: 3 3; }
+	.vr-tick { stroke: var(--cz-muted); }
+	.vr-mem .vr-tick-t { font-size: 11px; fill: var(--cz-muted); text-anchor: middle; font-family: var(--font-space-grotesk); }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from './cz-runtime';
+
+	mount('[data-cz-vr]', (root) => {
+		const tiles = [...root.querySelectorAll<HTMLElement>('[data-tile]')];
+		const arrows = [...root.querySelectorAll<HTMLElement>('[data-arrow]')];
+		const swapT = root.querySelector<HTMLElement>('[data-swap-t]')!;
+		const full = root.querySelector<SVGGElement>('[data-full]')!;
+		const guides = [...root.querySelectorAll<SVGGElement>('[data-guide]')];
+		const zoom = root.querySelector<SVGGElement>('[data-zoom]')!;
+		const zEmb = root.querySelector<SVGGElement>('[data-zoom-emb]')!;
+		const zFree = root.querySelector<SVGGElement>('[data-zoom-free]')!;
+		const late = [full, ...guides, zoom, zEmb, zFree];
+		let tl: Timeline | null = null;
+
+		const arm = () => {
+			tl?.pause();
+			[...tiles, ...arrows, swapT, ...late].forEach((e) => { e.style.opacity = '0'; });
+			tiles.forEach((t) => t.classList.remove('is-now'));
+		};
+		const finish = () => {
+			tl?.pause();
+			[...tiles, ...arrows, swapT, ...late].forEach((e) => { e.style.opacity = '1'; e.style.transform = 'none'; });
+			tiles.forEach((t) => t.classList.remove('is-now'));
+		};
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outQuad' } });
+			// Before: the card's occupant over one broadcast, two round trips.
+			tiles.forEach((t, i) => {
+				const at = 200 + i * 460;
+				if (i > 0) T.add(arrows[i - 1], { opacity: [0, 1], duration: 220 }, at - 180);
+				T.add(t, { opacity: [0, 1], translateY: [6, 0], duration: 300 }, at);
+				T.call(() => { tiles.forEach((x) => x.classList.remove('is-now')); t.classList.add('is-now'); }, at);
+			});
+			const endSwap = 200 + tiles.length * 460;
+			T.call(() => tiles.forEach((x) => x.classList.remove('is-now')), endSwap);
+			T.add(swapT, { opacity: [0, 1], scale: [0.9, 1], duration: 380, ease: 'outBack' }, endSwap);
+			// After: the full card, then the zoom on its last 1,611 MB, then the embedding moving in beside the 26B.
+			const A = endSwap + 600;
+			T.add(full, { opacity: [0, 1], duration: 500 }, A);
+			T.add(guides, { opacity: [0, 1], duration: 500 }, A + 450);
+			T.add(zoom, { opacity: [0, 1], duration: 450 }, A + 800);
+			T.add(zEmb, { opacity: [0, 1], translateY: [26, 0], duration: 650, ease: 'outBack' }, A + 1150);
+			T.add(zFree, { opacity: [0, 1], duration: 500 }, A + 1700);
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

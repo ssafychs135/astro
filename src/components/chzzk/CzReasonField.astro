@@ -1,0 +1,180 @@
+---
+// Problem 02 of the CHZZK portfolio: thinking mode out, a reason field in, and the field-order
+// finding that came with it. This is the largest gain, so it gets two figures:
+//   race   both runs start together on one time scale; the thinking-off run stops at 14% of the
+//          width (23.1 of 164.8 s). The bars are elapsed time, so the short one simply ends first.
+//   order  constrained decoding writes fields in schema order. Free text first: the model writes
+//          the string, the schema closes, the array stays empty. Array first: both fill.
+// Field contents are drawn as blank bars: the real field names and texts are not the point and
+// are not reproduced. Sources: 03-포트폴리오-재료.md 「사고 모드에서 이유 칸으로」, 「칸의 순서가
+// 곧 생성 순서」.
+import './cz.css';
+
+interface Props { problem: string; solution: string; more?: string }
+const { problem, solution, more } = Astro.props;
+const SLOW = 164.8, FAST = 23.1;
+---
+
+<article class="cz cz-card rf" data-cz-rf data-slow={SLOW} data-fast={FAST}>
+	<div class="cz-eyebrow">Problem 02 · 챕터 경계 · 제목 · Gemma 4 26B</div>
+	<h3 class="cz-title">사고 모드에서 이유 칸으로</h3>
+	<div class="rf-text">
+		<div><span class="rf-lab">문제</span><p>{problem}</p></div>
+		<div><span class="rf-lab ok">해결</span><p>{solution}</p></div>
+	</div>
+
+	<div class="rf-figs">
+		<div class="cz-fig">
+			<div class="cz-fig-h"><span>경계 판정 35쌍에 든 시간</span><button class="cz-replay" data-cz-replay>▶ 다시 보기</button></div>
+			<div class="race" role="img" aria-label="같은 시간 척도에서 사고 모드를 켜면 164.8초, 끄면 23.1초가 걸렸다. 사고 글자는 71,173자에서 0자가 되었다.">
+				<div class="lane">
+					<div class="lane-top"><b>사고 켬</b><span class="lane-t bad"><span data-count={SLOW}>{SLOW}</span>초</span></div>
+					<div class="track"><span class="fill bad" data-fill="100" style="width:100%"></span></div>
+					<div class="lane-sub">사고 글자 71,173자</div>
+				</div>
+				<div class="lane">
+					<div class="lane-top"><b>사고 끔 <span class="race-badge" data-badge>7배 빠름</span></b><span class="lane-t ok"><span data-count={FAST}>{FAST}</span>초</span></div>
+					<div class="track"><span class="fill ok" data-fill={((FAST / SLOW) * 100).toFixed(1)} style={`width:${((FAST / SLOW) * 100).toFixed(1)}%`}></span></div>
+					<div class="lane-sub">사고 글자 0자</div>
+				</div>
+			</div>
+			<p class="cz-note">사고 모드를 켠 제목 단계는 17챕터 가운데 열한 번째에서 폭주로 멈췄다.</p>
+		</div>
+
+		<div class="cz-fig">
+			<div class="cz-fig-h"><span>칸의 순서가 곧 생성 순서</span></div>
+			<div class="order" role="img" aria-label="자유 문자열 칸을 앞에 두면 모델이 문자열을 쓰고 응답을 끝내 배열 칸이 비고, 생성 토큰이 70에서 멈춘다. 배열 칸을 앞에 두면 두 칸이 모두 채워진다.">
+				<div class="orow" data-orow="a">
+					<div class="orow-h">자유 문자열 칸이 앞</div>
+					<div class="obox" data-box><em>문자열 칸</em><div class="olines">{[72, 90, 54].map((w) => <i data-line data-w={w} style={`width:${w}%`}></i>)}</div><span class="oclose" data-close>}</span></div>
+					<div class="obox empty" data-box><em>배열 칸</em><div class="oitems"></div></div>
+					<div class="obadge bad" data-obadge>빈 결과 · 생성 토큰 70</div>
+				</div>
+				<div class="orow" data-orow="b">
+					<div class="orow-h">배열 칸이 앞</div>
+					<div class="obox" data-box><em>배열 칸</em><div class="oitems">{[0, 1, 2].map(() => <b data-item></b>)}</div></div>
+					<div class="obox" data-box><em>문자열 칸</em><div class="olines">{[80, 64].map((w) => <i data-line data-w={w} style={`width:${w}%`}></i>)}</div></div>
+					<div class="obadge ok" data-obadge>두 칸 모두 채워짐</div>
+				</div>
+			</div>
+			<p class="cz-note">제약 디코딩은 지시문에 적은 순서가 아니라 스키마의 필수 칸 순서대로 쓴다. 제목 단계는 파일럿 방송 다섯의 49챕터에서 빈 결과가 0건이 되었고, 이웃한 두 후보를 묻는 경계 판정에도 이유 칸을 판정 칸 앞에 둔다.</p>
+		</div>
+	</div>
+	{more && <a class="cz-more" href={more}>블로그에서 자세히 →</a>}
+</article>
+
+<style>
+	.rf-text { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.4rem; }
+	.rf-text p { margin: 0.35rem 0 0; font-size: 0.96rem; line-height: 1.65; color: var(--cz-text); }
+	.rf-lab { font: 800 0.74rem/1 var(--font-pretendard); color: var(--cz-bad); letter-spacing: 0.04em; }
+	.rf-lab.ok { color: var(--cz-ok); }
+	.rf-figs { display: flex; flex-direction: column; gap: 1rem; }
+
+	.race { display: flex; flex-direction: column; gap: 1.1rem; padding: 0.2rem 0 0; }
+	.lane-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem; }
+	.lane-top b { font-size: 0.86rem; color: var(--cz-text); }
+	.lane-t { font: 800 1.15rem/1 var(--font-space-grotesk); }
+	.lane-t.bad { color: var(--cz-bad); }
+	.lane-t.ok { color: var(--cz-ok); }
+	.track { position: relative; height: 14px; border-radius: 99px; background: var(--cz-line); overflow: hidden; }
+	.fill { position: absolute; inset: 0 auto 0 0; border-radius: 99px; }
+	.fill.bad { background: var(--cz-bad); }
+	.fill.ok { background: var(--cz-ok); }
+	.lane-sub { margin-top: 0.35rem; font-size: 0.74rem; color: var(--cz-muted); }
+	.race-badge {
+		display: inline-block; margin-left: 0.5rem; vertical-align: 1px;
+		padding: 0.22rem 0.55rem; border-radius: 999px;
+		background: var(--cz-ok-bg); border: 1px solid var(--cz-ok);
+		font: 800 0.82rem/1 var(--font-space-grotesk); color: var(--cz-ok);
+	}
+
+	.order { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
+	.orow { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 0.6rem; align-items: stretch; }
+	.orow-h { grid-column: 1 / -1; font-size: 0.78rem; font-weight: 700; color: var(--cz-muted); }
+	.obox { position: relative; min-height: 4.1rem; padding: 0.5rem 0.65rem; border: 1px solid var(--cz-line); border-radius: 10px; background: var(--color-surface-low); transition: border-color 0.2s; }
+	.obox.is-now { border-color: var(--cz-accent); }
+	.obox.empty { border-style: dashed; }
+	.obox em { display: block; margin-bottom: 0.4rem; font-style: normal; font-size: 0.7rem; color: var(--cz-muted); }
+	.olines { display: flex; flex-direction: column; gap: 5px; }
+	.olines i { display: block; height: 6px; border-radius: 99px; background: var(--cz-muted); opacity: 0.55; }
+	.oitems { display: flex; gap: 6px; }
+	.oitems b { width: 26px; height: 18px; border-radius: 5px; background: var(--cz-ok-bg); border: 1px solid var(--cz-ok); }
+	.oclose { position: absolute; right: 0.6rem; bottom: 0.35rem; font: 800 1rem/1 var(--font-space-grotesk); color: var(--cz-bad); }
+	.obadge { grid-column: 1 / -1; justify-self: start; padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.74rem; font-weight: 700; }
+	.obadge.bad { color: var(--cz-bad); background: var(--cz-bad-bg); }
+	.obadge.ok { color: var(--cz-ok); background: var(--cz-ok-bg); }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from './cz-runtime';
+
+	mount('[data-cz-rf]', (root) => {
+		const SLOW = Number(root.dataset.slow), FAST = Number(root.dataset.fast);
+		const fills = [...root.querySelectorAll<HTMLElement>('[data-fill]')];
+		const counts = [...root.querySelectorAll<HTMLElement>('[data-count]')];
+		const badge = root.querySelector<HTMLElement>('[data-badge]')!;
+		const rows = [...root.querySelectorAll<HTMLElement>('[data-orow]')];
+		const lines = [...root.querySelectorAll<HTMLElement>('[data-line]')];
+		const items = [...root.querySelectorAll<HTMLElement>('[data-item]')];
+		const closes = [...root.querySelectorAll<HTMLElement>('[data-close]')];
+		const obadges = [...root.querySelectorAll<HTMLElement>('[data-obadge]')];
+		const boxes = [...root.querySelectorAll<HTMLElement>('[data-box]')];
+		let tl: Timeline | null = null;
+
+		const arm = () => {
+			tl?.pause();
+			fills.forEach((f) => (f.style.width = '0%'));
+			counts.forEach((c) => (c.textContent = '0.0'));
+			[badge, ...closes, ...obadges, ...items].forEach((e) => (e.style.opacity = '0'));
+			lines.forEach((l) => (l.style.width = '0%'));
+			boxes.forEach((b) => b.classList.remove('is-now'));
+		};
+		const finish = () => {
+			tl?.pause();
+			fills.forEach((f) => (f.style.width = `${f.dataset.fill}%`));
+			counts.forEach((c) => (c.textContent = Number(c.dataset.count).toFixed(1)));
+			[badge, ...closes, ...obadges, ...items].forEach((e) => { e.style.opacity = '1'; e.style.transform = 'none'; });
+			lines.forEach((l) => (l.style.width = `${l.dataset.w}%`));
+			boxes.forEach((b) => b.classList.remove('is-now'));
+		};
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outQuad' } });
+			// Race: one time scale for both lanes, so the fast lane runs at the same speed and stops early.
+			const RUN = 4200;
+			const tFast = Math.round((RUN * FAST) / SLOW);
+			T.add(fills[0], { width: ['0%', '100%'], duration: RUN, ease: 'linear' }, 200);
+			T.add(fills[1], { width: ['0%', `${fills[1].dataset.fill}%`], duration: tFast, ease: 'linear' }, 200);
+			const cSlow = { v: 0 }, cFast = { v: 0 };
+			T.add(cSlow, { v: SLOW, duration: RUN, ease: 'linear', onUpdate: () => (counts[0].textContent = cSlow.v.toFixed(1)) }, 200);
+			T.add(cFast, { v: FAST, duration: tFast, ease: 'linear', onUpdate: () => (counts[1].textContent = cFast.v.toFixed(1)) }, 200);
+			T.add(badge, { opacity: [0, 1], scale: [0.8, 1], duration: 420, ease: 'outBack' }, 200 + RUN + 100);
+
+			// Order: row A writes its string, closes, and never reaches the array.
+			const [a, b] = rows;
+			const aBoxes = [...a.querySelectorAll<HTMLElement>('[data-box]')];
+			const bBoxes = [...b.querySelectorAll<HTMLElement>('[data-box]')];
+			const at = 600;
+			T.call(() => aBoxes[0].classList.add('is-now'), at);
+			[...a.querySelectorAll<HTMLElement>('[data-line]')].forEach((l, i) =>
+				T.add(l, { width: ['0%', `${l.dataset.w}%`], duration: 420 }, at + 150 + i * 380));
+			T.add(a.querySelector<HTMLElement>('[data-close]')!, { opacity: [0, 1], scale: [1.6, 1], duration: 360, ease: 'outBack' }, at + 1400);
+			T.call(() => aBoxes[0].classList.remove('is-now'), at + 1700);
+			T.add(a.querySelector<HTMLElement>('[data-obadge]')!, { opacity: [0, 1], translateY: [6, 0], duration: 380 }, at + 1800);
+			// Row B fills the array first, then the string.
+			const bt = at + 2400;
+			T.call(() => bBoxes[0].classList.add('is-now'), bt);
+			[...b.querySelectorAll<HTMLElement>('[data-item]')].forEach((it, i) =>
+				T.add(it, { opacity: [0, 1], scale: [0.6, 1], duration: 300, ease: 'outBack' }, bt + 150 + i * 260));
+			T.call(() => { bBoxes[0].classList.remove('is-now'); bBoxes[1].classList.add('is-now'); }, bt + 1000);
+			[...b.querySelectorAll<HTMLElement>('[data-line]')].forEach((l, i) =>
+				T.add(l, { width: ['0%', `${l.dataset.w}%`], duration: 420 }, bt + 1100 + i * 380));
+			T.call(() => bBoxes[1].classList.remove('is-now'), bt + 1950);
+			T.add(b.querySelector<HTMLElement>('[data-obadge]')!, { opacity: [0, 1], translateY: [6, 0], duration: 380 }, bt + 2000);
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

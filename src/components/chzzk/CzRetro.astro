@@ -1,0 +1,73 @@
+---
+// Retrospective of the CHZZK portfolio: two choices where measuring overturned the expectation.
+// Each card shows the expectation struck through and the result under it; the strike is drawn
+// first so the reader sees the expectation before it is overturned. The expectations are the ones
+// the source records (resolution: whether low resolution drops information; thinking mode: "it looked
+// better"). The retry card was removed with the retry item (MLX-engine values, user's instruction).
+// Source: 03-포트폴리오-재료.md, items 해상도 · 사고 모드 and 칸의 순서.
+import './cz.css';
+
+const CARDS = [
+	{ k: '해상도', was: '낮은 해상도는 정보를 버린다', now: '144p가 더 정확하고 더 가벼웠다' },
+	{ k: '사고 모드', was: '켜면 판정이 낫다', now: '켠 쪽이 느렸고 제목 단계를 끝내지 못했다' },
+];
+---
+
+<div class="cz rt3" data-cz-retro>
+	<div class="rt3-cards">
+		{CARDS.map((c) => (
+			<div class="rt3-card" data-card>
+				<div class="rt3-k">{c.k}</div>
+				<div class="rt3-was"><span class="rt3-lab">예상</span><span class="rt3-was-t">{c.was}<i data-strike></i></span></div>
+				<div class="rt3-now" data-now><span class="rt3-lab ok">결과</span><span>{c.now}</span></div>
+			</div>
+		))}
+	</div>
+	<p class="rt3-close">두 가지 모두 재 보기 전의 예상과 결과가 반대였습니다. 스키마의 칸 순서는 제목 단계에서 알아내 경계 판정으로 옮겼습니다.</p>
+</div>
+
+<style>
+	.rt3 { margin: 2rem 0 1rem; }
+	.rt3-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+	.rt3-card { display: flex; flex-direction: column; gap: 0.8rem; padding: 1.3rem 1.3rem 1.4rem; border: 1px solid var(--cz-line); border-radius: 18px; background-color: var(--color-surface-low); }
+	.rt3-k { font: 800 0.72rem/1 var(--font-space-grotesk); letter-spacing: 0.12em; color: var(--cz-accent); }
+	.rt3-was, .rt3-now { display: grid; grid-template-columns: 2.6rem 1fr; gap: 0.5rem; font-size: 0.92rem; line-height: 1.55; }
+	.rt3-lab { font-size: 0.72rem; font-weight: 800; color: var(--cz-muted); padding-top: 0.15rem; }
+	.rt3-lab.ok { color: var(--cz-ok); }
+	.rt3-was-t { position: relative; color: var(--cz-muted); justify-self: start; }
+	.rt3-was-t i { position: absolute; left: 0; right: 0; top: 55%; height: 2px; background: var(--cz-bad); transform-origin: left; }
+	.rt3-now span:last-child { color: var(--cz-text); font-weight: 700; }
+	.cz .rt3-close { margin: 1.2rem 0 0; padding: 1rem 1.2rem; border-left: 3px solid var(--cz-accent); border-radius: 0 12px 12px 0; background: var(--color-surface-low); font-size: 0.95rem; line-height: 1.65; color: var(--cz-text); }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from './cz-runtime';
+
+	mount('[data-cz-retro]', (root) => {
+		const cards = [...root.querySelectorAll<HTMLElement>('[data-card]')];
+		let tl: Timeline | null = null;
+		const parts = (c: HTMLElement) => ({ strike: c.querySelector<HTMLElement>('[data-strike]')!, now: c.querySelector<HTMLElement>('[data-now]')! });
+		const arm = () => {
+			tl?.pause();
+			cards.forEach((c) => { const p = parts(c); p.strike.style.transform = 'scaleX(0)'; p.now.style.opacity = '0'; });
+		};
+		const finish = () => {
+			tl?.pause();
+			cards.forEach((c) => { const p = parts(c); p.strike.style.transform = 'none'; p.now.style.opacity = '1'; p.now.style.transform = 'none'; });
+		};
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outQuad' } });
+			cards.forEach((c, i) => {
+				const p = parts(c);
+				const at = 300 + i * 450;
+				T.add(p.strike, { scaleX: [0, 1], duration: 520, ease: 'inOutQuad' }, at);
+				T.add(p.now, { opacity: [0, 1], translateY: [8, 0], duration: 460 }, at + 480);
+			});
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

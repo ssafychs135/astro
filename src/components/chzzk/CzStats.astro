@@ -1,0 +1,108 @@
+---
+// Headline numbers for the CHZZK portfolio. Each number carries its own small picture of what it
+// means, so four different kinds of result do not read as four copies of one card:
+//   pair  two accuracies side by side (bars on a 0–100 scale, not zoomed)
+//   drop  one time shrinking to another (bar length is the ratio of the two)
+//   dots  every chapter checked, one dot each (49 chapters, none empty)
+//   gone  a cost that disappears (the bar empties to nothing)
+// Source: docs/blog/handoff/03-포트폴리오-재료.md.
+import './cz.css';
+---
+
+<div class="cz cz-stats" data-cz-stats>
+	<div class="st">
+		<div class="st-big"><span data-n="97.5" data-d="1">97.5</span>% <i>대</i> <span data-n="82.6" data-d="1">82.6</span>%</div>
+		<div class="st-bars">
+			<div class="st-row"><em>144p</em><span class="st-track"><span class="st-fill ok" data-w="97.5" style="width:97.5%"></span></span></div>
+			<div class="st-row"><em>480p</em><span class="st-track"><span class="st-fill bad" data-w="82.6" style="width:82.6%"></span></span></div>
+		</div>
+		<div class="st-cap">저스트채팅을 남긴 비율 · 해상도를 낮춘 쪽이 더 정확</div>
+	</div>
+
+	<div class="st">
+		<div class="st-big"><span data-n="164.8" data-d="1">164.8</span> → <span data-n="23.1" data-d="1" data-from="164.8">23.1</span>초</div>
+		<div class="st-bars">
+			<div class="st-row"><em>사고 켬</em><span class="st-track"><span class="st-fill bad" data-w="100" style="width:100%"></span></span></div>
+			<div class="st-row"><em>사고 끔</em><span class="st-track"><span class="st-fill ok" data-w="14" style="width:14%"></span></span></div>
+		</div>
+		<div class="st-cap">경계 판정 35쌍에 든 시간</div>
+	</div>
+
+	<div class="st">
+		<div class="st-big">빈 결과 <span data-n="0" data-d="0">0</span>건</div>
+		<div class="st-dots" aria-hidden="true">
+			{Array.from({ length: 49 }, () => <span class="on"></span>)}
+		</div>
+		<div class="st-cap">제목 단계 5편 49챕터 전수 · 칸 순서를 바꾼 뒤</div>
+	</div>
+
+	<div class="st">
+		<div class="st-big"><span>75~80</span>초 → <span data-n="0" data-d="0">0</span></div>
+		<div class="st-bars">
+			<div class="st-row"><em>모델 교체</em><span class="st-track"><span class="st-fill gone" data-w="0" style="width:0%"></span></span></div>
+		</div>
+		<div class="st-cap">방송마다 모델을 바꿔 올리던 시간</div>
+	</div>
+</div>
+
+<style>
+	.cz-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem; margin: 2rem 0; }
+	.st {
+		display: flex; flex-direction: column; gap: 0.75rem;
+		padding: 1.15rem 1.2rem 1.1rem;
+		border: 1px solid var(--cz-line); border-radius: 16px;
+		background-color: var(--color-surface-low);
+	}
+	.st-big { font: 800 1.45rem/1.15 var(--font-space-grotesk); color: var(--cz-accent); white-space: nowrap; }
+	.st-big i { font-style: normal; font-weight: 600; font-size: 0.85em; color: var(--cz-muted); }
+	.st-bars { display: flex; flex-direction: column; gap: 0.35rem; min-height: 2.1rem; justify-content: center; }
+	.st-row { display: grid; grid-template-columns: 4.2rem 1fr; align-items: center; gap: 0.5rem; }
+	.st-row em { font-style: normal; font-size: 0.7rem; color: var(--cz-muted); }
+	.st-track { position: relative; height: 7px; border-radius: 99px; background: var(--cz-line); overflow: hidden; }
+	.st-fill { position: absolute; inset: 0 auto 0 0; border-radius: 99px; }
+	.st-fill.ok { background: var(--cz-ok); }
+	.st-fill.bad { background: var(--cz-bad); }
+	.st-fill.gone { background: var(--cz-bad); }
+	.st-dots { display: grid; grid-template-columns: repeat(25, 1fr); gap: 3px; min-height: 2.1rem; align-content: center; }
+	.st-dots span { aspect-ratio: 1; border-radius: 50%; background: var(--cz-line); }
+	.st-dots span.on { background: var(--cz-ok); }
+	.st-cap { font-size: 0.76rem; line-height: 1.5; color: var(--cz-muted); }
+</style>
+
+<script>
+	import { animate } from 'animejs';
+	import { mount } from './cz-runtime';
+
+	mount('[data-cz-stats]', (root) => {
+		const nums = [...root.querySelectorAll<HTMLElement>('[data-n]')];
+		const fills = [...root.querySelectorAll<HTMLElement>('[data-w]')];
+		const dots = [...root.querySelectorAll<HTMLElement>('.st-dots span')];
+		const gone = root.querySelector<HTMLElement>('.st-fill.gone')!;
+		const show = (el: HTMLElement, v: number) => (el.textContent = v.toFixed(Number(el.dataset.d || 0)));
+
+		const arm = () => {
+			nums.forEach((el) => show(el, Number(el.dataset.from ?? 0)));
+			fills.forEach((el) => (el.style.width = '0%'));
+			gone.style.width = '100%';
+			dots.forEach((d) => d.classList.remove('on'));
+		};
+		const finish = () => {
+			nums.forEach((el) => show(el, Number(el.dataset.n)));
+			fills.forEach((el) => (el.style.width = `${el.dataset.w}%`));
+			dots.forEach((d) => d.classList.add('on'));
+		};
+		const play = () => {
+			arm();
+			nums.forEach((el, i) => {
+				const o = { v: Number(el.dataset.from ?? 0) };
+				animate(o, { v: Number(el.dataset.n), duration: 1400, delay: 150 + i * 90, ease: 'outCubic', onUpdate: () => show(el, o.v) });
+			});
+			fills.filter((f) => f !== gone).forEach((el, i) => {
+				animate(el, { width: ['0%', `${el.dataset.w}%`], duration: 1300, delay: 200 + i * 120, ease: 'outCubic' });
+			});
+			animate(gone, { width: ['100%', '0%'], duration: 1600, delay: 700, ease: 'inOutQuad' });
+			dots.forEach((d, i) => window.setTimeout(() => d.classList.add('on'), 300 + i * 26));
+		};
+		return { arm, play, finish };
+	});
+</script>

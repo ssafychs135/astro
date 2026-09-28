@@ -1,0 +1,192 @@
+---
+// Problem 03 of the CHZZK portfolio: the audio stage exists to keep contaminated text out of the
+// language model, not to cut transcription time. So the figure is a switch between the two worlds:
+//   정리 없이   every stretch goes to transcription; songs come back as lyrics and wordless
+//               stretches as sentences that were never said, and all of it reaches the model.
+//   AST로 정리  the gate judges each stretch in a fixed order (song first, then speech, else
+//               quiet) and only speech is transcribed.
+// One row per kind of stretch, in the order the gate checks them. No invented sequence of
+// stretches: an order or a count would read as a broadcast's make-up, which was never measured.
+// On first view it plays without the gate, then with it, so the problem and the fix read in turn.
+// Sources: 03-포트폴리오-재료.md 「소리에서 가른 전사 대상」, stt.md L119 · L514-517 · L766-790.
+import './cz.css';
+
+interface Props { problem: string; solution: string; condition: string; more?: string }
+const { problem, solution, condition, more } = Astro.props;
+
+const ROWS = [
+	{ kind: 'song', seg: '노래', rule: '① 노래 확률 ≥ 0.03', verdict: '걷어냄', line: '가사가 문장으로 남음' },
+	{ kind: 'talk', seg: '말', rule: '② 말 확률 ≥ 0.15', verdict: '통과', line: '대화' },
+	{ kind: 'quiet', seg: '조용한 자리', rule: '③ 둘 다 문턱 아래', verdict: '걷어냄', line: '없는 문장이 되풀이됨' },
+];
+---
+
+<article class="cz cz-card ag" data-cz-ag>
+	<div class="ag-text">
+		<div class="cz-eyebrow">Problem 03 · 오디오 정리 · AST</div>
+		<h3 class="cz-title">소리에서 가른 전사 대상</h3>
+		<p class="ag-p">{problem}</p>
+		<ul class="ag-harm">
+			<li><b>노래</b><span>노래 구간 180초를 넣자 97초를 가사로 전사했습니다</span></li>
+			<li><b>말 없는 자리</b><span>되풀이로 판정된 세그먼트 246개 가운데 222개가 무음과 배경음이 이어지는 방송 시작부에 몰렸습니다</span></li>
+		</ul>
+		<p class="ag-p"><span class="ag-lab">해결</span>{solution}</p>
+		<span class="cz-chip"><b>7 → 1건</b>가르는 길이를 고른 방송 다섯, 60개의 오탐</span>
+		{more && <a class="cz-more" href={more}>블로그에서 자세히 →</a>}
+	</div>
+
+	<div class="cz-fig ag-fig" data-mode="on">
+		<div class="cz-fig-h">
+			<div class="ag-tabs" role="tablist">
+				<button role="tab" data-ag-mode="off" aria-selected="false">정리 없이</button>
+				<button role="tab" data-ag-mode="on" aria-selected="true" class="on">AST로 정리</button>
+			</div>
+			<button class="cz-replay" data-cz-replay>▶ 다시 보기</button>
+		</div>
+
+		<div class="ag-grid" role="img" aria-label="노래, 말, 조용한 자리 세 종류가 각각 무엇이 되는지 보인다. 정리하지 않으면 노래는 가사로, 조용한 자리는 없는 문장의 되풀이로 전사되어 모두 언어 모델에 들어간다. AST로 정리하면 노래 확률, 말 확률 순서로 판정해 노래와 조용한 자리를 전사 앞에서 걷어내고 대화만 언어 모델에 들어간다.">
+			<div class="ag-hdr">소리</div><div class="ag-hdr">판정</div><div class="ag-hdr">전사문</div>
+			{ROWS.map((r, i) => (
+				<>
+					<div class:list={['ag-seg', r.kind]} data-seg data-kind={r.kind} style={`grid-row:${i + 2}`}>{r.seg}</div>
+					<div class:list={['ag-verdict', r.kind]} data-verdict style={`grid-row:${i + 2}`}>
+						<span class="v-on"><em>{r.rule}</em><b>{r.verdict}</b></span><span class="v-off">그대로 넘김</span>
+					</div>
+					<div class:list={['ag-line', r.kind]} data-line style={`grid-row:${i + 2}`}>
+						<span class="l-text">{r.line}</span><span class="l-cut">걷어낸 자리</span>
+					</div>
+				</>
+			))}
+			<div class="ag-llm" data-llm style={`grid-row:2 / span ${ROWS.length}`}>
+				<b>언어 모델</b>
+				<span class="llm-on">대화만 들어감</span>
+				<span class="llm-off">가사와 없는 문장이 섞여 들어감</span>
+			</div>
+		</div>
+		<p class="cz-note ag-cond">{condition}</p>
+	</div>
+</article>
+
+<style>
+	.ag { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 2rem; align-items: center; }
+	.ag-p { margin: 0 0 0.9rem; font-size: 0.95rem; line-height: 1.65; color: var(--cz-text); }
+	.ag-lab { display: inline-block; margin-right: 0.55rem; font-weight: 800; color: var(--cz-ok); }
+	.ag-harm { list-style: none; margin: 0 0 1.1rem; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+	.ag-harm li::before { content: none; }
+	.ag-harm li { margin: 0; display: grid; grid-template-columns: 5.6rem 1fr; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 10px; background: var(--cz-bad-bg); font-size: 0.82rem; line-height: 1.55; }
+	.ag-harm b { color: var(--cz-bad); }
+	.ag-harm span { color: var(--cz-text); }
+
+	.ag-tabs { display: inline-flex; padding: 3px; border: 1px solid var(--cz-line); border-radius: 999px; }
+	.ag-tabs button { padding: 0.35rem 0.85rem; border: 0; border-radius: 999px; background: transparent; font: 700 0.76rem/1 var(--font-pretendard); color: var(--cz-muted); cursor: pointer; }
+	.ag-tabs button.on { background: var(--cz-accent); color: var(--color-surface-low); }
+
+	.ag-grid { display: grid; grid-template-columns: 4.6rem 10.5rem 1fr 8.6rem; gap: 0.6rem 0.7rem; align-items: stretch; }
+	.ag-hdr { grid-row: 1; font-size: 0.7rem; font-weight: 700; color: var(--cz-muted); }
+	.ag-seg { grid-column: 1; display: flex; align-items: center; justify-content: center; min-height: 3.4rem; border-radius: 9px; font-size: 0.86rem; font-weight: 800; transition: opacity 0.25s, transform 0.25s; }
+	.ag-seg.song { background: color-mix(in srgb, var(--cz-accent-2) 22%, transparent); color: var(--cz-accent-2); }
+	.ag-seg.talk { background: var(--cz-ok-bg); color: var(--cz-ok); }
+	.ag-seg.quiet { background: var(--cz-line); color: var(--cz-muted); }
+	.ag-seg.is-now { transform: scale(1.06); box-shadow: 0 0 0 2px var(--cz-accent); }
+
+	.ag-verdict { grid-column: 2; display: flex; align-items: center; font-size: 0.78rem; color: var(--cz-muted); }
+	.ag-verdict .v-on { display: flex; flex-direction: column; gap: 0.2rem; }
+	.ag-verdict em { font-style: normal; font-size: 0.74rem; color: var(--cz-muted); }
+	.ag-verdict b { font-size: 0.84rem; }
+	.ag-verdict.song b, .ag-verdict.quiet b { color: var(--cz-bad); }
+	.ag-verdict.talk b { color: var(--cz-ok); }
+	.ag-verdict .v-off { display: none; }
+	[data-mode='off'] .ag-verdict .v-on { display: none; }
+	[data-mode='off'] .ag-verdict .v-off { display: inline; }
+
+	.ag-line { grid-column: 3; display: flex; align-items: center; padding: 0 0.8rem; border-radius: 9px; font-size: 0.82rem; border: 1px solid var(--cz-line); background: var(--color-surface-low); }
+	.ag-line .l-cut { display: none; }
+	.ag-line.song, .ag-line.quiet { color: var(--cz-bad); border-color: var(--cz-bad); background: var(--cz-bad-bg); }
+	.ag-line.talk { color: var(--cz-text); }
+	[data-mode='on'] .ag-line.song, [data-mode='on'] .ag-line.quiet { color: var(--cz-muted); border-style: dashed; border-color: var(--cz-line); background: transparent; }
+	[data-mode='on'] .ag-line.song .l-text, [data-mode='on'] .ag-line.quiet .l-text { display: none; }
+	[data-mode='on'] .ag-line.song .l-cut, [data-mode='on'] .ag-line.quiet .l-cut { display: inline; }
+
+	.ag-llm { grid-column: 4; display: flex; flex-direction: column; justify-content: center; gap: 0.5rem; padding: 0.9rem; border-radius: 12px; border: 1.5px solid var(--cz-ok); background: var(--cz-ok-bg); text-align: center; font-size: 0.78rem; line-height: 1.5; transition: border-color 0.3s, background-color 0.3s; }
+	.ag-llm b { font-size: 0.86rem; color: var(--cz-text); }
+	.ag-llm .llm-on { color: var(--cz-ok); font-weight: 700; }
+	.ag-llm .llm-off { display: none; color: var(--cz-bad); font-weight: 700; }
+	[data-mode='off'] .ag-llm { border-color: var(--cz-bad); background: var(--cz-bad-bg); }
+	[data-mode='off'] .ag-llm .llm-on { display: none; }
+	[data-mode='off'] .ag-llm .llm-off { display: inline; }
+	.cz .ag-cond { margin-top: 1rem; }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from './cz-runtime';
+
+	mount('[data-cz-ag]', (root) => {
+		const fig = root.querySelector<HTMLElement>('[data-mode]')!;
+		const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-ag-mode]')];
+		const segs = [...root.querySelectorAll<HTMLElement>('[data-seg]')];
+		const verdicts = [...root.querySelectorAll<HTMLElement>('[data-verdict]')];
+		const lines = [...root.querySelectorAll<HTMLElement>('[data-line]')];
+		const llm = root.querySelector<HTMLElement>('[data-llm]')!;
+		let tl: Timeline | null = null;
+
+		const setMode = (m: string) => {
+			fig.dataset.mode = m;
+			tabs.forEach((t) => {
+				const on = t.dataset.agMode === m;
+				t.classList.toggle('on', on);
+				t.setAttribute('aria-selected', String(on));
+			});
+		};
+		const isCut = (s: HTMLElement) => s.dataset.kind !== 'talk';
+
+		const clear = () => {
+			tl?.pause();
+			segs.forEach((s) => { s.classList.remove('is-now'); s.style.opacity = '1'; });
+			[...verdicts, ...lines, llm].forEach((e) => { e.style.opacity = '0'; });
+		};
+		const settle = () => {
+			segs.forEach((s) => { s.classList.remove('is-now'); s.style.opacity = fig.dataset.mode === 'on' && isCut(s) ? '0.4' : '1'; });
+			[...verdicts, ...lines, llm].forEach((e) => { e.style.opacity = '1'; e.style.transform = 'none'; });
+		};
+		// One pass: each kind is read in the gate's order and what it becomes appears beside it.
+		const pass = (T: Timeline, mode: string, at: number) => {
+			T.call(() => {
+				setMode(mode);
+				segs.forEach((s) => { s.style.opacity = '1'; });
+				[...verdicts, ...lines, llm].forEach((e) => { e.style.opacity = '0'; });
+			}, at);
+			const STEP = 620;
+			segs.forEach((s, i) => {
+				const t = at + 200 + i * STEP;
+				T.call(() => { segs.forEach((x) => x.classList.remove('is-now')); s.classList.add('is-now'); }, t);
+				T.add(verdicts[i], { opacity: [0, 1], translateX: [-8, 0], duration: 280 }, t + 80);
+				if (mode === 'on' && isCut(s)) T.add(s, { opacity: [1, 0.4], duration: 320 }, t + 300);
+				T.add(lines[i], { opacity: [0, 1], translateX: [-10, 0], duration: 320 }, t + 260);
+			});
+			const done = at + 200 + segs.length * STEP;
+			T.call(() => segs.forEach((x) => x.classList.remove('is-now')), done);
+			T.add(llm, { opacity: [0, 1], scale: [0.96, 1], duration: 420 }, done + 60);
+			return done + 500;
+		};
+		const run = (modes: string[]) => {
+			clear();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outQuad' } });
+			let at = 0;
+			modes.forEach((m, i) => { at = pass(T, m, at) + (i < modes.length - 1 ? 1200 : 0); });
+			tl = T;
+			T.play();
+		};
+
+		const arm = () => { setMode('off'); clear(); };
+		const finish = () => { tl?.pause(); setMode('on'); settle(); };
+		const play = () => run(['off', 'on']);
+
+		tabs.forEach((t) => t.addEventListener('click', () => {
+			const m = t.dataset.agMode || 'on';
+			if (matchMedia('(prefers-reduced-motion: reduce)').matches) { tl?.pause(); setMode(m); settle(); }
+			else run([m]);
+		}));
+		return { arm, play, finish };
+	});
+</script>

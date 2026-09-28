@@ -1,0 +1,78 @@
+---
+// The one smaller gain of the CHZZK portfolio: transcribing a broadcast's stretches at the same time.
+// One full-width card, text left and figure right, like the problem cards, so a lone card does not
+// sit in half of a two-column grid.
+//   figure  one broadcast with four stretches: 120 s, 41% shorter than the per-stretch times added up
+//           (that sum was never run on its own, so the bar is named for the sum, not a sequential
+//           run). Drawn as two bars (100% and 59%); the sum itself is a computed figure and is not
+//           printed. The 41% is the measured concurrent-transcription run only; the "41% expected"
+//           for prefetching audio was never measured and is not this number.
+// The retry-depth card was removed on the user's instruction: its values were measured on the MLX
+// engine, and production runs CT2.
+// Source: 03-포트폴리오-재료.md 「구간 동시 전사」; 04-블로그-연재-재료.md corrections 5 and 10.
+import './cz.css';
+---
+
+<article class="cz cz-card mn" data-cz-minor>
+	<div class="mn-text">
+		<div class="cz-eyebrow">Concurrency · 전사 · faster-whisper</div>
+		<h3 class="cz-title">구간 동시 전사</h3>
+		<dl class="cz-pd">
+			<dt>문제</dt><dd>전사하는 동안 GPU 사용률은 99%였지만 전력은 절반만 쓰였고, VRAM은 1.3GB만 차 있었습니다. 한 방송의 구간을 하나씩 차례로 전사하고 있었습니다.</dd>
+			<dt>해결</dt><dd>한 방송의 구간을 작업자 여덟의 큐에 태워 동시에 전사합니다.</dd>
+		</dl>
+	</div>
+	<div class="cz-fig mn-fig">
+		<div class="cz-fig-h"><span>구간이 넷인 방송 하나의 전사 시간</span><button class="cz-replay" data-cz-replay>▶ 다시 보기</button></div>
+		<div class="ov" role="img" aria-label="구간이 넷(6분, 17분, 35분, 81분)인 방송 하나에서 구간을 동시에 전사한 시간은 구간마다 걸린 시간을 모두 더한 값의 59%인 120초입니다.">
+			<div class="ov-row"><em>구간 합</em><span class="ov-track"><span class="ov-fill seq" data-w="100" style="width:100%"></span></span></div>
+			<div class="ov-row"><em>동시 전사</em><span class="ov-track"><span class="ov-fill par" data-w="59" style="width:59%"></span><b class="ov-t" data-late>120초 · 41% 단축</b></span></div>
+		</div>
+		<p class="cz-note">구간 길이는 6분, 17분, 35분, 81분입니다.</p>
+	</div>
+</article>
+
+<style>
+	.mn { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; }
+	.mn .cz-title { margin-bottom: 0.9rem; }
+	.mn-fig { display: flex; flex-direction: column; gap: 1rem; }
+	.ov { display: flex; flex-direction: column; gap: 0.8rem; }
+	.ov-row { display: grid; grid-template-columns: 4.8rem 1fr; align-items: center; gap: 0.7rem; }
+	.ov-row em { font-style: normal; font-size: 0.8rem; font-weight: 700; color: var(--cz-muted); }
+	.ov-track { position: relative; height: 22px; }
+	.ov-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; }
+	.ov-fill.seq { background: var(--cz-line); }
+	.ov-fill.par { background: var(--cz-ok); }
+	.ov-t { position: absolute; left: calc(59% + 0.6rem); top: 50%; transform: translateY(-50%); font: 800 0.82rem/1 var(--font-space-grotesk); color: var(--cz-ok); white-space: nowrap; }
+	.mn .cz-note { margin: 0; }
+</style>
+
+<script>
+	import { createTimeline, type Timeline } from 'animejs';
+	import { mount } from './cz-runtime';
+
+	mount('[data-cz-minor]', (root) => {
+		const fills = [...root.querySelectorAll<HTMLElement>('[data-w]')];
+		const late = [...root.querySelectorAll<HTMLElement>('[data-late]')];
+		let tl: Timeline | null = null;
+		const arm = () => {
+			tl?.pause();
+			fills.forEach((f) => (f.style.width = '0%'));
+			late.forEach((l) => (l.style.opacity = '0'));
+		};
+		const finish = () => {
+			tl?.pause();
+			fills.forEach((f) => (f.style.width = `${f.dataset.w}%`));
+			late.forEach((l) => (l.style.opacity = '1'));
+		};
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outCubic' } });
+			fills.forEach((f, i) => T.add(f, { width: ['0%', `${f.dataset.w}%`], duration: 1000 }, 150 + i * 140));
+			late.forEach((l, i) => T.add(l, { opacity: [0, 1], duration: 400 }, 1200 + i * 120));
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>

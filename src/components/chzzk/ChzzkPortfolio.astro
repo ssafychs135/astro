@@ -1,0 +1,98 @@
+---
+// The whole body of the CHZZK portfolio page. The MDX entry only carries frontmatter and renders
+// this, so the page lays itself out without the post body's prose rules and every figure sits
+// where its section needs it. Each problem gets the form its content calls for:
+//   01 resolution   a comparison that ran against intuition: chart first
+//   02 reason field the largest gain: before/after race plus the mechanism that came with it
+//   03 audio gate   prevention, not reduction: a switch between with and without the gate
+//   04 VRAM         a packing constraint: the card, the swaps, then the fit
+// Numbers and wording come from docs/blog/handoff/03-포트폴리오-재료.md (CHZZK repo).
+import './cz.css';
+import CzStats from './CzStats.astro';
+import CzSystem from './CzSystem.astro';
+import CzResolution from './CzResolution.astro';
+import CzReasonField from './CzReasonField.astro';
+import CzAudioGate from './CzAudioGate.astro';
+import CzVram from './CzVram.astro';
+import CzMinor from './CzMinor.astro';
+import CzRetro from './CzRetro.astro';
+
+const blog = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/blog`;
+// The post header above already shows the title, the summary, the role and the stack, so the
+// overview strip carries only what the header does not.
+const META = [
+	{ k: '기간', v: '2026-07-19 ~' },
+	{ k: 'GPU', v: 'RTX 5060 Ti 16GB 한 장' },
+	{ k: '서버', v: 'Python · FastAPI 조율 서버 · 외부 API 없음' },
+];
+---
+
+<div class="cz cz-page not-prose">
+	<header class="cz-sec"><span>01</span><b>Overview</b><i></i></header>
+	<section class="hero">
+		{META.map((m) => (
+			<div class="hero-item"><span>{m.k}</span><b>{m.v}</b></div>
+		))}
+		<div class="hero-item"><span>단계별 설명 · 블로그</span>
+			<b class="hero-links">
+				<a href={`${blog}/chzzk-series-0-overview/`}>연재 개요 →</a>
+			</b>
+		</div>
+	</section>
+
+	<CzStats />
+	<CzSystem />
+
+	<header class="cz-sec"><span>02</span><b>Key Problems</b><i></i></header>
+
+	<CzResolution
+		problem="낱장을 낮은 해상도로 받는 것이 화면 판정에 필요한 정보를 버리는지 확인한 적이 없었습니다."
+		process="같은 6편 26.9시간을 480p로 다시 받아 조건 여섯을 각자의 최선끼리 견줬습니다. 480p를 144p로 되줄이면 96.4%로 돌아와 원인을 해상도로 좁혔습니다."
+		result="144p가 더 정확하고 더 가벼워 그대로 두었습니다. 높은 해상도에서 선명해진 게임 화면의 글자가 화면 공유를 게임처럼 보이게 한 것으로 읽힙니다."
+		more={`${blog}/chzzk-series-1-resolution/`}
+	/>
+
+	<CzReasonField
+		problem="사고 모드를 켜면 판정이 나아 보였지만 사고의 양을 조절할 수단이 없었습니다. 요청한 예산은 서버가 버렸고, 온도 0에서는 사고만 30,815토큰을 쓰고 답을 내지 못하는 폭주가 났습니다."
+		solution="사고 모드를 끄고 답 스키마 안에 이유 칸을 두었습니다. 제목 단계에서 답이 한 줄로 끝나는 원인을 찾다가 제약 디코딩이 스키마의 칸 순서대로 생성한다는 것을 확인했고, 이웃한 두 후보를 묻는 경계 판정에서도 이유 칸을 판정 칸 앞에 둡니다."
+		more={`${blog}/chzzk-series-5-model-boundary/`}
+	/>
+
+	<CzAudioGate
+		problem="전사 모델은 노래를 넣으면 가사를, 말 없는 자리를 넣으면 없는 문장을 되풀이해 만듭니다. 그 문장이 전사문에 남아 다음 단계 언어 모델의 입력을 오염시켰습니다."
+		solution="전사문으로는 가려지지 않아 소리를 AST에 넣어 노래 확률과 말 확률로 가르고, 노래와 말 없는 자리를 전사 앞에서 걷어냅니다."
+		condition="노래를 먼저 판정한다. 무반주로 부르면 말 확률이 0.82까지 올라가서, 말을 먼저 보면 노래를 놓친다."
+		more={`${blog}/chzzk-series-3-audio-gate/`}
+	/>
+
+	<CzVram
+		problem="16GB 한 장에 언어 모델과 임베딩 모델을 함께 올릴 수 없어, 방송마다 두 모델을 번갈아 올렸습니다."
+		solution="단계마다 한 번에 읽는 분량을 조여 언어 모델이 쥐는 자리를 줄이고, 챕터 경계와 제목 단계에서는 그 옆에 임베딩 모델을 함께 올려 둡니다."
+		condition="nvidia-smi에 보이는 여유는 590MB이고, 예약된 465MB를 빼면 약 125MB가 남습니다. 더 키우면 두 서버가 다 떠도 첫 추론에서 메모리가 모자라서, 둘 다 떴다는 것만으로는 공존을 확인할 수 없었습니다."
+		more={`${blog}/chzzk-series-7-two-models/`}
+	/>
+
+	<header class="cz-sec"><span>03</span><b>Throughput</b><i></i></header>
+	<CzMinor />
+
+	<header class="cz-sec"><span>04</span><b>Retrospective</b><i></i></header>
+	<CzRetro />
+</div>
+
+<style>
+	.cz-page { margin-top: 0.5rem; }
+	.cz-sec { display: flex; align-items: center; gap: 0.9rem; margin: 4.2rem 0 1.4rem; }
+	.cz-sec:first-child { margin-top: 0.5rem; }
+	.cz-sec span { font: 800 1rem/1 var(--font-space-grotesk); color: var(--cz-accent); }
+	.cz-sec b { font: 700 1rem/1 var(--font-space-grotesk); letter-spacing: 0.16em; text-transform: uppercase; color: var(--cz-text); }
+	.cz-sec i { flex: 1; height: 1px; background: var(--cz-line); }
+
+	.hero { display: grid; grid-template-columns: 0.7fr 1fr 1.3fr 1.3fr; border: 1px solid var(--cz-line); border-radius: 16px; background-color: var(--color-surface-low); }
+	.hero-item { display: flex; flex-direction: column; gap: 0.45rem; padding: 1rem 1.3rem; }
+	.hero-item + .hero-item { border-left: 1px solid var(--cz-line); }
+	.hero-item span { font: 700 0.66rem/1.2 var(--font-space-grotesk); letter-spacing: 0.14em; text-transform: uppercase; color: var(--cz-accent); }
+	.hero-item b { font-size: 0.92rem; font-weight: 600; line-height: 1.5; color: var(--cz-text); }
+	.hero-links { display: flex; gap: 0.9rem; }
+	.hero-links a { color: var(--cz-accent); font-weight: 700; text-decoration: none; border-bottom: 1px solid transparent; }
+	.hero-links a:hover { border-bottom-color: var(--cz-accent); }
+</style>

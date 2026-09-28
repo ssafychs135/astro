@@ -1,0 +1,207 @@
+---
+// What goes in and what comes out, side by side, for the CHZZK portfolio.
+//
+// Left: the seven stages top to bottom. One pulse runs down through them; as it passes the screen
+// stage the "game stretches" branch lights up, as it passes the audio stage the "songs and wordless
+// stretches" branch does. When it leaves the last stage the chapter list on the right fills in.
+// A single pulse on purpose: how much each stage drops was never measured (the audio share
+// explicitly so), so the figure must not draw amounts, and several dots would read as a ratio.
+// On the far left, which models hold the GPU: the screen, audio and transcription models only while they
+// run, the language and embedding models together for the boundary and title stages (cleared before the others).
+// Sources: blog chzzk-pipeline-stages (stage order, drops, models), PipelineArch comment (GPU
+// residency), ChapterSample / 02-전달-문서.md 「결과물의 예」 (the chapter rows, unedited). The rows are an
+// excerpt from the middle of one broadcast's list, marked by the 「앞/뒤 챕터 생략」 rows and the faded line ends.
+import './cz.css';
+
+const X = 170, W = 270, H = 46, MID = X + W / 2;
+const STAGES = [
+	{ name: '수집', model: '' },
+	{ name: '화면 판정', model: 'SigLIP2 · 선형 분류기' },
+	{ name: '오디오 정리', model: 'AST' },
+	{ name: '전사', model: 'faster-whisper large-v3-turbo' },
+	{ name: '잇기', model: '' },
+	{ name: '챕터 경계', model: 'Gemma 4 26B · KURE-v1' },
+	{ name: '제목', model: 'Gemma 4 26B · KURE-v1' },
+].map((s, i) => ({ ...s, y: 16 + i * 68 }));
+const END = STAGES[6].y + H + 36;
+const mid = (i: number) => STAGES[i].y + H / 2;
+const DROPS = [
+	{ at: 1, label: '게임 구간' },
+	{ at: 2, label: '노래 · 말 없는 자리' },
+];
+
+const ROWS = [
+	{ at: '7:25:51', len: '6.2분', title: '리샤인' },
+	{ gap: true, len: '132.6분', title: '게임 (챕터 대상에서 제외)' },
+	{ at: '9:44:45', len: '21.8분', title: '노리쇠 및 약실 확인' },
+	{ at: '10:20:15', len: '2.2분', title: '총기 종류 (글록, MPX, AKV)' },
+	{ at: '10:26:45', len: '5.2분', title: '총기 청소 게임' },
+];
+---
+
+<div class="cz sys" data-cz-system data-mid={MID} data-end={END} data-drops={JSON.stringify(DROPS.map((d) => mid(d.at)))}>
+	<div class="cz-fig sys-left">
+		<div class="cz-fig-h"><span>방송 하나가 챕터 목록이 되기까지</span><button class="cz-replay" data-cz-replay>▶ 다시 보기</button></div>
+		<svg viewBox={`0 0 620 ${END + 8}`} role="img"
+			aria-label="일곱 단계가 위에서 아래로 이어진다. 수집, 화면 판정(SigLIP2와 선형 분류기), 오디오 정리(AST), 전사(faster-whisper large-v3-turbo), 잇기, 챕터 경계와 제목(Gemma 4 26B와 KURE-v1). 화면 판정에서 게임 구간이, 오디오 정리에서 노래와 말 없는 자리가 옆으로 빠진다. 화면 판정, 오디오 정리, 전사의 모델은 그 단계에서만 GPU에 올라간다. 챕터 경계와 제목의 두 모델은 두 단계가 시작될 때 함께 올라가고, 다른 단계가 GPU를 쓸 때는 내려간다.">
+			<defs>
+				<marker id="sys-tip" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="sys-tipfill" /></marker>
+				<marker id="sys-tip-bad" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="sys-tipbad" /></marker>
+			</defs>
+
+			{STAGES.slice(0, -1).map((s) => (
+				<line class="sys-arrow" data-draw x1={MID} x2={MID} y1={s.y + H + 2} y2={s.y + 66} marker-end="url(#sys-tip)" />
+			))}
+			<line class="sys-arrow sys-out" data-draw x1={MID} x2={MID} y1={STAGES[6].y + H + 2} y2={END - 4} marker-end="url(#sys-tip)" />
+
+			{DROPS.map((d) => (
+				<g class="sys-drop" data-drop>
+					<line data-draw x1={X + W + 4} x2={X + W + 40} y1={mid(d.at)} y2={mid(d.at)} marker-end="url(#sys-tip-bad)" />
+					<text x={X + W + 48} y={mid(d.at) - 3}>{d.label}</text>
+					<text class="sys-drop-sub" x={X + W + 48} y={mid(d.at) + 13}>걷어냄</text>
+				</g>
+			))}
+
+			<g class="sys-gpu" data-part>
+				{[1, 2, 3].map((i) => (
+					<>
+						<rect x="26" y={mid(i) - 14} width="118" height="28" rx="6" class="sys-gpu-tmp" />
+						<text x="85" y={mid(i) + 4} class="sys-gpu-t">GPU · 쓸 때만</text>
+						<line x1="144" x2={X - 2} y1={mid(i)} y2={mid(i)} class="sys-gpu-link" />
+					</>
+				))}
+				<rect x="26" y={STAGES[5].y} width="118" height={STAGES[6].y + H - STAGES[5].y} rx="8" class="sys-gpu-res" />
+				<text x="85" y={STAGES[5].y + 36} class="sys-gpu-h">GPU · 함께 올림</text>
+				<text x="85" y={STAGES[5].y + 58} class="sys-gpu-m">Gemma 4 26B</text>
+				<text x="85" y={STAGES[5].y + 76} class="sys-gpu-m">KURE-v1</text>
+				<line x1="144" x2={X - 2} y1={mid(5)} y2={mid(5)} class="sys-gpu-link" />
+				<line x1="144" x2={X - 2} y1={mid(6)} y2={mid(6)} class="sys-gpu-link" />
+			</g>
+
+			{/* The pulse runs behind the stage boxes, so it shows only in the gaps between stages. */}
+			<circle class="sys-dot" data-dot cx={MID} cy="0" r="5" opacity="0" />
+
+			{STAGES.map((s) => (
+				<g class:list={['sys-stage', { muted: !s.model }]} data-stage>
+					<rect x={X} y={s.y} width={W} height={H} rx="9" />
+					<text class="sys-name" x={X + 16} y={s.y + 28}>{s.name}</text>
+					{s.model && <text class="sys-model" x={X + W - 14} y={s.y + 28}>{s.model}</text>}
+				</g>
+			))}
+
+
+		</svg>
+	</div>
+
+	<div class="cz-fig sys-right">
+		<div class="cz-fig-h"><span>나온 챕터 목록</span></div>
+		<ol class="sys-list">
+			<li class="sys-more" data-row><span class="sys-at">⋮</span><span class="sys-more-t">앞 챕터 생략</span></li>
+			{ROWS.map((r) => (
+				<li class:list={['sys-row', { gap: r.gap }]} data-row>
+					<span class="sys-at">{r.gap ? '⋮' : r.at}</span>
+					<span class="sys-len">{r.len}</span>
+					<span class="sys-title">{r.title}</span>
+				</li>
+			))}
+			<li class="sys-more" data-row><span class="sys-at">⋮</span><span class="sys-more-t">뒤 챕터 생략</span></li>
+		</ol>
+	</div>
+</div>
+
+<style>
+	.sys { display: grid; grid-template-columns: 1.12fr 1fr; gap: 1rem; margin: 1.5rem 0 0; }
+	.sys svg { display: block; width: 100%; height: auto; overflow: visible; }
+	.sys text { font-family: var(--font-pretendard); }
+	.sys-stage rect { fill: var(--color-surface-low); stroke: var(--cz-accent); stroke-opacity: 0.55; stroke-width: 1.2; }
+	.sys-stage.muted rect { stroke: var(--cz-line); stroke-opacity: 1; }
+	.sys-name { font-size: 14px; font-weight: 800; fill: var(--cz-text); }
+	.sys-stage.muted .sys-name { font-weight: 600; fill: var(--cz-muted); }
+	.sys-model { font-size: 11.5px; fill: var(--cz-muted); text-anchor: end; }
+	.sys-arrow { stroke: var(--cz-muted); stroke-width: 1.4; opacity: 0.7; }
+	.sys-out { stroke: var(--cz-accent); opacity: 1; }
+	.sys-tipfill { fill: var(--cz-muted); }
+	.sys-tipbad { fill: var(--cz-bad); }
+	.sys-drop line { stroke: var(--cz-bad); stroke-width: 1.4; stroke-dasharray: 4 3; }
+	.sys-drop text { font-size: 12.5px; font-weight: 700; fill: var(--cz-bad); }
+	.sys-drop .sys-drop-sub { font-size: 11px; font-weight: 500; fill: var(--cz-muted); }
+	.sys-gpu-tmp { fill: none; stroke: var(--cz-line); stroke-dasharray: 3 3; }
+	.sys-gpu-res { fill: var(--cz-ok-bg); stroke: var(--cz-ok); stroke-opacity: 0.6; }
+	.sys-gpu-t { font-size: 11px; fill: var(--cz-muted); text-anchor: middle; }
+	.sys-gpu-h { font-size: 12.5px; font-weight: 800; fill: var(--cz-ok); text-anchor: middle; }
+	.sys-gpu-m { font-size: 11px; fill: var(--cz-text); text-anchor: middle; }
+	.sys-gpu-link { stroke: var(--cz-line); stroke-dasharray: 2 3; }
+	.sys-dot { fill: var(--cz-accent); }
+
+	.sys-right { display: flex; flex-direction: column; }
+	.sys-list { list-style: none; margin: auto 0; padding: 0 0 0 1.1rem; position: relative; display: flex; flex-direction: column; gap: 0.7rem; }
+	.sys-list::before { content: ''; position: absolute; left: 0.3rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, transparent, var(--cz-line) 2.4rem, var(--cz-line) calc(100% - 2.4rem), transparent); }
+	.sys-row { margin: 0; position: relative; display: grid; grid-template-columns: 4.6rem 3.6rem 1fr; align-items: center; gap: 0.6rem; padding: 0.7rem 0.9rem; border-radius: 10px; background: var(--color-surface-low); border: 1px solid var(--cz-line); }
+	.sys-row::before { content: ''; position: absolute; left: -1.05rem; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: var(--cz-accent); }
+	.sys-row.gap { background: transparent; border-style: dashed; }
+	.sys-row.gap::before { background: var(--cz-line); }
+	.sys-at { font: 700 0.84rem/1 var(--font-space-grotesk); color: var(--cz-text); text-align: right; }
+	.sys-row.gap .sys-at { color: var(--cz-muted); text-align: center; }
+	.sys-len { font: 600 0.76rem/1 var(--font-space-grotesk); color: var(--cz-muted); text-align: right; }
+	.sys-title { font-size: 0.9rem; font-weight: 600; color: var(--cz-text); }
+	.sys-row.gap .sys-title { font-weight: 500; color: var(--cz-muted); }
+	.sys-more { margin: 0; display: grid; grid-template-columns: 4.6rem 1fr; align-items: center; gap: 0.6rem; padding: 0.15rem 0.9rem; }
+	.cz .sys-more::before { content: none; }
+	.sys-more .sys-at { color: var(--cz-muted); text-align: center; }
+	.sys-more-t { font-size: 0.78rem; color: var(--cz-muted); }
+</style>
+
+<script>
+	import { createTimeline, svg, type Timeline } from 'animejs';
+	import { mount } from './cz-runtime';
+
+	mount('[data-cz-system]', (root) => {
+		const END = Number(root.dataset.end);
+		const DROPS: number[] = JSON.parse(root.dataset.drops || '[]');
+		const stages = [...root.querySelectorAll<SVGGElement>('[data-stage]')];
+		const parts = [...root.querySelectorAll<SVGGElement>('[data-part]')];
+		const drops = [...root.querySelectorAll<SVGGElement>('[data-drop]')];
+		const dot = root.querySelector<SVGCircleElement>('[data-dot]')!;
+		const rows = [...root.querySelectorAll<HTMLElement>('[data-row]')];
+		const lines = svg.createDrawable(root.querySelectorAll('.sys-arrow'));
+		let tl: Timeline | null = null;
+
+		const arm = () => {
+			tl?.pause();
+			[...stages, ...parts, ...drops].forEach((s) => { s.style.opacity = '0'; });
+			lines.forEach((l) => l.setAttribute('draw', '0 0'));
+			dot.setAttribute('cy', '0'); dot.setAttribute('opacity', '0');
+			rows.forEach((r) => { r.style.opacity = '0'; r.style.transform = 'translateX(-10px)'; });
+		};
+		const finish = () => {
+			tl?.pause();
+			[...stages, ...parts, ...drops].forEach((s) => { s.style.opacity = '1'; s.style.transform = 'none'; });
+			lines.forEach((l) => l.setAttribute('draw', '0 1'));
+			dot.setAttribute('opacity', '0');
+			rows.forEach((r) => { r.style.opacity = '1'; r.style.transform = 'none'; });
+		};
+		const play = () => {
+			arm();
+			const T = createTimeline({ autoplay: false, defaults: { ease: 'outQuad' } });
+			stages.forEach((s, i) => T.add(s, { opacity: [0, 1], duration: 380 }, i * 90));
+			T.add(lines, { draw: ['0 0', '0 1'], duration: 520 }, 420);
+			T.add(parts, { opacity: [0, 1], duration: 500 }, 700);
+			const START = 1000, TRAVEL = 3000;
+			T.add(dot, {
+				cy: [{ to: END - 6, duration: TRAVEL, ease: 'inOutSine' }],
+				opacity: [{ to: 1, duration: 200 }, { to: 1, duration: TRAVEL - 450 }, { to: 0, duration: 250 }],
+			}, START);
+			// A branch lights up when the pulse reaches its stage (inOutSine timing, solved for the stage's y).
+			drops.forEach((d, i) => {
+				const f = DROPS[i] / (END - 6);
+				const at = START + Math.round((TRAVEL * Math.acos(1 - 2 * f)) / Math.PI);
+				T.add(d, { opacity: [0, 1], translateX: [-10, 0], duration: 420 }, at);
+			});
+			const LIST = START + TRAVEL + 150;
+			rows.forEach((r, i) => T.add(r, { opacity: [0, 1], translateX: [-10, 0], duration: 460 }, LIST + i * 170));
+			tl = T;
+			T.play();
+		};
+		return { arm, play, finish };
+	});
+</script>
